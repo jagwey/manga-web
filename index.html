@@ -1155,23 +1155,22 @@
         const MangaKart = ({ m, yeniGoster = true }) => {
             const yeni = yeniGoster && yeniMi(m.eklenmeTarihi);
             const tamam = m.durum === 'Tamamlandi';
+            const ilkKategori = m.kategoriler && m.kategoriler[0] ? m.kategoriler[0] : '';
             const kartPuan = typeof m.ortalamaPuan === 'number' ? m.ortalamaPuan : (typeof m.puan === 'number' && m.puan > 0 && m.puan <= 5 ? m.puan : null);
             return (
                 <a className="manga-kart" href={`#/manga/${m.id}`}
                    aria-label={`${m.mangaAdi}, ${m.bolumSayisi || 0} bölüm${yeni ? ', yeni' : ''}${tamam ? ', tamamlandı' : ''}`}>
                     <div className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                         <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
-                        {(yeni || tamam) && (
+                        {yeni && (
                             <div className="kart-rozetler">
-                                {yeni && <span className="rozet-mini rozet-yeni">Yeni</span>}
-                                {tamam && <span className="rozet-mini rozet-tamam">Tamamlandı</span>}
+                                <span className="rozet-mini rozet-yeni">Yeni</span>
                             </div>
                         )}
-                        <span className="kart-rozet">{(m.kategoriler && m.kategoriler[0]) || 'Genel'}</span>
                     </div>
                     <h3 className="manga-baslik">{m.mangaAdi}</h3>
                     <div className="manga-meta">
-                        {m.bolumSayisi || 0} Bölüm
+                        {m.bolumSayisi || 0} Bölüm{ilkKategori ? ` · ${ilkKategori}` : ''}
                         {kartPuan != null && (
                             <span className="manga-puan" aria-label={`Puan ${kartPuan.toFixed(1)}`}>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z" /></svg>
@@ -2274,10 +2273,7 @@
                                     </span>
                                 </a>
                                 <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
-                                <div className="populer-bolum">
-                                    {m.ilkBolumId && <a href={`read.html?chapter=${m.ilkBolumId}`}>İlk bölüm</a>}
-                                    {m.sonBolumId && m.sonBolumId !== m.ilkBolumId && <a href={`read.html?chapter=${m.sonBolumId}`}>Son bölüm</a>}
-                                </div>
+                                {m.bolumSayisi != null && <span className="manga-meta">{m.bolumSayisi} Bölüm</span>}
                             </li>
                         ))}
                     </ol>
@@ -2473,7 +2469,7 @@
                         <div className="bolum-baslik-satir">
                             <h2>{secilenKategoriler.length ? `${secilenKategoriler.join(' + ')} serileri` : 'Seriler'}</h2>
                             <div className="baslik-sag" style={{ flexWrap: 'wrap' }}>
-                                <button type="button" className="btn-ikincil" onClick={rastgeleGit} disabled={rastgeleBusy}>
+                                <button type="button" className="siralama" style={{ cursor: 'pointer', padding: '0 12px' }} onClick={rastgeleGit} disabled={rastgeleBusy}>
                                     {rastgeleBusy ? 'Seçiliyor…' : 'Rastgele seri'}
                                 </button>
                                 <label className="sr-only" htmlFor="durumSec">Durum</label>
