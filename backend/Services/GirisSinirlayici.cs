@@ -33,7 +33,7 @@ namespace Kage95.Backend.Services
 
         public void HataKaydet(string anahtar)
         {
-            if (_hatalar.Count > 20000) Temizle();
+            if (_hatalar.Count > 1000) Temizle();
             var liste = _hatalar.GetOrAdd(Anahtar(anahtar), _ => new List<DateTime>());
             lock (liste) { liste.Add(DateTime.UtcNow); }
         }

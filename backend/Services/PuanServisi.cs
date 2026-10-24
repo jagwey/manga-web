@@ -232,7 +232,10 @@ namespace Kage95.Backend.Services
                 var gerekenSn = Math.Min(sayfalar.Adet * SayfaBasinaSaniye, MaksOkumaSuresiSaniye);
                 if ((DateTime.UtcNow - basla.Tarih).TotalSeconds < gerekenSn) return new(0, null);
 
-                return await KazandirAsync(db, kullaniciId, BolumOku, referans);
+                var sonuc = await KazandirAsync(db, kullaniciId, BolumOku, referans);
+                // Okuma puanı kazanıldıktan (veya daha önce kazanılmışsa) 0 puanlık geçici sayaç satırını temizle.
+                await db.PuanKayitlari.Where(p => p.Id == basla.Id && p.Puan == 0).ExecuteDeleteAsync();
+                return sonuc;
             }
             catch { return new(0, null); }
         }

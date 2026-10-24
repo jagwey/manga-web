@@ -12,7 +12,7 @@ namespace Kage95.Backend.Controllers
     {
         private const int MaxFiles = 200;
         private const long MaxFileSize = 15L * 1024 * 1024;
-        private const long MaxRequestSize = 500L * 1024 * 1024;
+        private const long MaxRequestSize = 150L * 1024 * 1024;
 
         private readonly IWebHostEnvironment _env;
 

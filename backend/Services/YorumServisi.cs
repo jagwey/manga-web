@@ -15,7 +15,7 @@ namespace Kage95.Backend.Services
         public bool Dene(string anahtar, int maks, TimeSpan pencere)
         {
             var simdi = DateTime.UtcNow;
-            if (_kayitlar.Count > 50000) Temizle(simdi);
+            if (_kayitlar.Count > 2000) Temizle(simdi);
             var kuyruk = _kayitlar.GetOrAdd(anahtar, _ => new Queue<DateTime>());
             lock (kuyruk)
             {

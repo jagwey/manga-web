@@ -112,6 +112,21 @@ namespace Kage95.Backend.Controllers
                     });
                 }
                 await db.SaveChangesAsync();
+
+                // Kullanıcı başına en fazla 30 bildirim tutulsun; fazlası silinsin.
+                foreach (var uid in idler)
+                {
+                    var sinirId = await db.Bildirimler.AsNoTracking()
+                        .Where(b => b.KullaniciId == uid)
+                        .OrderByDescending(b => b.Id)
+                        .Skip(30 - 1)
+                        .Select(b => (int?)b.Id)
+                        .FirstOrDefaultAsync();
+                    if (sinirId.HasValue)
+                    {
+                        await db.Bildirimler.Where(b => b.KullaniciId == uid && b.Id < sinirId.Value).ExecuteDeleteAsync();
+                    }
+                }
             }
             catch
             {
