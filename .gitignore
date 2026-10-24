@@ -8,3 +8,4 @@ backend/wwwroot/avatars/*
 !backend/wwwroot/avatars/.gitkeep
 backend/appsettings.Local.json
 backend/bin_run/
+bin_tmp_check/
