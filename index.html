@@ -91,17 +91,19 @@
         }
 
         .logo-muhur {
-            width: 32px;
-            height: 32px;
-            background: var(--vurgu-rengi);
-            color: #fff;
-            display: flex;
+            width: 38px;
+            height: 38px;
+            background: transparent;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            font-family: var(--font-kanji);
-            font-weight: 500;
-            font-size: 1.05rem;
-            border-radius: 2px;
+            flex-shrink: 0;
+        }
+        .logo-muhur img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
         }
 
         .ana-menu { display: flex; flex-wrap: wrap; gap: var(--bosluk-3); }
@@ -3219,7 +3221,7 @@
                     <header className="site-header" role="banner">
                         <div className="header-ic">
                             <a href="#/" className="site-logo" aria-label="Kage 95 Ana Sayfa">
-                                <span className="logo-muhur" aria-hidden="true">影</span>
+                                <span className="logo-muhur" aria-hidden="true"><img src="logo.svg" alt="" width="38" height="38" /></span>
                                 KAGE <span className="logo-95">95</span>
                             </a>
 

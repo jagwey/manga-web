@@ -73,6 +73,16 @@
             font-weight: 600;
             color: var(--text-ana);
             letter-spacing: 1px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .auth-logo-img {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            display: block;
         }
 
         .auth-logo span { color: var(--vurgu-parlak); }
@@ -332,7 +342,7 @@
                     </a>
 
                     <div className="auth-logo">
-                        <h1>KAGE <span>95</span></h1>
+                        <h1><img src="logo.svg" alt="" className="auth-logo-img" width="40" height="40" /> KAGE <span>95</span></h1>
                         <p>
                             {girisModu ? 'Manga kütüphanenize giriş yapın' : 'Manga topluluğuna hemen katılın'}
                         </p>

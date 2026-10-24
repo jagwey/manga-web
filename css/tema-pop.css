@@ -28,9 +28,9 @@
 :root[data-tema="pop"] body.sayfa-index .header-ic { max-width: var(--pop-genis); padding: 18px var(--pop-yan); gap: 12px 32px; flex-wrap: nowrap; }
 :root[data-tema="pop"] body.sayfa-index .site-logo { font-family: var(--pop-bas); font-weight: 400; font-size: 2rem; letter-spacing: .01em; text-transform: uppercase; line-height: 1; gap: 12px; color: var(--pop-ink); flex-shrink: 0; }
 :root[data-tema="pop"] body.sayfa-index .logo-muhur {
-    width: 42px; height: 42px; background: var(--vurgu-rengi); color: var(--pop-ink);
-    border: 3px solid var(--pop-ink); border-radius: 0; transform: rotate(-7deg);
-    font-size: 1.15rem; font-weight: 700; box-shadow: 3px 3px 0 var(--pop-ink);
+    width: 42px; height: 42px; background: var(--pop-ink); color: var(--pop-ink);
+    border: 2px solid var(--pop-ink); border-radius: 0; transform: rotate(-4deg);
+    box-shadow: 3px 3px 0 var(--vurgu-rengi); padding: 2px;
 }
 :root[data-tema="pop"] body.sayfa-index .logo-95 { font-family: var(--pop-bas); font-weight: 400; color: var(--vurgu-parlak); margin-left: -6px; }
 :root[data-tema="pop"] body.sayfa-index .ana-menu { margin: 0 auto; gap: 8px 28px; }
