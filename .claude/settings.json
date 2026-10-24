@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "deny": [
+      "Read(./node_modules/**)",
+      "Read(./backend/bin/**)",
+      "Read(./backend/bin_run/**)",
+      "Read(./backend/obj/**)",
+      "Read(./.playwright-mcp/**)",
+      "Read(./**/*.log)"
+    ]
+  }
+}

@@ -1,0 +1,61 @@
+# Kage 95 - İlerleme
+
+Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `Kage95DB`, `.\SQLEXPRESS`), React 18 CDN tek dosyalı sayfalar. Arayüz Türkçe. Minimal kırmızı-siyah; yeşil ve emoji yok.
+Çalıştırma: API `cd backend; dotnet run` (http://localhost:5035), statik site 5500 (Live Server ya da `python -m http.server 5500`). Yedek: `C:\Yedek\yedekle.ps1` (D: -> C:\Yedek\canli + masaüstü).
+
+## Tamamlananlar
+- Roller (Owner/Admin/User), izin filtresi `[Yetki]`, JWT `tv` ile anında oturum kapatma, ban, giriş/IP hız sınırı, admin paneli.
+- 5 tema (kage, kagit, mono, gece, pop), `js/tema.js`; mobil optimizasyon (360-412px, 2 tur test temiz).
+- Seri/bölüm puanı (1-5) ve yorumları, okumaya devam et, sıralama, Yardım kutusu (yazma efekti).
+- Puan defteri (PuanKayitlari) ve kuralları: bölüm oku +10 (günde 10 bölüm), yorum +5 (günde 5, >=20 karakter), puan ver +2 (günde 10), kütüphane +3, günlük giriş +2, 7 gün seri +10, profil resmi +10; günlük tavan 250.
+- Liderlik ön yüzü: `#/liderlik` (hafta/ay/tüm zamanlar), Hesabım "Puanım", "+N puan" toast, admin "Puanları sıfırla". 5 tema x 3 boyut temiz.
+- Profil resmi yükleme, Jagwey Owner paneli, kullanıcı adı büyük/küçük harf duyarsız.
+
+## Devam edenler
+- Yok. Backend v2 BİTTİ (geçici DB'de 162 kontrol geçti, gerçek DB'ye yalnızca yeni tablo/nullable kolon, yedek C:\Temp\Kage95DB_oncesi_yorumv2_sohbet_*.bak). Ön yüz ikinci turu sürüyor: madde 2 (sohbet ön yüzü) ve madde 5 (yorum aracı) bitti, sıradaki madde 3.
+
+## Backend v2 sözleşmesi (ön yüz için)
+- Yorum: PUT/DELETE /api/chapters/comments/{id} ve /api/mangas/yorumlar/{id}; POST gövdesi yanitId, spoiler; liste ?sirala=yeni|begeni&page&pageSize=20, düz liste (kök + yanıtları), X-Total-Count; bölüm yorumları artık sayfalı. Beğeni POST /api/yorumlar/{bolum|manga}/{id}/begeni, şikayet .../sikayet {neden}. Admin: /api/admin/sikayetler (+kapat). YorumDto: begeniSayisi, benBegendim, benimYorumum, duzenlendi, spoiler, yanitId, yanitSayisi, adStili. İşaretler düz metin: **kalın**, *eğik*, ||gizli||, [renk=kirmizi|mavi|turuncu|mor|gri|sari]..[/renk].
+- Duyuru: GET /api/duyurular; admin CRUD /api/admin/duyurular (duyuru.yonet). Etiket bilgi|etkinlik|yeni|uyari.
+- Popüler: GET /api/mangas/populer?donem=hafta|ay|tum&limit; MangaListDto'da ilkBolumId, sonBolumId.
+- Sohbet: SignalR /hub/sohbet (token access_token sorgusu, withCredentials:false). Olaylar MesajGeldi, MesajSilindi, Cevrimici. Gönderme `invoke('GonderAsync', metin, stickerId|null)` her zaman 2 argüman. Anonim salt okur; bozuk token anonim bağlanır, yazma hatasında token yenileyip yeniden bağlan. REST: /api/sohbet/mesajlar?onceki&limit, /api/sohbet/durum. Metin <=300, 2 sn'de 1, dakikada 15. Admin: /api/admin/sohbet/mesajlar, sustur (sohbet.yonet). Ayar sohbetAcik.
+- Seviye/ödül: /api/oduller, GET/PUT /api/hesap/tercihler {adRengi, mesajFontu, parlak, animasyon, rozet, unvan}; /api/hesap/puan ve /api/liderlik'te seviye, seviyeIcinGereken, sonrakiSeviyeIcinKalan; adStili {adRengi, adRengiHex, mesajFontu, parlak, animasyon, rozet, unvan}. Sticker kimliği "paket:sticker" (sade:ok, golge:maske...), görseller ön yüzde SVG.
+
+## Kalan işler (sırayla)
+1. (Bitti) Backend v2.
+2. (Bitti) Ön yüz sohbet: `js/sohbet.js` (şerit + `#/sohbet` sayfası, SignalR 8.0.7 cdnjs, sticker SVG'leri, seviye kilidi, eski mesaj yükleme, yönetici "Sil" düğmesi), index.html'de rota/menü/alt gezinme (5 sekme; Pop dar ekran etiket boyutu düşürüldü). Anonim okuma, bozuk token'da anonime düşme, 5 tema x 390px taşma testi temiz.
+3. (Bitti) Ön yüz seviye/ödül: Hesabım "Seviye ve ödüller" (SeviyeBolumu: ilerleme, açık/kilitli ödül listesi, önizlemeli tercih seçici, PUT /hesap/tercihler), js/adstili.js + css/vurgu.css .as-* ile adStili yorumlarda (index+read) ve liderlikte. Mock API ile denendi; gerçek hesapla kayıt, read.html yorum görünümü ve 5 tema x 3 boyut denenmedi.
+4. Üst bölüm: öne çıkanlar carousel (backend bitti: OneCikanController, /api/one-cikanlar + /api/admin/one-cikanlar, tablo dbo.OneCikanlar gerçek DB'de oluşturuldu, boş; backend 24.10 08:50'de yeniden başlatıldı (bin_run exe, ASPNETCORE_URLS=http://localhost:5035; GET /api/one-cikanlar 200); admin'de görsel yüklerken panelden atma şikâyeti incelenecek; ön yüz bitti: index.html OneCikanlar (hero altı, kenardan kenara tam genişlik (vurgu.css sonu, width:100% + 16/6 oran), 6 sn otomatik, swipe, klavye) + admin.html "Öne çıkanlar" sekmesi + css/vurgu.css .oc-*; yalnız mock'la test edildi, gerçek API ve admin ekranı giriş yapılarak denenmedi), çoklu duyuru şeridi, "En çok okunanlar"; admin: duyuru yönetimi, sohbet moderasyonu, şikayet listesi, seride öne çıkan. (admin.html'e eklendi: "Şikayetler" sekmesi (yorum.sil; GET /admin/sikayetler, POST .../{tur}/{id}/kapat, DELETE /admin/yorumlar/{id}?tur=), "Sohbet" sekmesi (sohbet.yonet; mesaj ara/sil, sustur/kaldır, susturulanlar listesi), Ayarlar'a sohbetAcik anahtarı; Babel sözdizimi denetimi geçti, tarayıcıda/giriş yapılarak denenmedi.)
+5. (Bitti) Yorum aracı (`js/yorum.js`, index+read ortak): düzenle/sil/yanıtla/beğen/şikayet, spoiler bulanık, araç çubuğu, sıralama, sayfalama. Stiller css/vurgu.css sonunda `.yr-*`. Playwright mock ile test edildi (index #/manga/6 tüm akışlar, read.html render, 5 tema 360px taşma yok). Not: read.html'de yorum.js React'ten SONRA yüklenmeli. Kullanılmayan eski `.yorum-*` CSS ve htmlCoz/tarihYaz kalıntıları temizlenmedi.
+6. Dost özellikler: paylaş/kopyala, yukarı çık, kütüphane durumu (okuyorum/okunacak/bitirdim), sistem teması, klavye kısayol yardımı, ana içeriğe atla.
+7. Birleşik test: gerçek API, 5 tema, masaüstü + mobil, 2 tur. Pop için kendi stilleri `css/tema-pop*.css`.
+
+## Önemli kararlar
+- Seviye eşiği toplam puan = 50*(L-1)*L (L2=100, L3=300, L5=1000, L10=4500, L20=19000), en çok 50. Rütbe: Çırak 1-2, Genç Gölge 3-5, Gölge 6-11, Usta 12-24, Efsane 25+.
+- Ödüller (OdulKatalogu): sv3 ad rengi (yeşil yok), sv5 sohbet yazı tipi, sv8 sticker paketi "sade", sv10 parlak ad + palet, sv15 paket "golge", sv20 animasyonlu parlama + çerçeve, sv30 özel unvan (24 karakter, filtreli). Tercihler KullaniciTercihleri, GET/PUT /api/hesap/tercihler sunucuda seviyeyle doğrulanır; adStili mesaj/liderlik/yorum DTO'larında döner. Sticker = ön yüzde orijinal SVG (emoji yok), hub GonderAsync(metin, stickerId?), sticker 3 sn'de 1.
+- Sohbet ana sayfada yüzen widget değil, satır içi şerit + tam sayfa. Mesaj 30 gün saklanır.
+- Yorum kodlaması yalnızca & < > " ' ; ön yüz htmlCoz, innerHTML yok. Gün sınırı Europe/Istanbul. Liderlik 60 sn önbellek.
+- Pop teması yalnızca seçiliyken kendi CSS'ini yükler, diğer temalara sızmaz. Yeni tema = TEMALAR'a kayıt.
+- backend.csproj `BaseOutputPath=bin_run/` (kilitli eski backend.exe yüzünden).
+
+## Kritik dosyalar
+- Puan: backend/Services/PuanServisi.cs, Controllers/LiderlikController.cs, MangaEtkilesimController.cs, js/liderlik.js, js/puan.js
+- Seviye/ödül: Services/OdulKatalogu.cs, TercihServisi.cs, Controllers/OdullerController.cs, Models/OdulDtos.cs, Models/LiderlikDtos.cs
+- Sohbet: backend/Hubs/SohbetHub.cs, Controllers/SohbetController.cs, js/sohbet.js (ön yüz; sticker kimlik->SVG tablosu CIZIM, paket seviyeleri PAKETLER sunucuyla aynı tutulmalı), Services/SohbetTemizlikServisi 30 gün temizliği
+- Yorum: Services/YorumServisi.cs, Controllers/YorumEtkilesimController.cs, ChaptersController.cs
+- Duyuru: Controllers/DuyuruController.cs; Hesap: HesapController.cs; Admin: AdminController.cs, AdminIcerikController.cs
+- Ön yüz: index.html (ana, seri, Kütüphane, Hesabım, liderlik), read.html, login.html, admin.html, js/yardim.js, js/tema.js, js/config.js, css/tema-pop*.css
+- DB betiği: Veritabani_Kurulumu.sql
+
+## Bilinen sorunlar
+- Tam ekran düzen (index.html): 1200px sınırları kalktı (index.html, vurgu.css sonundaki clamp yan boşluk, tema-pop.css --pop-genis:none); 5 tema 1900/390px taşmasız. read.html okuma genişliği bilerek dar kaldı.
+- Düzeltildi: profil açılır menüsü hero torii görselinin altında kalıyordu (header backdrop-filter yığın bağlamı); vurgu.css .site-header'a position:relative + z-index:100 eklendi. Tarayıcıda yeniden doğrulanmadı.
+- Duyuru şeridi (ana sayfa, kayan, etiketli; GET /api/duyurular) + admin "Duyurular" sekmesi (duyuru.yonet; giriş yapılıp denenmedi) + header/footer Discord ve Instagram ikonları (adresler js/config.js KAGE95_SOSYAL, şu an genel site adresleri, gerçek davet/profil adresi yazılmalı). Sohbet şeridi ana sayfada seri listesinin altında.
+- Tüm site: css/vurgu.css (gradyan düğme, kart kalkma, parıltı, başlık çubuğu, hero ışığı; Pop hariç) index/read/login yüklüyor; sohbet şeridi baloncuklu avatarlı panel oldu. Sabitlenmiş mesaj için backend desteği yok.
+- Sohbette giriş yapılmış gerçek mesaj gönderme/alma (canlı MesajGeldi, adStili görünümü, sticker gönderme, yönetici silme) gerçek DB'ye yazmamak için denenmedi; geçici DB ile test edilmeli.
+- Gerçek DB'de `zz_valid_user` (Id 5) silinmedi.
+- Gerçek telefon testi yapılmadı (aynı Wi-Fi, `kage95_api` ile API adresi).
+- Pop temasında 360-390px okuyucu üst çubuğu 2 sıra (kabul).
+- bolum_basla ilk çağrı son sayfadaysa puan sonraki kayıtta; silinen yorumun günlük sayaç hakkı geri gelmez; puan uçlarında hız sınırı yok.
+- Liderlik toast ve /api/hesap/puan gerçek backend ile yazma testi yapılmadı (yalnızca mock).
+- D: sürücüsü iki kez kayboldu; yedek betiği çalışıyor olmalı.

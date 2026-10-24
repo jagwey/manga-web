@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Giriş Yap & Kayıt Ol - Kage 95</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0e0c0c">
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/vurgu.css">
+    
+    <!-- Modern Tipografi (Outfit & Inter) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&family=Noto+Serif+JP:wght@700&family=Noto+Serif:wght@600;700&display=swap" rel="stylesheet">
+
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --vurgu-rengi: #8e0e15;
+            --vurgu-parlak: #e0343c;
+            --bg-ana: #0e0c0c;
+            --border-renk: #2a2323;
+            --text-ana: #ede7e2;
+            --text-ikincil: #a89f99;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-ana);
+            color: var(--text-ana);
+            min-height: 100vh;
+            padding: 32px 20px;
+            font-weight: 400;
+            line-height: 1.6;
+        }
+
+        .auth-kapsayici {
+            width: 100%;
+            max-width: 380px;
+            margin: 0 auto;
+        }
+
+        .btn-geri-don {
+            display: inline-block;
+            color: var(--text-ikincil);
+            font-size: 0.85rem;
+            text-decoration: none;
+            margin-bottom: 48px;
+            transition: color 0.15s;
+        }
+
+        @media (hover:hover) { .btn-geri-don:hover { color: var(--text-ana); } }
+
+        .auth-logo { margin-bottom: 32px; }
+
+        .auth-logo h1 {
+            font-family: 'Noto Serif', Georgia, serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-ana);
+            letter-spacing: 1px;
+        }
+
+        .auth-logo span { color: var(--vurgu-parlak); }
+
+        .auth-logo p {
+            color: var(--text-ikincil);
+            font-size: 0.9rem;
+            margin-top: 4px;
+        }
+
+        .tab-secici {
+            display: flex;
+            gap: 24px;
+            border-bottom: 1px solid var(--border-renk);
+            margin-bottom: 28px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -1px;
+            padding: 10px 0;
+            color: var(--text-ikincil);
+            font-size: 0.9rem;
+            font-weight: 400;
+            cursor: pointer;
+            transition: color 0.15s, border-color 0.15s;
+        }
+
+        @media (hover:hover) { .tab-btn:hover { color: var(--text-ana); } }
+
+        .tab-btn.aktif {
+            color: var(--text-ana);
+            border-bottom-color: var(--vurgu-parlak);
+        }
+
+        .form-grubu {
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .form-grubu label {
+            font-size: 0.8rem;
+            font-weight: 400;
+            color: var(--text-ikincil);
+        }
+
+        .input-kapsayici { position: relative; }
+
+        .form-input {
+            width: 100%;
+            height: 44px;
+            background: transparent;
+            border: 1px solid var(--border-renk);
+            color: var(--text-ana);
+            padding: 0 14px;
+            border-radius: 2px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+
+        .input-kapsayici .form-input { padding-right: 76px; }
+
+        .form-input::placeholder { color: var(--text-ikincil); opacity: .7; }
+        .form-input:focus { border-color: var(--vurgu-parlak); }
+
+        .sifre-goster-btn {
+            position: absolute;
+            right: 0;
+            top: 0;
+            height: 44px;
+            padding: 0 14px;
+            background: none;
+            border: none;
+            color: var(--text-ikincil);
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: color 0.15s;
+        }
+
+        @media (hover:hover) { .sifre-goster-btn:hover { color: var(--text-ana); } }
+
+        .btn-gonder {
+            width: 100%;
+            height: 44px;
+            background: var(--vurgu-rengi);
+            color: #fff;
+            border: 1px solid var(--vurgu-rengi);
+            border-radius: 2px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background-color 0.15s, border-color 0.15s;
+        }
+
+        @media (hover:hover) { .btn-gonder:hover { background: var(--vurgu-parlak); border-color: var(--vurgu-parlak); } }
+        .btn-gonder:disabled { opacity: 0.6; cursor: default; }
+
+        .alt-linkler {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .alt-link {
+            background: none;
+            border: none;
+            color: var(--text-ikincil);
+            font-size: 0.85rem;
+            cursor: pointer;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+            text-align: left;
+            transition: color 0.15s;
+        }
+
+        @media (hover:hover) { .alt-link:hover { color: var(--text-ana); } }
+
+        .bildirim {
+            padding: 12px 14px;
+            border-radius: 2px;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            max-width: 65ch;
+        }
+
+        .bildirim.basarili {
+            border: 1px solid var(--text-ikincil);
+            color: var(--text-ana);
+        }
+
+        .bildirim.hata {
+            border: 1px solid var(--vurgu-parlak);
+            color: var(--text-ana);
+        }
+
+        a:focus-visible, button:focus-visible { outline: 1px solid var(--vurgu-parlak); outline-offset: 2px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            * { transition: none !important; }
+        }
+
+
+        /* --- MOBİL --- */
+        html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+        body { overflow-x: clip; padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right)); padding-bottom: max(88px, calc(80px + env(safe-area-inset-bottom))); padding-top: max(32px, calc(16px + env(safe-area-inset-top))); }
+        .form-input { font-size: 1rem; scroll-margin-block: 96px; }
+        .tab-btn { min-height: 44px; padding: 10px 4px; font-size: 1rem; }
+        .form-grubu label { font-size: 0.875rem; }
+        .sifre-goster-btn { min-width: 64px; height: 44px; font-size: 0.875rem; }
+        .btn-gonder { min-height: 48px; font-size: 1rem; }
+        .btn-geri-don { display: inline-flex; align-items: center; min-height: 44px; font-size: 0.9rem; }
+        .alt-link { min-height: 44px; font-size: 0.9rem; padding: 0 2px; }
+        .bildirim { font-size: 0.9rem; overflow-wrap: anywhere; }
+        .auth-logo h1, .auth-logo p { overflow-wrap: anywhere; }
+        @media (max-width: 480px) { .btn-geri-don { margin-bottom: 24px; } .tab-secici { gap: 20px; } }
+        @media (max-height: 500px) { .btn-geri-don { margin-bottom: 8px; } .auth-logo { margin-bottom: 16px; } body { padding-top: 12px; } }
+        @media (hover: none) { .btn-geri-don:hover, .tab-btn:hover, .sifre-goster-btn:hover, .alt-link:hover { color: inherit; } }
+
+        ::selection { background: var(--vurgu-rengi); color: #fff; }
+        html { scrollbar-color: var(--kaydirma, #4a1014) var(--bg-ana); scrollbar-width: thin; }
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: var(--bg-ana); }
+        ::-webkit-scrollbar-thumb { background: var(--kaydirma, #4a1014); border-radius: 5px; border: 2px solid var(--bg-ana); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vurgu-rengi); }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script src="js/config.js"></script>
+    <script type="text/babel">
+        const AuthSayfasi = () => {
+            const [girisModu, setGirisModu] = React.useState(() => new URLSearchParams(window.location.search).get('kayit') !== '1');
+            const [gonderiliyor, setGonderiliyor] = React.useState(false);
+            const [kayitAcik, setKayitAcik] = React.useState(true);
+            React.useEffect(() => {
+                fetch(window.KAGE95_API_URL + '/ayarlar').then(r => r.ok ? r.json() : {}).then(v => {
+                    if (v && v.kayitAcik === false) {
+                        setKayitAcik(false);
+                        setGirisModu(true);
+                        if (new URLSearchParams(window.location.search).get('kayit') === '1') {
+                            setBildirim({ tur: 'hata', mesaj: 'Yeni kayıtlar şu an kapalı.' });
+                        }
+                    }
+                }).catch(() => {});
+            }, []);
+            const [kullaniciAdi, setKullaniciAdi] = React.useState('');
+            const [email, setEmail] = React.useState('');
+            const [sifre, setSifre] = React.useState('');
+            const [sifreGoster, setSifreGoster] = React.useState(false);
+            const [bildirim, setBildirim] = React.useState(null);
+
+            const formGonder = async (e) => {
+                e.preventDefault();
+                setBildirim(null);
+                setGonderiliyor(true);
+                try {
+                    const yol = girisModu ? '/auth/login' : '/auth/register';
+                    const govde = girisModu
+                        ? { kullaniciAdiOrEmail: email.trim(), sifre }
+                        : { kullaniciAdi: kullaniciAdi.trim(), email: email.trim(), sifre };
+                    const yanit = await fetch(window.KAGE95_API_URL + yol, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(govde)
+                    });
+                    const veri = await yanit.json().catch(() => ({}));
+                    if (!yanit.ok) {
+                        let mesaj = veri.message || 'İşlem başarısız. Lütfen bilgilerinizi kontrol edin.';
+                        if (veri.banNedeni) mesaj += ' Neden: ' + veri.banNedeni + '.';
+                        if (veri.banBitis) {
+                            // Sunucu UTC gönderir; saat dilimi eki yoksa Z ekleyerek yerel saate çeviririz.
+                            const t = new Date(/[zZ]|[+-]\d\d:\d\d$/.test(veri.banBitis) ? veri.banBitis : veri.banBitis + 'Z');
+                            if (!isNaN(t)) mesaj += ' Ban bitişi: ' + t.toLocaleString('tr-TR', { dateStyle: 'long', timeStyle: 'short' }) + '.';
+                        } else if (veri.banNedeni) {
+                            mesaj += ' Ban süresizdir.';
+                        }
+                        setBildirim({ tur: 'hata', mesaj });
+                        return;
+                    }
+                    localStorage.setItem('kage95_token', veri.token);
+                    localStorage.setItem('kage95_user', JSON.stringify({
+                        id: veri.id, kullaniciAdi: veri.kullaniciAdi, email: veri.email, rol: veri.rol, yetkiler: veri.yetkiler || [], profilResmiURL: veri.profilResmiURL
+                    }));
+                    setBildirim({
+                        tur: 'basarili',
+                        mesaj: girisModu ? 'Hoş geldiniz! Ana sayfaya yönlendiriliyorsunuz...' : 'Kayıt başarılı! Ana sayfaya yönlendiriliyorsunuz...'
+                    });
+                    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+                } catch (err) {
+                    setBildirim({ tur: 'hata', mesaj: 'Sunucuya ulaşılamadı. API çalışıyor mu?' });
+                } finally {
+                    setGonderiliyor(false);
+                }
+            };
+
+            // Şifre sıfırlama henüz yok: yanlış bir "gönderildi" mesajı göstermeyiz.
+            const sifremiUnuttum = () => {
+                setBildirim({
+                    tur: 'hata',
+                    mesaj: 'Şifre sıfırlama henüz kullanılamıyor. Hesabınıza erişemiyorsanız site sahibiyle iletişime geçin.'
+                });
+            };
+
+            return (
+                <div className="auth-kapsayici">
+                    <a href="index.html" className="btn-geri-don" aria-label="Ana Sayfaya Dön">
+                        Ana sayfa
+                    </a>
+
+                    <div className="auth-logo">
+                        <h1>KAGE <span>95</span></h1>
+                        <p>
+                            {girisModu ? 'Manga kütüphanenize giriş yapın' : 'Manga topluluğuna hemen katılın'}
+                        </p>
+                    </div>
+
+                    <div className="tab-secici" role="tablist">
+                        <button 
+                            className={`tab-btn ${girisModu ? 'aktif' : ''}`}
+                            onClick={() => { setGirisModu(true); setBildirim(null); }}
+                            role="tab"
+                            aria-selected={girisModu}
+                        >
+                            Giriş Yap
+                        </button>
+                        {kayitAcik && (
+                        <button 
+                            className={`tab-btn ${!girisModu ? 'aktif' : ''}`}
+                            onClick={() => { setGirisModu(false); setBildirim(null); }}
+                            role="tab"
+                            aria-selected={!girisModu}
+                        >
+                            Kayıt Ol
+                        </button>
+                        )}
+                    </div>
+
+                    {bildirim && (
+                        <div className={`bildirim ${bildirim.tur}`} role="alert">
+                            {bildirim.mesaj}
+                        </div>
+                    )}
+
+                    <form onSubmit={formGonder}>
+                        {!girisModu && (
+                            <div className="form-grubu">
+                                <label htmlFor="kullaniciAdiInput">Kullanıcı Adı</label>
+                                <input 
+                                    id="kullaniciAdiInput"
+                                    type="text" 
+                                    className="form-input"
+                                    placeholder="Ninja95" 
+                                    value={kullaniciAdi}
+                                    onChange={(e) => setKullaniciAdi(e.target.value)}
+                                    required={!girisModu}
+                                    autoComplete="username"
+                                />
+                            </div>
+                        )}
+
+                        <div className="form-grubu">
+                            <label htmlFor="emailInput">{girisModu ? 'Kullanıcı Adı veya E-Posta' : 'E-Posta Adresi'}</label>
+                            <input 
+                                id="emailInput"
+                                type={girisModu ? "text" : "email"}
+                                className="form-input"
+                                placeholder={girisModu ? "Ninja95 veya ornek@kage95.com" : "ornek@kage95.com"} 
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                required
+                                autoComplete={girisModu ? "username" : "email"}
+                            />
+                        </div>
+
+                        <div className="form-grubu">
+                            <label htmlFor="sifreInput">{girisModu ? 'Şifre' : 'Şifre (en az 8 karakter)'}</label>
+                            <div className="input-kapsayici">
+                                <input 
+                                    id="sifreInput"
+                                    type={sifreGoster ? "text" : "password"} 
+                                    className="form-input"
+                                    placeholder="••••••••" 
+                                    value={sifre}
+                                    onChange={(e) => setSifre(e.target.value)}
+                                    required
+                                    minLength={girisModu ? undefined : 8}
+                                    autoComplete={girisModu ? "current-password" : "new-password"}
+                                />
+                                <button 
+                                    type="button" 
+                                    className="sifre-goster-btn"
+                                    onClick={() => setSifreGoster(!sifreGoster)}
+                                    aria-label={sifreGoster ? "Şifreyi gizle" : "Şifreyi göster"}
+                                >
+                                    {sifreGoster ? 'Gizle' : 'Göster'}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" className="btn-gonder" disabled={gonderiliyor}>
+                            {gonderiliyor ? 'Lütfen bekleyin...' : girisModu ? 'Giriş Yap' : 'Hesap Oluştur'}
+                        </button>
+                    </form>
+
+                    <div className="alt-linkler">
+                        {girisModu && (
+                            <button className="alt-link" onClick={sifremiUnuttum}>
+                                Şifremi Unuttum
+                            </button>
+                        )}
+                        {(kayitAcik || !girisModu) && (
+                        <button className="alt-link" onClick={() => { setGirisModu(!girisModu); setBildirim(null); }}>
+                            {girisModu ? 'Hesabınız yok mu? Kayıt olun' : 'Zaten hesabınız var mı? Giriş yapın'}
+                        </button>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<AuthSayfasi />);
+    </script>
+    <script src="js/yardim.js" defer></script>
+</body>
+</html>

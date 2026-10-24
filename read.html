@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Manga Oku - Kage 95</title>
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <meta name="theme-color" content="#0e0c0c">
+    <script src="js/tema.js"></script>
+    <link rel="stylesheet" href="css/vurgu.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
+
+    <script src="js/config.js"></script>
+    <script src="js/liderlik.js"></script>
+    <script src="js/puan.js"></script>
+    <script src="js/adstili.js"></script>
+
+    <!-- React ve Babel Kütüphaneleri -->
+    <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+    <script src="js/yorum.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <style>
+        :root {
+            --vurgu-rengi: #8e0e15;
+            --vurgu-parlak: #e0343c;
+            --bg-okuyucu: #0a0808;
+            --bg-kutu: #121010;
+            --border-renk: #2a2323;
+            --text-ana: #ece8e4;
+            --text-ikincil: #8f8782;
+            /* Boşluk ölçüsü: 8 / 16 / 24 / 32 */
+            --s1: 8px;
+            --s2: 16px;
+            --s3: 24px;
+            --s4: 32px;
+            --satir-olcu: 65ch;
+            --parlaklik: 1;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Noto Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+        }
+
+        /* body'de overflow-x:hidden sticky'yi bozar; clip kaydırma kapsayıcısı oluşturmaz */
+        html { overflow-x: hidden; max-width: 100%; }
+        body { overflow-x: clip; max-width: 100%; }
+
+        body {
+            background-color: var(--bg-okuyucu);
+            color: var(--text-ana);
+            min-height: 100vh;
+            line-height: 1.5;
+            font-weight: 400;
+            user-select: none; /* Yanlışlıkla seçim olmaması için okuyucuda */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* --- ÜST ÇUBUK (kaydırınca gizlenir) --- */
+        .reader-header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: var(--bg-okuyucu);
+            border-bottom: 1px solid var(--border-renk);
+            padding: var(--s1) var(--s3);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--s2);
+            flex-wrap: wrap;
+            transition: transform 0.15s ease;
+        }
+        .reader-header.gizli { transform: translateY(-100%); }
+        .reader-header.gizli:focus-within { transform: none; }
+        .reader-header > * { min-width: 0; }
+
+        .header-sol, .header-sag {
+            display: flex;
+            align-items: center;
+            gap: var(--s1);
+        }
+
+        /* Düğmeler: ikincil (şeffaf + 1px kenarlık) ve düz metin */
+        .btn-geri, .btn-aksiyon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-ikincil);
+            padding: 0 var(--s2);
+            border-radius: 2px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease;
+            text-decoration: none;
+            min-height: 40px;
+            min-width: 40px;
+        }
+        @media (hover:hover) { .btn-geri:hover, .btn-aksiyon:hover:not(:disabled) { color: var(--text-ana); } }
+        .btn-aksiyon:disabled { opacity: 0.35; cursor: not-allowed; }
+        .btn-aksiyon.aktif { color: var(--vurgu-parlak); }
+        .btn-aksiyon svg { width: 16px; height: 16px; }
+        .btn-geri:focus-visible, .btn-aksiyon:focus-visible, .nav-btn:focus-visible, .mod-btn:focus-visible,
+        .bolum-secici:focus-visible, .yorum-gonder-btn:focus-visible {
+            outline: 2px solid var(--vurgu-parlak);
+            outline-offset: 2px;
+        }
+
+        .manga-baslik-alani { text-align: center; flex: 1 1 160px; }
+        .manga-baslik-alani h1 {
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-ana);
+            margin: 0;
+            overflow-wrap: anywhere;
+        }
+        .manga-baslik-alani span { font-size: 0.875rem; color: var(--text-ikincil); }
+
+        .bolum-secici {
+            background: var(--bg-okuyucu);
+            color: var(--text-ana);
+            border: 1px solid var(--border-renk);
+            padding: 0 var(--s1);
+            border-radius: 2px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            outline: none;
+            cursor: pointer;
+            min-height: 40px;
+            max-width: 100%;
+            transition: border-color 0.15s ease;
+        }
+        .bolum-secici:focus { border-color: var(--vurgu-parlak); }
+
+        /* --- MOD SEKMELERİ (metin sekmeleri) --- */
+        .mod-secici-grup { display: flex; gap: var(--s1); }
+        .mod-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--text-ikincil);
+            padding: 0 var(--s1);
+            border-radius: 0;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease;
+            min-height: 40px;
+        }
+        @media (hover:hover) { .mod-btn:hover { color: var(--text-ana); } }
+        .mod-btn.aktif { color: var(--text-ana); border-bottom-color: var(--vurgu-parlak); }
+
+        /* --- PARLAKLIK AYARI --- */
+        .parlaklik-sarmal { position: relative; }
+        .parlaklik-panel {
+            position: absolute;
+            top: calc(100% + var(--s1));
+            right: 0;
+            width: 220px;
+            max-width: calc(100vw - 32px);
+            background: var(--bg-kutu);
+            border: 1px solid var(--border-renk);
+            border-radius: 2px;
+            padding: var(--s2);
+            z-index: 130;
+            display: flex;
+            flex-direction: column;
+            gap: var(--s1);
+        }
+        .parlaklik-panel label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.875rem;
+            color: var(--text-ikincil);
+        }
+        .parlaklik-panel label b { color: var(--text-ana); font-weight: 400; }
+        .parlaklik-panel input[type=range] {
+            width: 100%;
+            min-height: 32px;
+            accent-color: var(--vurgu-parlak);
+            cursor: pointer;
+        }
+
+        /* --- OKUYUCU GÖVDE ALANI --- */
+        .reader-alani {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: var(--s3) var(--s2) var(--s4);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Görsellere parlaklık filtresi */
+        .manga-sayfasi, .webtoon-sayfasi { filter: brightness(var(--parlaklik, 1)); }
+
+        /* KLASİK MOD */
+        .klasik-kapsayici {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--s2);
+        }
+        .sayfa-gorsel-kapsayici {
+            position: relative;
+            max-width: 100%;
+            display: flex;
+            justify-content: center;
+            cursor: pointer;
+        }
+        .manga-sayfasi {
+            max-width: 100%;
+            height: auto;
+            max-height: 85vh;
+            display: block;
+            object-fit: contain;
+            background-color: var(--bg-okuyucu);
+        }
+        .sayfa-tiklama-bolgesi { position: absolute; top: 0; bottom: 0; width: 50%; z-index: 10; }
+        .tiklama-sol { left: 0; cursor: w-resize; }
+        .tiklama-sag { right: 0; cursor: e-resize; }
+
+        .navigasyon-cubugu {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--s2);
+            width: 100%;
+            max-width: 480px;
+        }
+
+        /* İkincil düğme (varsayılan); .btn-dolgu = ana eylem */
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--border-renk);
+            color: var(--text-ana);
+            padding: 0 var(--s3);
+            border-radius: 2px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
+            flex: 1;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: var(--s1);
+            min-height: 40px;
+            text-decoration: none;
+        }
+        @media (hover:hover) { .nav-btn:hover:not(:disabled) { border-color: var(--vurgu-parlak); } }
+        .nav-btn.btn-dolgu { background: var(--vurgu-rengi); border-color: var(--vurgu-rengi); color: #fff; }
+        @media (hover:hover) { .nav-btn.btn-dolgu:hover:not(:disabled) { background: var(--vurgu-parlak); border-color: var(--vurgu-parlak); } }
+        .nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        .sayfa-gostergesi {
+            font-size: 0.9rem;
+            color: var(--text-ikincil);
+            white-space: nowrap;
+            min-width: 64px;
+            text-align: center;
+        }
+
+        /* WEBTOON MODU: görseller arasında hiç boşluk yok */
+        .webtoon-kapsayici {
+            width: 100%;
+            max-width: 800px;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            line-height: 0;
+            font-size: 0;
+            overflow: hidden;
+        }
+        .webtoon-sayfasi {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0;
+            padding: 0;
+            border: 0;
+            vertical-align: top;
+            cursor: pointer;
+            -webkit-tap-highlight-color: transparent;
+        }
+        img.webtoon-sayfasi:not(.yuklendi) { min-height: 60vh; background: var(--bg-okuyucu); }
+
+        /* KLAVYE KISAYOL BİLGİSİ */
+        .kisayol-bilgi {
+            margin-top: var(--s2);
+            font-size: 0.875rem;
+            color: var(--text-ikincil);
+            text-align: center;
+            max-width: var(--satir-olcu);
+        }
+        .kisayol-bilgi kbd { font-family: monospace; color: var(--text-ana); }
+
+        /* --- OKUMA İLERLEME ÇİZGİSİ --- */
+        .okuma-ilerleme {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 2px;
+            z-index: 120;
+            pointer-events: none;
+        }
+        .okuma-ilerleme > span {
+            display: block;
+            height: 100%;
+            width: 100%;
+            background: var(--vurgu-parlak);
+            transform-origin: left center;
+            transition: transform 0.15s linear;
+        }
+
+        /* --- DURUM (yükleniyor / hata / boş) --- */
+        .durum-kutusu {
+            width: 100%;
+            max-width: 480px;
+            margin: var(--s4) auto;
+            padding: var(--s4) 0;
+            text-align: center;
+            color: var(--text-ikincil);
+        }
+        .durum-kutusu h2 { color: var(--text-ana); font-size: 1rem; font-weight: 500; margin-bottom: var(--s1); }
+        .durum-kutusu p { max-width: var(--satir-olcu); margin-inline: auto; }
+        .durum-ikon { display: flex; justify-content: center; margin-bottom: var(--s2); color: var(--text-ikincil); }
+        .durum-ikon svg { width: 32px; height: 32px; }
+        .durum-aksiyonlar { display: flex; gap: var(--s2); justify-content: center; flex-wrap: wrap; margin-top: var(--s3); }
+        .durum-aksiyonlar .nav-btn { flex: 0 1 auto; min-width: 140px; }
+
+        .uyari-serit {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 0 var(--s2);
+            padding: 0 0 var(--s2);
+            border-bottom: 1px solid var(--border-renk);
+            color: var(--text-ikincil);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: var(--s2);
+            flex-wrap: wrap;
+        }
+        .uyari-serit svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .uyari-serit .uyari-metin { flex: 1 1 240px; max-width: var(--satir-olcu); }
+        .uyari-serit .btn-aksiyon { color: var(--text-ana); text-decoration: underline; padding: 0; }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            margin: 0 auto var(--s2);
+            border-radius: 50%;
+            border: 1.5px solid var(--border-renk);
+            border-top-color: var(--text-ikincil);
+            animation: don 0.8s linear infinite;
+        }
+        @keyframes don { to { transform: rotate(360deg); } }
+
+        .bolum-sonu {
+            width: 100%;
+            max-width: 800px;
+            margin-top: var(--s4);
+            padding-top: var(--s3);
+            border-top: 1px solid var(--border-renk);
+            text-align: center;
+        }
+        .bolum-sonu h3 { font-size: 1rem; font-weight: 500; }
+        .bolum-sonu p { color: var(--text-ikincil); margin: var(--s1) auto 0; max-width: var(--satir-olcu); }
+        .bolum-sonu-ctalar { display: flex; gap: var(--s2); margin-top: var(--s3); flex-wrap: wrap; justify-content: center; }
+        .bolum-sonu-ctalar .nav-btn { flex: 0 1 auto; min-width: 140px; }
+
+        /* --- YORUMLAR --- */
+        .yorumlar-bolumu {
+            max-width: 640px;
+            width: 100%;
+            margin: var(--s4) auto;
+            user-select: auto;
+        }
+        .yorum-baslik {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: var(--s3);
+            gap: var(--s2);
+        }
+        .yorum-baslik > span { white-space: nowrap; font-size: 0.875rem; color: var(--text-ikincil); }
+        .yorum-baslik h2 { font-size: 1rem; font-weight: 500; color: var(--text-ana); }
+        .bolum-puan { margin: 0 0 var(--s3); padding-bottom: var(--s2); border-bottom: 1px solid var(--border-renk); }
+        .yorum-form { display: flex; flex-direction: column; gap: var(--s2); margin-bottom: var(--s4); }
+        .yorum-textarea {
+            background: transparent;
+            border: 1px solid var(--border-renk);
+            border-radius: 2px;
+            padding: var(--s2);
+            color: var(--text-ana);
+            font-size: 0.9rem;
+            min-height: 96px;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.15s ease;
+        }
+        .yorum-textarea:focus { border-color: var(--vurgu-parlak); }
+        .yorum-gonder-satir { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); }
+        .yorum-bilgi { font-size: 0.875rem; color: var(--text-ikincil); max-width: var(--satir-olcu); }
+        .yorum-uyari { font-size: 0.875rem; color: var(--text-ikincil); max-width: var(--satir-olcu); }
+        .yorum-uyari a { color: var(--text-ana); }
+        .yorum-gonder-btn {
+            background: transparent;
+            color: var(--text-ana);
+            border: 1px solid var(--border-renk);
+            padding: 0 var(--s3);
+            border-radius: 2px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: border-color 0.15s ease;
+            min-height: 40px;
+        }
+        @media (hover:hover) { .yorum-gonder-btn:hover:not(:disabled) { border-color: var(--vurgu-parlak); } }
+        .yorum-gonder-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        .yorum-bos { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; color: var(--text-ikincil); }
+        .yorum-bos svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .yorum-bos .btn-aksiyon { color: var(--text-ana); text-decoration: underline; padding: 0; }
+
+        .yorum-kart { padding: var(--s2) 0; border-top: 1px solid var(--border-renk); }
+        .yorum-ust { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; gap: var(--s1); flex-wrap: wrap; }
+        .yorum-yazar { font-weight: 500; font-size: 0.9rem; color: var(--text-ana); }
+        .yorum-tarih { font-size: 0.875rem; color: var(--text-ikincil); }
+        .yorum-metin {
+            color: var(--text-ana);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            max-width: var(--satir-olcu);
+            overflow-wrap: anywhere;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .reader-header, .okuma-ilerleme > span, .btn-geri, .btn-aksiyon, .nav-btn, .mod-btn,
+            .bolum-secici, .yorum-textarea, .yorum-gonder-btn { transition: none; }
+            .spinner { animation-duration: 2.4s; }
+        }
+
+        /* --- Safe-area (çentik / yatay mod) --- */
+        .reader-header { padding-left: max(var(--s3), env(safe-area-inset-left)); padding-right: max(var(--s3), env(safe-area-inset-right)); padding-top: max(var(--s1), env(safe-area-inset-top)); }
+        .reader-alani { padding-left: max(var(--s2), env(safe-area-inset-left)); padding-right: max(var(--s2), env(safe-area-inset-right)); padding-bottom: max(var(--s4), calc(var(--s3) + env(safe-area-inset-bottom))); }
+        .yorum-textarea, .bolum-secici { font-size: 1rem; }
+        .yorum-textarea { scroll-margin-block: 120px; }
+        html { -webkit-text-size-adjust: 100%; }
+
+        /* Dokunmatik (tablet dahil): hedefler en az 44px */
+        @media (pointer: coarse) {
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+            .yorum-uyari a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
+        }
+
+        /* Kısa ekran (yatay telefon): üst çubuk sayfayla kayar, kompakt; sayfa genişliğe oturur */
+        @media (max-height: 500px) {
+            .reader-header { position: relative; transform: none !important; padding-top: max(4px, env(safe-area-inset-top)); padding-bottom: 4px; gap: 0 var(--s2); }
+            .manga-baslik-alani { flex: 1 1 200px; }
+            .manga-sayfasi { max-height: none; }
+            .reader-alani { padding-top: var(--s1); }
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+        }
+
+        /* Mobil: üst çubuk statik kalır (sayfayla birlikte kayar) */
+        @media (max-width: 640px) {
+            .reader-header {
+                position: relative;
+                z-index: 100;
+                transform: none !important;
+                padding-left: max(var(--s2), env(safe-area-inset-left));
+                padding-right: max(var(--s2), env(safe-area-inset-right));
+                flex-direction: column;
+                align-items: stretch;
+                gap: 0;
+            }
+            .parlaklik-sarmal { position: static; flex: none; }
+            .parlaklik-panel { top: calc(100% + var(--s1)); right: max(var(--s2), env(safe-area-inset-right)); left: max(var(--s2), env(safe-area-inset-left)); width: auto; max-width: none; }
+            .parlaklik-panel input[type=range] { min-height: 44px; }
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+            .header-sol, .header-sag { width: 100%; gap: 0; }
+            .header-sol { flex-wrap: nowrap; }
+            .header-sol .btn-geri { padding: 0 var(--s1) 0 0; white-space: nowrap; }
+            .header-sol .btn-aksiyon { padding: 0 var(--s1); flex: none; }
+            .header-sol .bolum-secici { flex: 1 1 0; min-width: 72px; margin: 0 var(--s1); text-overflow: ellipsis; }
+            .header-sag { flex-wrap: wrap; justify-content: space-between; }
+            .header-sag > * { flex: none; }
+            .header-sag .btn-aksiyon { padding: 0 4px; white-space: nowrap; font-size: 0.875rem; }
+            .mod-secici-grup { gap: 0; }
+            .mod-btn { padding: 0 6px; font-size: 0.875rem; white-space: nowrap; }
+            .manga-baslik-alani { order: -1; text-align: left; flex: none; padding: 2px 0 0; }
+            .manga-baslik-alani h1 { font-size: 1.05rem; }
+            .reader-alani { padding-top: var(--s2); padding-left: max(var(--s1), env(safe-area-inset-left)); padding-right: max(var(--s1), env(safe-area-inset-right)); }
+            .webtoon-kapsayici { width: calc(100% + 16px); max-width: none; margin: 0 -8px; }
+            .navigasyon-cubugu { gap: var(--s1); }
+            .nav-btn { padding: 0 var(--s2); }
+            .yorum-gonder-satir { flex-direction: column; align-items: stretch; }
+            .yorumlar-bolumu { margin-top: var(--s3); padding: 0 var(--s1); }
+            .yorum-bilgi, .yorum-uyari { max-width: none; }
+            .yorum-uyari a, .yorum-bos .btn-aksiyon, .uyari-serit .btn-aksiyon { display: inline-flex; align-items: center; min-height: 44px; }
+            .kisayol-bilgi { display: none; }
+            .bolum-sonu-ctalar .nav-btn { flex: 1 1 130px; }
+            .durum-aksiyonlar .nav-btn { flex: 1 1 140px; }
+        }
+        @media (hover: none) { .sayfa-tiklama-bolgesi { cursor: default; } .tiklama-sol, .tiklama-sag { cursor: default; } }
+
+        ::selection { background: var(--vurgu-rengi); color: #fff; }
+        html { scrollbar-color: var(--kaydirma, #3a3232) var(--bg-okuyucu); scrollbar-width: thin; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-okuyucu); }
+        ::-webkit-scrollbar-thumb { background: var(--kaydirma, #3a3232); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--vurgu-rengi); }
+    </style>
+
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const API = (window.KAGE95_API_URL || 'http://localhost:5034/api').replace(/\/$/, '');
+        const KAYMA_ORANI = 0.45;       // tek dokunuşta kayma miktarı
+
+        // --- Yardımcılar ---
+        const lsGet = (k) => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+        const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+
+        // login.html henüz token yazmıyor; olası anahtarları ve JSON kullanıcı nesnesini dener.
+        const tokenAl = () => {
+            for (const k of ['kage95_token', 'token', 'jwt', 'authToken', 'kage95_jwt']) {
+                const v = lsGet(k);
+                if (v) return v.replace(/^"|"$/g, '');
+            }
+            for (const k of ['kage95_user', 'kage95_kullanici', 'user']) {
+                try {
+                    const o = JSON.parse(lsGet(k) || 'null');
+                    if (o && (o.token || o.Token)) return o.token || o.Token;
+                } catch (e) {}
+            }
+            return null;
+        };
+
+        // Bağımsız yıldız bileşeni (js/puan.js) için ince React sarmalayıcı.
+        const PuanKutu = ({ url, etiket }) => {
+            const ref = React.useRef(null);
+            React.useEffect(() => {
+                if (!ref.current || !window.Kage95Puan) return;
+                const h = window.Kage95Puan.baslat(ref.current, { url, etiket, token: tokenAl });
+                return () => h.yoksay();
+            }, [url]);
+            return <div ref={ref}></div>;
+        };
+
+        const apiGet = async (yol) => {
+            const r = await fetch(API + yol);
+            if (!r.ok) throw new Error('HTTP ' + r.status);
+            return r.json();
+        };
+
+        // Sunucu yorumları HTML-encode eder; metne geri çevir (React zaten kaçışlar).
+        const htmlCoz = (s) => new DOMParser().parseFromString(s || '', 'text/html').body.textContent || '';
+
+        const tarihYaz = (t) => {
+            if (!t) return '';
+            const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(t) ? t : t + 'Z');
+            return isNaN(d) ? '' : d.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
+        };
+
+        // Kendi ürettiğimiz yer tutucu sayfa (SVG data-URI)
+        const yerTutucu = (n, toplam) => {
+            const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
+<rect width="800" height="1200" fill="#171313"/><rect x="30" y="30" width="740" height="1140" fill="none" stroke="#3a3232" stroke-width="2"/>
+<rect x="70" y="80" width="660" height="420" fill="#221b1b"/><rect x="70" y="540" width="320" height="300" fill="#221b1b"/><rect x="410" y="540" width="320" height="300" fill="#221b1b"/><rect x="70" y="880" width="660" height="250" fill="#221b1b"/>
+<text x="400" y="620" text-anchor="middle" font-family="Arial" font-size="40" fill="#9ca3af">Örnek sayfa</text>
+<text x="400" y="680" text-anchor="middle" font-family="Arial" font-size="120" font-weight="400" fill="#8f8782">${n}</text>
+<text x="400" y="740" text-anchor="middle" font-family="Arial" font-size="30" fill="#6b7280">/ ${toplam}</text></svg>`;
+            return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+        };
+        const ORNEK_SAYFALAR = [1, 2, 3].map((n) => yerTutucu(n, 3));
+
+        // Sade çizgi ikonlar (currentColor, 1.5px)
+        const Ikon = ({ ad }) => {
+            const yollar = {
+                solOk: <path d="M15 5l-7 7 7 7" />,
+                sagOk: <path d="M9 5l7 7-7 7" />,
+                uyari: <><path d="M12 3 2.5 20h19L12 3z" /><path d="M12 10v5M12 17.5v.5" /></>,
+                bos: <><rect x="4" y="3" width="16" height="18" rx="1" /><path d="M8 15l3-3 2 2 3-4M9 8h.01" /></>,
+                yorum: <><path d="M4 5h16v11H9l-5 4V5z" /><path d="M8 9h8M8 12h5" /></>
+            };
+            return (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false">
+                    {yollar[ad]}
+                </svg>
+            );
+        };
+
+        const OkumaSayfasi = () => {
+            const params = new URLSearchParams(window.location.search);
+            const mangaIdParam = parseInt(params.get('id') || '', 10);
+            const bolumIdParam = parseInt(params.get('chapter') || '', 10);
+
+            const [bolumId, setBolumId] = React.useState(Number.isFinite(bolumIdParam) ? bolumIdParam : null);
+            const [veri, setVeri] = React.useState(null);          // /chapters/{id}/pages yanıtı
+            const [bolumler, setBolumler] = React.useState([]);     // bölüm seçici
+            const [durum, setDurum] = React.useState('yukleniyor'); // yukleniyor | hata | hazir | bos | demo
+            const [hataMesaji, setHataMesaji] = React.useState('');
+            const [yenile, setYenile] = React.useState(0);
+
+            const [sayfaIndex, setSayfaIndex] = React.useState(0);
+            const [okumaModu, setOkumaModu] = React.useState(() =>
+                lsGet('kage95_okumaModu') ||
+                (window.matchMedia && window.matchMedia('(max-width: 640px)').matches ? 'webtoon' : 'klasik'));
+            const [favorideMi, setFavorideMi] = React.useState(false);
+
+            const sayfalar = durum === 'hazir' && veri ? veri.sayfalar
+                : (durum === 'demo' || durum === 'bos') ? ORNEK_SAYFALAR : [];
+            const mangaId = veri ? veri.mangaId : (Number.isFinite(mangaIdParam) ? mangaIdParam : null);
+            const yerTutucuMu = durum === 'demo' || durum === 'bos';
+
+            // --- Bölüm yükleme ---
+            React.useEffect(() => {
+                let iptal = false;
+                const calistir = async () => {
+                    setDurum('yukleniyor'); setHataMesaji(''); setVeri(null);
+                    try {
+                        let id = bolumId;
+                        if (id == null && Number.isFinite(mangaIdParam)) {
+                            const manga = await apiGet('/mangas/' + mangaIdParam);
+                            const liste = (manga.bolumler || []).slice().sort((a, b) => a.bolumNo - b.bolumNo);
+                            if (iptal) return;
+                            setBolumler(liste);
+                            if (!liste.length) { setDurum('bos'); return; }
+                            id = liste[0].id;
+                            setBolumId(id);
+                            return; // bolumId değişince efekt yeniden çalışır
+                        }
+                        if (id == null) { setDurum('demo'); return; }
+
+                        const d = await apiGet('/chapters/' + id + '/pages');
+                        if (iptal) return;
+                        setVeri(d);
+                        const kayit = parseInt(lsGet('kage95_sayfa_bolum_' + id) || '0', 10);
+                        const adet = (d.sayfalar || []).length;
+                        setSayfaIndex(kayit >= 0 && kayit < adet ? kayit : 0);
+                        setDurum(adet ? 'hazir' : 'bos');
+                        document.title = `${d.mangaAdi} - Bölüm ${d.bolumNo} | Kage 95`;
+                    } catch (e) {
+                        if (iptal) return;
+                        setHataMesaji(e && e.message && e.message.indexOf('404') > -1
+                            ? 'Bu bölüm bulunamadı.'
+                            : 'Sunucuya ulaşılamadı. API çalışıyor mu?');
+                        setDurum('hata');
+                    }
+                };
+                calistir();
+                return () => { iptal = true; };
+            }, [bolumId, yenile]);
+
+            // Bölüm listesi (seçici) — hata olursa sessizce geç
+            React.useEffect(() => {
+                if (!veri || veri.mangaId == null) return;
+                if (bolumler.length && bolumler.some((b) => b.id === veri.bolumId)) return;
+                let iptal = false;
+                apiGet('/mangas/' + veri.mangaId).then((m) => {
+                    if (iptal) return;
+                    setBolumler((m.bolumler || []).slice().sort((a, b) => a.bolumNo - b.bolumNo));
+                }).catch(() => {});
+                return () => { iptal = true; };
+            }, [veri && veri.mangaId]);
+
+            // Favori (yerel)
+            React.useEffect(() => {
+                if (mangaId == null) return;
+                try { setFavorideMi(JSON.parse(lsGet('kage95_favoriler') || '[]').includes(mangaId)); } catch (e) {}
+            }, [mangaId]);
+
+            const toggleFavori = () => {
+                if (mangaId == null) return;
+                let favlar = [];
+                try { favlar = JSON.parse(lsGet('kage95_favoriler') || '[]'); } catch (e) {}
+                favlar = favorideMi ? favlar.filter((i) => i !== mangaId) : [...favlar, mangaId];
+                lsSet('kage95_favoriler', JSON.stringify(favlar));
+                setFavorideMi(!favorideMi);
+            };
+
+            const modDegistir = (m) => { setOkumaModu(m); lsSet('kage95_okumaModu', m); };
+
+            // --- Parlaklık (gece okuma) ---
+            const [parlaklik, setParlaklik] = React.useState(() => {
+                const v = parseInt(lsGet('kage95_parlaklik') || '100', 10);
+                return Number.isFinite(v) ? Math.min(100, Math.max(40, v)) : 100;
+            });
+            const [parlaklikAcik, setParlaklikAcik] = React.useState(false);
+            const parlaklikRef = React.useRef(null);
+            React.useEffect(() => {
+                document.documentElement.style.setProperty('--parlaklik', String(parlaklik / 100));
+                lsSet('kage95_parlaklik', String(parlaklik));
+            }, [parlaklik]);
+            React.useEffect(() => {
+                if (!parlaklikAcik) return;
+                const disTik = (e) => { if (parlaklikRef.current && !parlaklikRef.current.contains(e.target)) setParlaklikAcik(false); };
+                const tus = (e) => { if (e.key === 'Escape') setParlaklikAcik(false); };
+                document.addEventListener('mousedown', disTik);
+                document.addEventListener('touchstart', disTik, { passive: true });
+                document.addEventListener('keydown', tus);
+                return () => {
+                    document.removeEventListener('mousedown', disTik);
+                    document.removeEventListener('touchstart', disTik);
+                    document.removeEventListener('keydown', tus);
+                };
+            }, [parlaklikAcik]);
+
+            // --- Üst çubuğu gizle/göster + webtoon kaydırma yüzdesi ---
+            const [ustGizli, setUstGizli] = React.useState(false);
+            const [kaydirmaOrani, setKaydirmaOrani] = React.useState(0);
+            React.useEffect(() => {
+                let son = window.scrollY, bekliyor = false;
+                const hesapla = () => {
+                    bekliyor = false;
+                    const y = Math.max(0, window.scrollY);
+                    const fark = y - son;
+                    if (y <= 64) { setUstGizli(false); son = y; }
+                    else if (fark > 8) { setUstGizli(true); son = y; }
+                    else if (fark < -8) { setUstGizli(false); son = y; }
+                    if (okumaModu === 'webtoon') {
+                        const maks = document.documentElement.scrollHeight - window.innerHeight;
+                        setKaydirmaOrani(maks > 0 ? Math.min(1, y / maks) : 0);
+                    }
+                };
+                const kaydir = () => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(hesapla); } };
+                window.addEventListener('scroll', kaydir, { passive: true });
+                window.addEventListener('resize', kaydir);
+                document.addEventListener('load', kaydir, true); // görseller yüklenince yükseklik değişir
+                kaydir();
+                return () => {
+                    window.removeEventListener('scroll', kaydir);
+                    window.removeEventListener('resize', kaydir);
+                    document.removeEventListener('load', kaydir, true);
+                };
+            }, [okumaModu, durum]);
+
+            // --- Bölüm geçişi ---
+            const bolumeGit = (id) => {
+                if (id == null) return;
+                const url = new URL(window.location.href);
+                url.searchParams.set('chapter', id);
+                url.searchParams.delete('id');
+                try { history.pushState({}, '', url); } catch (e) {}
+                setBolumId(id);
+                window.scrollTo({ top: 0 });
+            };
+            React.useEffect(() => {
+                const pop = () => {
+                    const c = parseInt(new URLSearchParams(window.location.search).get('chapter') || '', 10);
+                    if (Number.isFinite(c)) setBolumId(c);
+                };
+                window.addEventListener('popstate', pop);
+                return () => window.removeEventListener('popstate', pop);
+            }, []);
+
+            // --- Sayfa kontrolleri (klasik) ---
+            const sonrakiSayfa = React.useCallback(() => {
+                if (sayfaIndex < sayfalar.length - 1) {
+                    setSayfaIndex((p) => p + 1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, [sayfaIndex, sayfalar.length]);
+            const oncekiSayfa = React.useCallback(() => {
+                if (sayfaIndex > 0) {
+                    setSayfaIndex((p) => p - 1);
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+            }, [sayfaIndex]);
+
+            React.useEffect(() => {
+                if (okumaModu !== 'klasik') return;
+                const k = (e) => {
+                    const t = e.target.tagName;
+                    if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
+                    if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') sonrakiSayfa();
+                    else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') oncekiSayfa();
+                };
+                window.addEventListener('keydown', k);
+                return () => window.removeEventListener('keydown', k);
+            }, [okumaModu, sonrakiSayfa, oncekiSayfa]);
+
+            // Klasik modda sonraki sayfayı önceden yükle
+            React.useEffect(() => {
+                if (okumaModu === 'klasik' && !yerTutucuMu && sayfalar[sayfaIndex + 1]) {
+                    const im = new Image(); im.src = sayfalar[sayfaIndex + 1];
+                }
+            }, [okumaModu, sayfaIndex, sayfalar]);
+
+            // --- Webtoon: görünür sayfayı izle, kayıtlı sayfaya kaydır ---
+            const webtoonRef = React.useRef(null);
+            const geriYuklendiRef = React.useRef(null);
+            React.useEffect(() => {
+                if (okumaModu !== 'webtoon' || durum !== 'hazir' || !veri) return;
+                const kap = webtoonRef.current;
+                if (!kap) return;
+                if (geriYuklendiRef.current !== veri.bolumId) {
+                    geriYuklendiRef.current = veri.bolumId;
+                    const hedef = kap.querySelectorAll('img')[sayfaIndex];
+                    if (hedef && sayfaIndex > 0) window.scrollTo({ top: hedef.getBoundingClientRect().top + window.scrollY - 8 });
+                }
+                let bekliyor = false;
+                const hesapla = () => {
+                    bekliyor = false;
+                    const imgler = kap.querySelectorAll('img');
+                    const esik = window.innerHeight * 0.4;
+                    let bulunan = imgler.length - 1;
+                    for (let i = 0; i < imgler.length; i++) {
+                        if (imgler[i].getBoundingClientRect().bottom > esik) { bulunan = i; break; }
+                    }
+                    setSayfaIndex(bulunan);
+                };
+                const kaydir = () => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(hesapla); } };
+                window.addEventListener('scroll', kaydir, { passive: true });
+                return () => window.removeEventListener('scroll', kaydir);
+            }, [okumaModu, durum, veri && veri.bolumId]);
+
+            // --- İlerleme kaydı: yerel + (girişliyse) API ---
+            React.useEffect(() => {
+                if (durum !== 'hazir' || !veri) return;
+                lsSet('kage95_sayfa_bolum_' + veri.bolumId, String(sayfaIndex));
+                lsSet('kage95_son_okunan', JSON.stringify({
+                    mangaId: veri.mangaId, mangaAdi: veri.mangaAdi, bolumId: veri.bolumId, bolumNo: veri.bolumNo,
+                    sayfa: sayfaIndex + 1, toplam: (veri.sayfalar || []).length, zaman: Date.now()
+                }));
+                const token = tokenAl();
+                if (!token) return;
+                const t = setTimeout(() => {
+                    fetch(API + '/user/progress', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                        body: JSON.stringify({ mangaId: veri.mangaId, bolumId: veri.bolumId, sayfaNo: sayfaIndex + 1 })
+                    })
+                        .then((r) => (r.ok ? r.json() : null))
+                        .then((g) => { if (g && window.Kage95Liderlik) window.Kage95Liderlik.yanittan(g); })
+                        .catch(() => {});
+                }, 1500);
+                return () => clearTimeout(t);
+            }, [sayfaIndex, durum, veri && veri.bolumId]);
+
+            // --- Tam ekran ---
+            const tamEkranVar = !!document.documentElement.requestFullscreen;
+            const toggleTamEkran = () => {
+                if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+                else document.exitFullscreen().catch(() => {});
+            };
+
+            // --- ÖZEL: yalnızca webtoon modunda sayfa görseline tek dokunuşla %30 aşağı kaydır ---
+            React.useEffect(() => {
+                if (okumaModu !== 'webtoon') return;
+                let zamanlayici = null;
+                const tikla = (e) => {
+                    if (e.button !== undefined && e.button !== 0) return;
+                    if (!e.target.classList || !e.target.classList.contains('webtoon-sayfasi')) return;
+                    if (e.detail > 1) { clearTimeout(zamanlayici); zamanlayici = null; return; } // çift tık
+                    if (window.getSelection && window.getSelection().toString()) return;
+                    clearTimeout(zamanlayici);
+                    // Çift dokunuşu ayırt etmek için kısa bekleme
+                    zamanlayici = setTimeout(() => {
+                        zamanlayici = null;
+                        if (window.getSelection && window.getSelection().toString()) return;
+                        window.scrollBy({ top: window.innerHeight * KAYMA_ORANI, behavior: 'smooth' });
+                    }, 280);
+                };
+                const ciftTik = () => { clearTimeout(zamanlayici); zamanlayici = null; };
+                document.addEventListener('click', tikla);
+                document.addEventListener('dblclick', ciftTik);
+                return () => {
+                    document.removeEventListener('click', tikla);
+                    document.removeEventListener('dblclick', ciftTik);
+                    clearTimeout(zamanlayici);
+                };
+            }, [okumaModu]);
+
+            // --- Yorumlar --- (js/yorum.js ortak aracı çizer)
+            const yorumBolumId = veri ? veri.bolumId : null;
+
+            // --- Görünüm parçaları ---
+            const onceki = veri ? veri.oncekiBolumId : null;
+            const sonraki = veri ? veri.sonrakiBolumId : null;
+            const gorselHata = (e, i) => {
+                if (e.currentTarget.dataset.hata) return;
+                e.currentTarget.dataset.hata = '1';
+                e.currentTarget.src = yerTutucu(i + 1, sayfalar.length);
+            };
+            const baslik = veri ? veri.mangaAdi : (yerTutucuMu ? 'Örnek Seri (yer tutucu)' : 'Okuma Ekranı');
+            const altBaslik = veri
+                ? `Bölüm ${veri.bolumNo}${veri.bolumAdi ? ' - ' + veri.bolumAdi : ''} · Sayfa ${sayfalar.length ? sayfaIndex + 1 : 0} / ${sayfalar.length}`
+                : (yerTutucuMu ? `Sayfa ${sayfaIndex + 1} / ${sayfalar.length}` : '');
+
+            const ilerlemeOrani = okumaModu === 'webtoon'
+                ? kaydirmaOrani
+                : (sayfalar.length ? (sayfaIndex + 1) / sayfalar.length : 0);
+
+            const bolumSecici = (
+                <select
+                    className="bolum-secici"
+                    aria-label="Bölüm Seç"
+                    value={veri ? veri.bolumId : ''}
+                    onChange={(e) => bolumeGit(parseInt(e.target.value, 10))}
+                    disabled={!bolumler.length}
+                >
+                    {!bolumler.length && <option value="">{veri ? `Bölüm ${veri.bolumNo}` : 'Bölüm'}</option>}
+                    {bolumler.map((b) => (
+                        <option key={b.id} value={b.id}>
+                            Bölüm {b.bolumNo}{b.bolumAdi ? ': ' + b.bolumAdi : ''}
+                        </option>
+                    ))}
+                </select>
+            );
+
+            const bolumSonu = (
+                <div className="bolum-sonu">
+                    <h3>{yerTutucuMu ? 'Örnek bölümün sonu' : 'Bölümün sonu'}</h3>
+                    <p>
+                        {sonraki ? 'Sıradaki bölüme geçebilirsiniz.' : 'Şimdilik yayınlanmış son bölüm bu.'}
+                    </p>
+                    <div className="bolum-sonu-ctalar">
+                        <button className="nav-btn" disabled={!onceki} onClick={() => bolumeGit(onceki)}>Önceki bölüm</button>
+                        <button className="nav-btn btn-dolgu" disabled={!sonraki} onClick={() => bolumeGit(sonraki)}>Sonraki bölüm</button>
+                    </div>
+                </div>
+            );
+
+            return (
+                <div>
+
+                    <header className={'reader-header' + (ustGizli && !parlaklikAcik ? ' gizli' : '')} role="banner">
+                        <div className="header-sol">
+                            <a href="index.html" className="btn-geri" aria-label="Ana Sayfaya Geri Dön">Ana sayfa</a>
+                            {bolumSecici}
+                            <button className="btn-aksiyon" disabled={!onceki} onClick={() => bolumeGit(onceki)} aria-label="Önceki bölüm" title="Önceki bölüm"><Ikon ad="solOk" /></button>
+                            <button className="btn-aksiyon" disabled={!sonraki} onClick={() => bolumeGit(sonraki)} aria-label="Sonraki bölüm" title="Sonraki bölüm"><Ikon ad="sagOk" /></button>
+                        </div>
+
+                        <div className="manga-baslik-alani">
+                            <h1>{baslik}</h1>
+                            <span>{altBaslik}</span>
+                        </div>
+
+                        <div className="header-sag">
+                            <div className="mod-secici-grup" role="group" aria-label="Okuma Modu Seçimi">
+                                <button className={`mod-btn ${okumaModu === 'klasik' ? 'aktif' : ''}`} onClick={() => modDegistir('klasik')} aria-pressed={okumaModu === 'klasik'}>Klasik</button>
+                                <button className={`mod-btn ${okumaModu === 'webtoon' ? 'aktif' : ''}`} onClick={() => modDegistir('webtoon')} aria-pressed={okumaModu === 'webtoon'}>Webtoon</button>
+                            </div>
+                            <button
+                                className={`btn-aksiyon ${favorideMi ? 'aktif' : ''}`}
+                                onClick={toggleFavori}
+                                disabled={mangaId == null}
+                                aria-label={favorideMi ? 'Favorilerden Çıkar' : 'Okunacaklara Ekle'}
+                            >
+                                {favorideMi ? 'Favoride' : 'Favori'}
+                            </button>
+                            {tamEkranVar && (
+                                <button className="btn-aksiyon" onClick={toggleTamEkran} title="Tam Ekran" aria-label="Tam Ekran Aç/Kapat">Tam ekran</button>
+                            )}
+                            <div className="parlaklik-sarmal" ref={parlaklikRef}>
+                                <button
+                                    className={`btn-aksiyon ${parlaklikAcik || parlaklik < 100 ? 'aktif' : ''}`}
+                                    onClick={() => setParlaklikAcik((a) => !a)}
+                                    title="Parlaklık"
+                                    aria-label="Parlaklık ayarı"
+                                    aria-expanded={parlaklikAcik}
+                                    aria-controls="parlaklik-paneli"
+                                >Parlaklık</button>
+                                {parlaklikAcik && (
+                                    <div className="parlaklik-panel" id="parlaklik-paneli" role="group" aria-label="Parlaklık">
+                                        <label htmlFor="parlaklik-kaydirici">Parlaklık <b>%{parlaklik}</b></label>
+                                        <input
+                                            id="parlaklik-kaydirici"
+                                            type="range"
+                                            min="40"
+                                            max="100"
+                                            step="5"
+                                            value={parlaklik}
+                                            onChange={(e) => setParlaklik(parseInt(e.target.value, 10))}
+                                            autoFocus
+                                        />
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    </header>
+
+                    <main className="reader-alani" role="main">
+                        {durum === 'yukleniyor' && (
+                            <div className="durum-kutusu" role="status">
+                                <div className="spinner"></div>
+                                <h2>Bölüm yükleniyor...</h2>
+                            </div>
+                        )}
+
+                        {durum === 'hata' && (
+                            <div className="durum-kutusu" role="alert">
+                                <div className="durum-ikon"><Ikon ad="uyari" /></div>
+                                <h2>Bölüm açılamadı</h2>
+                                <p>{hataMesaji}</p>
+                                <div className="durum-aksiyonlar">
+                                    <button className="nav-btn" onClick={() => setYenile((n) => n + 1)}>Tekrar dene</button>
+                                    <a className="nav-btn" href="index.html">Ana sayfaya dön</a>
+                                </div>
+                            </div>
+                        )}
+
+                        {(durum === 'hazir' || durum === 'bos' || durum === 'demo') && (
+                            <>
+                                {durum === 'bos' && (
+                                    <div className="uyari-serit">
+                                        <Ikon ad="bos" />
+                                        <span className="uyari-metin">Bu bölümde henüz sayfa yok; örnek yer tutucu sayfalar gösteriliyor.</span>
+                                        <a className="btn-aksiyon" href="index.html">Ana sayfaya dön</a>
+                                    </div>
+                                )}
+                                {durum === 'demo' && (
+                                    <div className="uyari-serit">
+                                        <Ikon ad="bos" />
+                                        <span className="uyari-metin">Bölüm belirtilmedi (<code>?chapter=</code> veya <code>?id=</code>); örnek yer tutucu sayfalar gösteriliyor.</span>
+                                        <a className="btn-aksiyon" href="index.html">Ana sayfaya dön</a>
+                                    </div>
+                                )}
+
+                                {okumaModu === 'klasik' ? (
+                                    <div className="klasik-kapsayici">
+                                        <div className="sayfa-gorsel-kapsayici" aria-label="Manga Sayfası">
+                                            <div className="sayfa-tiklama-bolgesi tiklama-sol" onClick={oncekiSayfa} title="Önceki Sayfa (Sol Ok)"></div>
+                                            <div className="sayfa-tiklama-bolgesi tiklama-sag" onClick={sonrakiSayfa} title="Sonraki Sayfa (Sağ Ok)"></div>
+                                            <img
+                                                key={sayfaIndex}
+                                                src={sayfalar[sayfaIndex]}
+                                                alt={`Sayfa ${sayfaIndex + 1}`}
+                                                className="manga-sayfasi"
+                                                decoding="async"
+                                                onError={(e) => gorselHata(e, sayfaIndex)}
+                                            />
+                                        </div>
+
+                                        <nav className="navigasyon-cubugu" aria-label="Sayfa Navigasyonu">
+                                            <button className="nav-btn" onClick={oncekiSayfa} disabled={sayfaIndex === 0} aria-label="Önceki Sayfaya Git">Önceki</button>
+                                            <div className="sayfa-gostergesi" aria-live="polite">{sayfaIndex + 1} / {sayfalar.length}</div>
+                                            <button className="nav-btn" onClick={sonrakiSayfa} disabled={sayfaIndex >= sayfalar.length - 1} aria-label="Sonraki Sayfaya Git">Sonraki</button>
+                                        </nav>
+
+                                        {sayfaIndex >= sayfalar.length - 1 && bolumSonu}
+
+                                        <div className="kisayol-bilgi">
+                                            <span>İpucu: Sayfayı değiştirmek için <kbd>←</kbd> <kbd>→</kbd> ok tuşlarını veya görselin sol/sağ yarısına tıklamayı kullanabilirsiniz.</span>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="webtoon-kapsayici" ref={webtoonRef}>
+                                            {sayfalar.map((sayfa, index) => (
+                                                <img
+                                                    key={veri ? veri.bolumId + '-' + index : index}
+                                                    src={sayfa}
+                                                    alt={`Sayfa ${index + 1}`}
+                                                    className="webtoon-sayfasi"
+                                                    loading="lazy"
+                                                    decoding="async"
+                                                    onLoad={(e) => e.currentTarget.classList.add('yuklendi')}
+                                                    onError={(e) => { e.currentTarget.classList.add('yuklendi'); gorselHata(e, index); }}
+                                                />
+                                            ))}
+                                        </div>
+                                        {bolumSonu}
+                                    </>
+                                )}
+                            </>
+                        )}
+
+                        {/* Yorumlar */}
+                        <section className="yorumlar-bolumu" aria-label="Bölüm Yorumları">
+                            {yorumBolumId != null && (
+                                <div className="bolum-puan">
+                                    <PuanKutu url={API + '/chapters/' + yorumBolumId + '/puan'} etiket="Bu bölümü puanla" />
+                                </div>
+                            )}
+                            <window.Kage95Yorum.Yorumlar tur="bolum" id={yorumBolumId} api={API} tokenAl={tokenAl} sinir={1000}
+                                placeholder="Bu bölüm hakkında ne düşünüyorsun? (Spoiler uyarısı yapmayı unutma)" />
+                        </section>
+                    </main>
+
+                    {sayfalar.length > 0 && (
+                        <div
+                            className="okuma-ilerleme"
+                            role="progressbar"
+                            aria-label="Okuma ilerlemesi"
+                            aria-valuemin={0}
+                            aria-valuemax={100}
+                            aria-valuenow={Math.round(ilerlemeOrani * 100)}
+                        >
+                            <span style={{ transform: `scaleX(${ilerlemeOrani})` }}></span>
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(<OkumaSayfasi />);
+    </script>
+</body>
+</html>

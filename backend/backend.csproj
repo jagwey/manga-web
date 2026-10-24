@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <!-- Eski backend.exe (kilitli) bin/Debug içinde çalışıyorsa dotnet run yine de derlenebilsin diye ayrı çıktı klasörü -->
+    <BaseOutputPath>bin_run/</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.13" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.13" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.3.1" />
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+  </ItemGroup>
+
+</Project>

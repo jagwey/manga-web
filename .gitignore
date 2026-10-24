@@ -1,0 +1,10 @@
+backend/bin/
+backend/obj/
+.vs/
+*.user
+backend/wwwroot/uploads/*
+!backend/wwwroot/uploads/.gitkeep
+backend/wwwroot/avatars/*
+!backend/wwwroot/avatars/.gitkeep
+backend/appsettings.Local.json
+backend/bin_run/
