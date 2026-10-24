@@ -37,7 +37,7 @@ if (-not $SadeceOnyuz) {
 }
 
 Write-Host "[3/4] On yuz dosyalari (wwwroot) yukleniyor..."
-$kokDosyalar = @("index.html", "read.html", "admin.html", "login.html", "logo.svg", "favicon.svg", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
+$kokDosyalar = @("index.html", "read.html", "admin.html", "login.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
 foreach ($f in $kokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
