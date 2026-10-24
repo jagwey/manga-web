@@ -6,11 +6,11 @@
     "start_url": "./index.html",
     "scope": "./",
     "display": "standalone",
-    "background_color": "#e60000",
-    "theme_color": "#e60000",
-    "screenshots": [ { "src": "install-ekran.jpg", "sizes": "376x531", "type": "image/jpeg", "form_factor": "narrow", "label": "Kage 95" } ],
+    "background_color": "#0f0f0f",
+    "theme_color": "#0f0f0f",
     "icons": [
         { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
-        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+        { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" },
+        { "src": "favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
     ]
 }
