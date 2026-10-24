@@ -11,3 +11,4 @@ backend/bin_run/
 bin_tmp_check/
 publish/
 deploy/yayin.Local.json
+.playwright-mcp/

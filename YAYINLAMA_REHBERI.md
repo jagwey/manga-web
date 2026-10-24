@@ -159,3 +159,18 @@ certbot --nginx -d siteniz.com -d www.siteniz.com
   ```bash
   systemctl restart nginx
   ```
+
+
+## SmarterASP.NET (Windows/IIS) notları
+
+- Uygulama havuzu ".Net Core" olmalı. Paketteki web.config, `aspNetCore` satırının yanına şu bloğu da almalı. SmarterASP'de IIS anonim kimlik doğrulaması varsayılan kapalıdır ve kapalıyken her istek 401 verir:
+
+  ```xml
+  <security><authentication><anonymousAuthentication enabled="true" /></authentication></security>
+  ```
+
+- Ücretsiz SSL (Let's Encrypt) için sitenin `.well-known` klasörüne de aynı anonim kimlik doğrulama ayarını içeren bir `web.config` konmalı. Panel, `.well-known/acme-challenge/web.config` dosyasını her başvuruda ezer; bu yüzden ayar bir üst klasörde durmalı. Aksi halde doğrulama 401 ile düşer.
+- SSL kurulduktan sonra Cloudflare'de SSL modu Full (Strict) olmalı. Flexible kullanılmamalı.
+- Güncelleme yüklerken önce `app_offline.htm` yükleyin, DLL'leri gönderin, sonra `app_offline.htm` dosyasını silin. Çalışan uygulama DLL'leri kilitler.
+- `stdoutLogEnabled` yalnızca hata ayıklarken "true" olmalı, sonra "false" yapılmalı.
+- Cloudflare proxy açıkken `Program.cs` yalnızca Cloudflare IP aralıklarından gelen `X-Forwarded-*` başlıklarına güvenir. Aralıklar değişirse https://www.cloudflare.com/ips adresinden güncelleyin.
