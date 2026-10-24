@@ -198,27 +198,35 @@
 
         /* --- OKUYUCU GÖVDE ALANI --- */
         .reader-alani {
-            max-width: var(--okuma-genislik, 900px);
+            width: 100%;
+            max-width: var(--okuma-genislik, 960px);
             margin: 0 auto;
             padding: var(--s3) var(--s2) var(--s4);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+        .reader-alani.mod-cift {
+            max-width: min(1680px, 96vw);
+        }
         .cift-sayfa-satir {
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            gap: 8px;
+            gap: 12px;
             width: 100%;
         }
         .cift-sayfa-satir .manga-sayfasi {
-            max-width: calc(50% - 4px);
-            max-height: 86vh;
+            width: calc(50% - 6px);
+            max-width: calc(50% - 6px);
+            height: auto;
         }
-        @media (max-width: 640px) {
+        .reader-alani.mod-cift .sayfa-gorsel-kapsayici > .manga-sayfasi {
+            max-width: var(--okuma-genislik, 960px);
+        }
+        @media (max-width: 768px) {
             .cift-sayfa-satir { flex-direction: column; align-items: center; }
-            .cift-sayfa-satir .manga-sayfasi { max-width: 100%; }
+            .cift-sayfa-satir .manga-sayfasi { width: 100%; max-width: 100%; }
         }
         .ayar-grup-etiket { font-size: 0.8rem; color: var(--text-ikincil); margin-top: 4px; }
         .ayar-buton-satir { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -242,15 +250,16 @@
         }
         .sayfa-gorsel-kapsayici {
             position: relative;
+            width: 100%;
             max-width: 100%;
             display: flex;
             justify-content: center;
             cursor: pointer;
         }
         .manga-sayfasi {
+            width: 100%;
             max-width: 100%;
             height: auto;
-            max-height: 85vh;
             display: block;
             object-fit: contain;
             background-color: var(--bg-okuyucu);
@@ -664,13 +673,13 @@
             const modDegistir = (m) => { setOkumaModu(m); lsSet('kage95_okumaModu', m); if (m !== 'webtoon') setOtoKaydir(false); };
 
             // --- Sayfa genişliği ve otomatik kaydırma ---
-            const GENISLIKLER = { dar: '600px', normal: '800px', genis: '1080px', tam: '100%' };
+            const GENISLIKLER = { dar: '720px', normal: '960px', genis: '1240px', tam: '100%' };
             const [genislik, setGenislik] = React.useState(() => {
                 const g = lsGet('kage95_genislik') || 'normal';
                 return GENISLIKLER[g] ? g : 'normal';
             });
             React.useEffect(() => {
-                document.documentElement.style.setProperty('--okuma-genislik', GENISLIKLER[genislik] || '800px');
+                document.documentElement.style.setProperty('--okuma-genislik', GENISLIKLER[genislik] || '960px');
                 lsSet('kage95_genislik', genislik);
             }, [genislik]);
 
@@ -1083,7 +1092,7 @@
                         </div>
                     </header>
 
-                    <main className="reader-alani" role="main" id="ana-icerik" tabIndex={-1}>
+                    <main className={`reader-alani ${okumaModu === 'cift' ? 'mod-cift' : ''}`} role="main" id="ana-icerik" tabIndex={-1}>
                         {durum === 'yukleniyor' && (
                             <div className="durum-kutusu" role="status">
                                 <div className="spinner"></div>
