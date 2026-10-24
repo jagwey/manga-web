@@ -1,0 +1,1469 @@
+- generic [active] [ref=f77e8]:
+  - generic [ref=f77e12]:
+    - generic [ref=f77e13]:
+      - complementary [ref=f77e15]:
+        - generic [ref=f77e17]:
+          - generic [ref=f77e19]:
+            - link "Cloudflare home" [ref=f77e20] [cursor=pointer]:
+              - /url: /
+            - button "Switch Account" [ref=f77e27] [cursor=pointer]:
+              - generic "Jagweyy@gmail.com's Account" [ref=f77e29]
+          - navigation [ref=f77e32]:
+            - generic [ref=f77e34]:
+              - generic [aria-hidden]:
+                - generic:
+                  - generic:
+                    - button:
+                      - generic:
+                        - generic:
+                          - generic: Quick search...
+                          - generic: Ctrl K
+                  - list:
+                    - listitem:
+                      - link:
+                        - /url: /dd1782358fb0252d2720b6b68f398346/home
+                        - generic: Account home
+                    - listitem:
+                      - generic:
+                        - button:
+                          - generic: Recents
+                        - list:
+                          - listitem [aria-hidden]
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls
+                              - generic:
+                                - generic: Overview
+                                - generic:
+                                  - generic: kage95.com
+                                  - generic: /
+                                  - generic: SSL/TLS
+                            - generic:
+                              - button
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/records
+                              - generic:
+                                - generic: Records
+                                - generic:
+                                  - generic: kage95.com
+                                  - generic: /
+                                  - generic: DNS
+                            - generic:
+                              - button
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com
+                              - generic:
+                                - generic: kage95.com
+                                - generic: Domains
+                            - generic:
+                              - button
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/domains/transfers
+                              - generic:
+                                - generic: Transfers
+                                - generic: Domains
+                            - generic:
+                              - button
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/domains/registrations
+                              - generic:
+                                - generic: Registrations
+                                - generic: Domains
+                            - generic:
+                              - button
+                    - listitem:
+                      - generic:
+                        - button:
+                          - generic: Domains
+                        - list:
+                          - listitem [aria-hidden]
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/domains/overview
+                              - generic: Overview
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/domains/registrations
+                              - generic: Registrations
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/domains/transfers
+                              - generic: Transfers
+                    - listitem:
+                      - generic:
+                        - button:
+                          - generic:
+                            - generic:
+                              - generic: Observability
+                              - generic: New
+                        - list:
+                          - listitem [aria-hidden]
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/observability/logs
+                              - generic: Logs
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/traces
+                              - generic:
+                                - generic: Traces
+                                - generic: Beta
+                          - listitem:
+                            - generic:
+                              - button:
+                                - generic: Analytics
+                              - list:
+                                - listitem [aria-hidden]
+                                - listitem:
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/analytics
+                                    - generic: Account analytics
+                                - listitem:
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/web-analytics
+                                    - generic: Web analytics
+                          - listitem:
+                            - generic:
+                              - button:
+                                - generic: Export
+                              - list:
+                                - listitem [aria-hidden]
+                                - listitem:
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/logs
+                                    - generic: Logpush
+                                - listitem:
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/observability/destinations
+                                    - generic: OpenTelemetry
+                          - listitem:
+                            - generic:
+                              - button:
+                                - generic: Alerts
+                              - list:
+                                - listitem [aria-hidden]
+                                - link:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/notifications/custom
+                                  - generic: Monitors
+                                - link:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/notifications/cloudflare
+                                  - generic: Platform Notifications
+                                - link:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/notifications/destinations
+                                  - generic: Destinations
+                                - link:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/notifications/silences
+                                  - generic: Silences
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/dashboards
+                              - generic: Dashboards
+                  - generic:
+                    - generic: Build
+                    - list:
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Compute
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers-and-pages
+                                - generic: Workers & Pages
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/observability
+                                - generic: Observability
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers-for-platforms
+                                - generic: Workers for Platforms
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/containers
+                                - generic: Containers
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/durable-objects
+                                - generic: Durable Objects
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/queues
+                                - generic: Queues
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/workflows
+                                - generic: Workflows
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/browser-run
+                                - generic: Browser Run
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/vpc
+                                - generic:
+                                  - generic: VPC
+                                  - generic: Beta
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Email Service
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/email-service/sending
+                                    - generic:
+                                      - generic: Email Sending
+                                      - generic: Beta
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/email-service/routing
+                                    - generic: Email Routing
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/plans
+                                - generic: Workers plans
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/flagship
+                                - generic:
+                                  - generic: Flagship
+                                  - generic: Beta
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: AI
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/ai/models
+                                - generic: Models
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/ai/workers-ai
+                                - generic: Workers AI
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/ai/ai-gateway
+                                - generic: AI Gateway
+                            - listitem:
+                              - link:
+                                - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/ai-controls/mcp-server-portal
+                                - generic: MCP Portals
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/ai/vectorize
+                                - generic: Vectorize
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/ai/ai-search
+                                - generic: AI Search
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/agents
+                                - generic: Agent tracing
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Storage & databases
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/r2/overview
+                                - generic: R2 Object Storage
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/hyperdrive
+                                - generic: Postgres & MySQL (Hyperdrive)
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/kv/namespaces
+                                - generic: Workers KV
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/d1
+                                - generic: D1 SQLite Database
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/workers/analytics-engine
+                                - generic: Analytics Engine
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/data-catalog
+                                - generic: Basin Catalog
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Basin Pipelines
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/pipelines/overview
+                                    - generic: Pipelines
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/k2
+                                - generic:
+                                  - generic: K2 Streams
+                                  - generic: Beta
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/secrets-store
+                                - generic:
+                                  - generic: Secrets Store
+                                  - generic: New
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Images & Stream
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/media/transformations
+                                - generic: Transformations
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/images/hosted
+                                - generic: Hosted images
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/stream/videos
+                                - generic: Hosted videos
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/stream/inputs
+                                - generic: Live inputs
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/stream/analytics
+                                - generic: Stream analytics
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/media/plans
+                                - generic: Plans
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Realtime
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/realtime/kit
+                                - generic: RealtimeKit
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/realtime/turn
+                                - generic: TURN Server
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/realtime/sfu
+                                - generic: Serverless SFU
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/realtime/moq
+                                - generic:
+                                  - generic: MoQ Relay
+                                  - generic: Beta
+                  - generic:
+                    - generic: Protect & connect
+                    - list:
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Application security
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/security-center
+                                - generic: Security insights
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/application-security/waf
+                                - generic: WAF
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/application-security/botbase
+                                - generic: BotBase
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/security-center/inventory
+                                - generic: Infrastructure
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/turnstile
+                                - generic: Turnstile
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Zero Trust
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/overview
+                                - generic: Overview
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Insights & Logs
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/insights/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/insights/dashboards
+                                      - generic: Dashboards
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/insights/logs
+                                      - generic: Logs
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Team & Resources
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/team-resources/application-library
+                                      - generic: Application library
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/team-resources/devices
+                                      - generic: Devices
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/team-resources/users
+                                      - generic: Users
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Access controls
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/apps
+                                      - generic: Applications
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/policies
+                                      - generic: Policies
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/ai-controls
+                                      - generic: MCP Portals
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/targets
+                                      - generic: Targets
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/service-credentials
+                                      - generic: Service credentials
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/access-controls/settings
+                                      - generic: Access settings
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Traffic controls
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/resolvers-proxies
+                                      - generic: Resolvers & Proxies
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/policies
+                                      - generic: Firewall policies
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/resolver-policies
+                                      - generic:
+                                        - generic: Resolver policies
+                                        - generic: New
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/egress-policies
+                                      - generic: Egress policies
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/traffic-controls/traffic-settings
+                                      - generic: Traffic settings
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Data loss prevention
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/profiles
+                                      - generic: Profiles
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/data-classification
+                                      - generic: Data classification
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/validators
+                                      - generic: Validators
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/test-scan
+                                      - generic: Test scan
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/dlp/settings
+                                      - generic: DLP settings
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic:
+                                    - generic:
+                                      - generic: Cloud Workload Security
+                                      - generic: Beta
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/deployments
+                                      - generic: Deployments
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/policy-sets
+                                      - generic: Policy sets
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/workloads
+                                      - generic: Workloads
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/policies
+                                      - generic: Policies
+                                  - listitem:
+                                    - generic:
+                                      - button:
+                                        - generic: Policy reference
+                                      - list:
+                                        - listitem [aria-hidden]
+                                        - listitem:
+                                          - link:
+                                            - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/rego-metadata
+                                            - generic: Rego metadata
+                                        - listitem:
+                                          - link:
+                                            - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/rego-modules
+                                            - generic: Rego modules
+                                        - listitem:
+                                          - link:
+                                            - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/tenant-structures
+                                            - generic: Tenant structures
+                                  - listitem:
+                                    - generic:
+                                      - button:
+                                        - generic: Traffic scope
+                                      - list:
+                                        - listitem [aria-hidden]
+                                        - listitem:
+                                          - link:
+                                            - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/credentials
+                                            - generic: Credentials
+                                        - listitem:
+                                          - link:
+                                            - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-workload-security/domain-acls
+                                            - generic: Domain ACLs
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Cloud & SaaS findings
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-saas-findings/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-saas-findings/posture
+                                      - generic: Posture Findings
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-saas-findings/content
+                                      - generic: Content Findings
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/cloud-saas-findings/findings-catalog
+                                      - generic:
+                                        - generic: Finding types library
+                                        - generic: New
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Email security
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/monitoring
+                                      - generic: Monitoring
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/submissions
+                                      - generic: Submissions
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/investigation
+                                      - generic: Investigation
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/policies
+                                      - generic: Policies & rules
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/phishguard
+                                      - generic: PhishGuard
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/email-security/settings
+                                      - generic: Email security settings
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Browser isolation
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/browser-isolation/overview
+                                      - generic: Overview
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/browser-isolation/settings
+                                      - generic: Browser isolation settings
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Reusable components
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/reusable-components/lists
+                                      - generic: Lists
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/reusable-components/tags
+                                      - generic: Tags
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/reusable-components/posture-checks
+                                      - generic: Posture checks
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/reusable-components/custom-pages
+                                      - generic: Custom pages
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Integrations
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/integrations/cloud-and-saas
+                                      - generic: Cloud & SaaS
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/integrations/identity-providers
+                                      - generic: Identity providers
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/integrations/service-providers
+                                      - generic: Service providers
+                                  - listitem:
+                                    - link:
+                                      - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/integrations/webhooks
+                                      - generic: Webhooks
+                            - listitem:
+                              - link:
+                                - /url: https://dash.cloudflare.com/dd1782358fb0252d2720b6b68f398346/one/settings
+                                - generic: Settings
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Networking
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/magic-networks/overview
+                                - generic:
+                                  - generic: Overview
+                                  - generic: New
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: Insights
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/networking-insights/analytics/network-analytics/flow-analytics
+                                    - generic: Network flow
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/tunnels
+                                - generic: Tunnels
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/mesh
+                                - generic:
+                                  - generic: Mesh
+                                  - generic: Beta
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/magic-networks/routes
+                                - generic:
+                                  - generic: Routes
+                                  - generic: New
+                            - listitem:
+                              - generic:
+                                - button:
+                                  - generic: IP addresses
+                                - list:
+                                  - listitem [aria-hidden]
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/ip-addresses/address-space
+                                    - generic: Address space
+                                  - link:
+                                    - /url: /dd1782358fb0252d2720b6b68f398346/ip-addresses/proxy-ips
+                                    - generic: Address maps
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Threats & defense
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/threats-defense
+                                - generic: Overview
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/threat-intelligence
+                                - generic: Threat intelligence
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/threat-intelligence/investigate
+                                - generic: Investigate
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic:
+                              - generic:
+                                - generic: Monetize
+                                - generic: New
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/monetize/monetization-gateway
+                                - generic:
+                                  - generic: Monetization Gateway
+                                  - generic: Beta
+                      - listitem:
+                        - generic:
+                          - button:
+                            - generic: Delivery & performance
+                          - list:
+                            - listitem [aria-hidden]
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/bulk-redirects
+                                - generic: Bulk redirects
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/load-balancing
+                                - generic: Load Balancing
+                            - listitem:
+                              - link:
+                                - /url: /dd1782358fb0252d2720b6b68f398346/tag-management/zaraz
+                                - generic: Web tag management
+                  - list:
+                    - listitem:
+                      - generic:
+                        - button:
+                          - generic: Manage account
+                        - list:
+                          - listitem [aria-hidden]
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/members
+                              - generic: Members
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/billing
+                              - generic: Billing
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/api-tokens
+                              - generic: Account API tokens
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/oauth-clients
+                              - generic: OAuth clients
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/audit-log
+                              - generic: Audit logs
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/blocked-content
+                              - generic: Blocked content
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/abuse-reports
+                              - generic: Abuse reports
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/carbon
+                              - generic: Carbon Impact Report
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/configurations
+                              - generic: Configurations
+                          - listitem:
+                            - link:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/tags
+                              - generic:
+                                - generic: Tagged Resources
+                                - generic: Beta
+              - generic [ref=f77e36]:
+                - button "Quick search..." [ref=f77e38] [cursor=pointer]:
+                  - generic [ref=f77e40]:
+                    - generic [ref=f77e43]: Quick search...
+                    - generic [ref=f77e44]: Ctrl K
+                - link "Back to Domains" [ref=f77e46] [cursor=pointer]:
+                  - /url: /dd1782358fb0252d2720b6b68f398346/domains/overview
+                - list [ref=f77e53]:
+                  - listitem [ref=f77e54]:
+                    - link "Overview" [ref=f77e55] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/
+                  - listitem [ref=f77e61]:
+                    - generic [ref=f77e62]:
+                      - button "Recents" [ref=f77e63] [cursor=pointer]
+                      - list [ref=f77e71]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e72]:
+                          - link [ref=f77e73] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls
+                            - generic [ref=f77e74]:
+                              - generic [ref=f77e75]: Overview
+                              - generic [ref=f77e76]:
+                                - generic [ref=f77e77]: kage95.com
+                                - generic [ref=f77e78]: /
+                                - generic [ref=f77e79]: SSL/TLS
+                          - button [ref=f77e81] [cursor=pointer]
+                        - listitem [ref=f77e90]:
+                          - link [ref=f77e91] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/records
+                            - generic [ref=f77e92]:
+                              - generic [ref=f77e93]: Records
+                              - generic [ref=f77e94]:
+                                - generic [ref=f77e95]: kage95.com
+                                - generic [ref=f77e96]: /
+                                - generic [ref=f77e97]: DNS
+                          - button [ref=f77e99] [cursor=pointer]
+                        - listitem [ref=f77e108]:
+                          - link [ref=f77e109] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com
+                            - generic [ref=f77e110]:
+                              - generic [ref=f77e111]: kage95.com
+                              - generic [ref=f77e112]: Domains
+                          - button [ref=f77e115] [cursor=pointer]
+                        - listitem [ref=f77e124]:
+                          - link [ref=f77e125] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/domains/transfers
+                            - generic [ref=f77e126]:
+                              - generic [ref=f77e127]: Transfers
+                              - generic [ref=f77e128]: Domains
+                          - button [ref=f77e131] [cursor=pointer]
+                        - listitem [ref=f77e140]:
+                          - link [ref=f77e141] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/domains/registrations
+                            - generic [ref=f77e142]:
+                              - generic [ref=f77e143]: Registrations
+                              - generic [ref=f77e144]: Domains
+                          - button [ref=f77e147] [cursor=pointer]
+                  - listitem [ref=f77e156]:
+                    - generic [ref=f77e157]:
+                      - button "AI Crawl Control" [ref=f77e158] [cursor=pointer]
+                      - list [ref=f77e166]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e167]:
+                          - link [ref=f77e168] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ai/overview
+                            - generic [ref=f77e169]: Overview
+                        - listitem [ref=f77e171]:
+                          - link [ref=f77e172] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ai/metrics
+                            - generic [ref=f77e173]: Metrics
+                        - listitem [ref=f77e175]:
+                          - link [ref=f77e176] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ai/security
+                            - generic [ref=f77e177]: Security
+                        - listitem [ref=f77e179]:
+                          - link [ref=f77e180] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ai/optimization
+                            - generic [ref=f77e181]:
+                              - generic [ref=f77e182]: Optimization
+                              - generic [ref=f77e183]: New
+                        - listitem [ref=f77e185]:
+                          - link [ref=f77e186] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ai/signals
+                            - generic [ref=f77e187]: Signals
+                  - listitem [ref=f77e189]:
+                    - generic [ref=f77e190]:
+                      - button "Agent Readiness" [ref=f77e191] [cursor=pointer]
+                      - list [ref=f77e199]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e200]:
+                          - link [ref=f77e201] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/agent-readiness/overview
+                            - generic [ref=f77e202]: Overview
+                        - listitem [ref=f77e204]:
+                          - link [ref=f77e205] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/agent-readiness/diagnostics
+                            - generic [ref=f77e206]:
+                              - generic [ref=f77e207]: Diagnostics
+                              - generic [ref=f77e208]: Beta
+                        - listitem [ref=f77e210]:
+                          - link [ref=f77e211] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/agent-readiness/ai-playground
+                            - generic [ref=f77e212]:
+                              - generic [ref=f77e213]: AI Playground
+                              - generic [ref=f77e214]: Beta
+                        - listitem [ref=f77e216]:
+                          - link [ref=f77e217] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/agent-readiness/webmcp
+                            - generic [ref=f77e218]:
+                              - generic [ref=f77e219]: WebMCP
+                              - generic [ref=f77e220]: Beta
+                  - listitem [ref=f77e222]:
+                    - link "Analytics" [ref=f77e223] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/analytics
+                  - listitem [ref=f77e229]:
+                    - generic [ref=f77e230]:
+                      - button "Observability New" [ref=f77e231] [cursor=pointer]:
+                        - generic [ref=f77e235]:
+                          - generic [ref=f77e236]: Observability
+                          - generic [ref=f77e237]: New
+                      - list [ref=f77e241]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e242]:
+                          - link [ref=f77e243] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/observability/logs
+                            - generic [ref=f77e244]: Logs
+                        - listitem [ref=f77e246]:
+                          - link [ref=f77e247] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/observability/traces
+                            - generic [ref=f77e248]:
+                              - generic [ref=f77e249]: Traces
+                              - generic [ref=f77e250]: Beta
+                        - listitem [ref=f77e252]:
+                          - generic [ref=f77e253]:
+                            - button [ref=f77e254] [cursor=pointer]:
+                              - generic [ref=f77e255]: Export
+                            - list [ref=f77e260]:
+                              - listitem [aria-hidden]
+                              - listitem [ref=f77e261]:
+                                - link [ref=f77e262] [cursor=pointer]:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/analytics/logs
+                                  - generic [ref=f77e263]: Logpush
+                              - listitem [ref=f77e265]:
+                                - link [ref=f77e266] [cursor=pointer]:
+                                  - /url: /dd1782358fb0252d2720b6b68f398346/observability/destinations
+                                  - generic [ref=f77e267]: OpenTelemetry
+                        - listitem [ref=f77e269]:
+                          - link [ref=f77e270] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dashboards
+                            - generic [ref=f77e271]:
+                              - generic [ref=f77e272]: Dashboards
+                              - generic [ref=f77e273]: New
+                  - listitem [ref=f77e275]:
+                    - generic [ref=f77e276]:
+                      - button "DNS" [expanded] [ref=f77e277] [cursor=pointer]
+                      - region [ref=f77e285]:
+                        - list [ref=f77e287]:
+                          - listitem [aria-hidden]
+                          - listitem [ref=f77e288]:
+                            - link "Records" [ref=f77e289] [cursor=pointer]:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/records
+                          - listitem [ref=f77e292]:
+                            - link "Analytics" [ref=f77e293] [cursor=pointer]:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/analytics
+                          - listitem [ref=f77e296]:
+                            - link "Settings" [ref=f77e297] [cursor=pointer]:
+                              - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/settings
+                  - listitem [ref=f77e300]:
+                    - generic [ref=f77e301]:
+                      - button "Email" [ref=f77e302] [cursor=pointer]
+                      - list [ref=f77e310]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e311]:
+                          - link [ref=f77e312] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/email-service/sending/zone-navigation/3417df29e318c5b4445dfe57bfdb36e0
+                            - generic [ref=f77e313]:
+                              - generic [ref=f77e314]: Email Sending
+                              - generic [ref=f77e315]: Beta
+                        - listitem [ref=f77e317]:
+                          - link [ref=f77e318] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/email-service/routing/zone-navigation/3417df29e318c5b4445dfe57bfdb36e0
+                            - generic [ref=f77e319]: Email Routing
+                        - listitem [ref=f77e321]:
+                          - link [ref=f77e322] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/email/dmarc-management
+                            - generic [ref=f77e323]: DMARC Management
+                        - listitem [ref=f77e325]:
+                          - link [ref=f77e326] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/email/security
+                            - generic [ref=f77e327]: Email Security
+                  - listitem [ref=f77e329]:
+                    - generic [ref=f77e330]:
+                      - button "SSL/TLS" [ref=f77e331] [cursor=pointer]
+                      - list [ref=f77e339]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e340]:
+                          - link [ref=f77e341] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls
+                            - generic [ref=f77e342]: Overview
+                        - listitem [ref=f77e344]:
+                          - link [ref=f77e345] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls/edge-certificates
+                            - generic [ref=f77e346]: Edge Certificates
+                        - listitem [ref=f77e348]:
+                          - link [ref=f77e349] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls/client-certificates
+                            - generic [ref=f77e350]: Client Certificates
+                        - listitem [ref=f77e352]:
+                          - link [ref=f77e353] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls/origin
+                            - generic [ref=f77e354]: Origin Server
+                        - listitem [ref=f77e356]:
+                          - link [ref=f77e357] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/ssl-tls/custom-hostnames
+                            - generic [ref=f77e358]: Custom Hostnames
+                  - listitem [ref=f77e360]:
+                    - generic [ref=f77e361]:
+                      - button "Security" [ref=f77e362] [cursor=pointer]
+                      - list [ref=f77e370]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e371]:
+                          - link [ref=f77e372] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/overview
+                            - generic [ref=f77e373]: Overview
+                        - listitem [ref=f77e375]:
+                          - link [ref=f77e376] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/analytics
+                            - generic [ref=f77e377]: Analytics
+                        - listitem [ref=f77e379]:
+                          - link [ref=f77e380] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/account-abuse-protection
+                            - generic [ref=f77e381]:
+                              - generic [ref=f77e382]: Account Abuse Protection
+                              - generic [ref=f77e383]: Beta
+                        - listitem [ref=f77e385]:
+                          - link [ref=f77e386] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/web-assets
+                            - generic [ref=f77e387]: Web assets
+                        - listitem [ref=f77e389]:
+                          - link [ref=f77e390] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/security-rules
+                            - generic [ref=f77e391]: Security rules
+                        - listitem [ref=f77e393]:
+                          - link [ref=f77e394] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/security/settings
+                            - generic [ref=f77e395]: Settings
+                  - listitem [ref=f77e397]:
+                    - link "Access" [ref=f77e398] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/access
+                  - listitem [ref=f77e404]:
+                    - generic [ref=f77e405]:
+                      - button "Speed" [ref=f77e406] [cursor=pointer]
+                      - list [ref=f77e414]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e415]:
+                          - link [ref=f77e416] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed
+                            - generic [ref=f77e417]:
+                              - generic [ref=f77e418]: Observatory
+                              - generic [ref=f77e419]: Beta
+                        - listitem [ref=f77e421]:
+                          - link [ref=f77e422] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed/origin-analytics
+                            - generic [ref=f77e423]: Origin Analytics
+                        - listitem [ref=f77e425]:
+                          - link [ref=f77e426] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed/rum
+                            - generic [ref=f77e427]: Real user monitoring
+                        - listitem [ref=f77e429]:
+                          - link [ref=f77e430] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed/test
+                            - generic [ref=f77e431]:
+                              - generic [ref=f77e432]: Synthetic monitoring
+                              - generic [ref=f77e433]: Beta
+                        - listitem [ref=f77e435]:
+                          - link [ref=f77e436] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed/optimization
+                            - generic [ref=f77e437]: Settings
+                        - listitem [ref=f77e439]:
+                          - link [ref=f77e440] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/speed/smart-shield
+                            - generic [ref=f77e441]: Smart Shield
+                  - listitem [ref=f77e443]:
+                    - generic [ref=f77e444]:
+                      - button "Caching" [ref=f77e445] [cursor=pointer]
+                      - list [ref=f77e453]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e454]:
+                          - link [ref=f77e455] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/caching
+                            - generic [ref=f77e456]: Overview
+                        - listitem [ref=f77e458]:
+                          - link [ref=f77e459] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/caching/configuration
+                            - generic [ref=f77e460]: Configuration
+                        - listitem [ref=f77e462]:
+                          - link [ref=f77e463] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/caching/cache-rules
+                            - generic [ref=f77e464]: Cache Rules
+                        - listitem [ref=f77e466]:
+                          - link [ref=f77e467] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/caching/tiered-cache
+                            - generic [ref=f77e468]: Tiered Cache
+                        - listitem [ref=f77e470]:
+                          - link [ref=f77e471] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/caching/cache-reserve
+                            - generic [ref=f77e472]: Cache Reserve
+                  - listitem [ref=f77e474]:
+                    - link "Workers Routes" [ref=f77e475] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/workers
+                  - listitem [ref=f77e481]:
+                    - generic [ref=f77e482]:
+                      - button "Rules" [ref=f77e483] [cursor=pointer]
+                      - list [ref=f77e491]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e492]:
+                          - link [ref=f77e493] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/overview
+                            - generic [ref=f77e494]: Overview
+                        - listitem [ref=f77e496]:
+                          - link [ref=f77e497] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/redirect-rules
+                            - generic [ref=f77e498]: Redirect Rules
+                        - listitem [ref=f77e500]:
+                          - link [ref=f77e501] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/simulator
+                            - generic [ref=f77e502]:
+                              - generic [ref=f77e503]: Rule simulator
+                              - generic [ref=f77e504]: Beta
+                        - listitem [ref=f77e506]:
+                          - link [ref=f77e507] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/snippets
+                            - generic [ref=f77e508]: Snippets
+                        - listitem [ref=f77e510]:
+                          - link [ref=f77e511] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/cloud-connector
+                            - generic [ref=f77e512]:
+                              - generic [ref=f77e513]: Cloud Connector
+                              - generic [ref=f77e514]: Beta
+                        - listitem [ref=f77e516]:
+                          - link [ref=f77e517] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/page-rules
+                            - generic [ref=f77e518]: Page Rules
+                        - listitem [ref=f77e520]:
+                          - link [ref=f77e521] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/rules/settings
+                            - generic [ref=f77e522]: Settings
+                  - listitem [ref=f77e524]:
+                    - link "Error Pages New" [ref=f77e525] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/error-pages
+                      - generic [ref=f77e529]:
+                        - generic [ref=f77e530]: Error Pages
+                        - generic [ref=f77e531]: New
+                  - listitem [ref=f77e533]:
+                    - link "Network" [ref=f77e534] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/network
+                  - listitem [ref=f77e540]:
+                    - generic [ref=f77e541]:
+                      - button "Traffic" [ref=f77e542] [cursor=pointer]
+                      - list [ref=f77e550]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e551]:
+                          - link [ref=f77e552] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/traffic
+                            - generic [ref=f77e553]: Argo Smart Routing
+                        - listitem [ref=f77e555]:
+                          - link [ref=f77e556] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/traffic/load-balancing
+                            - generic [ref=f77e557]: Load Balancing
+                        - listitem [ref=f77e559]:
+                          - link [ref=f77e560] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/traffic/load-balancing-analytics
+                            - generic [ref=f77e561]: Load Balancing Analytics
+                        - listitem [ref=f77e563]:
+                          - link [ref=f77e564] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/traffic/health-checks
+                            - generic [ref=f77e565]: Health Checks
+                        - listitem [ref=f77e567]:
+                          - link [ref=f77e568] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/traffic/waiting-rooms
+                            - generic [ref=f77e569]: Waiting Room
+                  - listitem [ref=f77e571]:
+                    - link "Web3" [ref=f77e572] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/web3
+                - list [ref=f77e580]:
+                  - listitem [ref=f77e581]:
+                    - generic [ref=f77e582]:
+                      - button "Manage account" [ref=f77e583] [cursor=pointer]
+                      - list [ref=f77e591]:
+                        - listitem [aria-hidden]
+                        - listitem [ref=f77e592]:
+                          - link [ref=f77e593] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/members
+                            - generic [ref=f77e594]: Members
+                        - listitem [ref=f77e596]:
+                          - link [ref=f77e597] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/billing
+                            - generic [ref=f77e598]: Billing
+                        - listitem [ref=f77e600]:
+                          - link [ref=f77e601] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/api-tokens
+                            - generic [ref=f77e602]: Account API tokens
+                        - listitem [ref=f77e604]:
+                          - link [ref=f77e605] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/audit-log
+                            - generic [ref=f77e606]: Audit logs
+                        - listitem [ref=f77e608]:
+                          - link [ref=f77e609] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/notifications
+                            - generic [ref=f77e610]: Alerts
+                        - listitem [ref=f77e612]:
+                          - link [ref=f77e613] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/blocked-content
+                            - generic [ref=f77e614]: Blocked content
+                        - listitem [ref=f77e616]:
+                          - link [ref=f77e617] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/abuse-reports
+                            - generic [ref=f77e618]: Abuse reports
+                        - listitem [ref=f77e620]:
+                          - link [ref=f77e621] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/carbon
+                            - generic [ref=f77e622]: Carbon Impact Report
+                        - listitem [ref=f77e624]:
+                          - link [ref=f77e625] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/configurations
+                            - generic [ref=f77e626]: Configurations
+                        - listitem [ref=f77e628]:
+                          - link [ref=f77e629] [cursor=pointer]:
+                            - /url: /dd1782358fb0252d2720b6b68f398346/tags
+                            - generic [ref=f77e630]:
+                              - generic [ref=f77e631]: Tagged Resources
+                              - generic [ref=f77e632]: Beta
+          - button "Collapse sidebar" [expanded] [ref=f77e638] [cursor=pointer]
+      - generic [ref=f77e641]:
+        - banner [ref=f77e642]:
+          - generic [ref=f77e643]:
+            - button "Star domain" [ref=f77e644] [cursor=pointer]
+            - generic [ref=f77e649] [cursor=pointer]:
+              - paragraph [ref=f77e650]: kage95.com
+              - generic [ref=f77e651]: free
+          - generic [ref=f77e654]:
+            - button "Ask AI" [ref=f77e655] [cursor=pointer]
+            - link "Support" [ref=f77e661] [cursor=pointer]:
+              - /url: /?to=/:account/support
+            - button "User menu" [ref=f77e666] [cursor=pointer]
+        - generic [ref=f77e671]:
+          - banner [ref=f77e672]:
+            - generic [ref=f77e673]:
+              - generic [ref=f77e674]:
+                - heading "DNS records for kage95.com" [level=1] [ref=f77e676]
+                - paragraph [ref=f77e677]: Manage how the Internet finds your web content, verifies services, and routes traffic.
+              - generic [ref=f77e678]:
+                - generic [ref=f77e680]:
+                  - text: "DNS Setup:"
+                  - generic [ref=f77e681]: Full
+                - link "DNS documentation" [ref=f77e682] [cursor=pointer]:
+                  - /url: https://developers.cloudflare.com/dns/get-started/
+          - generic [ref=f77e686]:
+            - generic [ref=f77e688]:
+              - button "Collapse" [ref=f77e690] [cursor=pointer]:
+                - generic [ref=f77e693]:
+                  - paragraph [ref=f77e694]: Recommendations
+                  - generic [ref=f77e695]: "2"
+              - generic [ref=f77e701]:
+                - generic [ref=f77e704]:
+                  - generic [ref=f77e705]: Email cannot reach @kage95.com addresses and they could be spoofed
+                  - generic [ref=f77e706]:
+                    - text: Add an MX record to receive email.
+                    - link "Set up SPF, DKIM, and DMARC records" [ref=f77e707] [cursor=pointer]:
+                      - /url: /dd1782358fb0252d2720b6b68f398346/kage95.com/dns/settings/wizard/restrictive-records
+                    - text: to prevent email spoofing.
+                - generic [ref=f77e1031]:
+                  - generic [ref=f77e1032]: Your origin IP address is partially exposed
+                  - paragraph [ref=f77e1035]: A DNS-only record is revealing an IP address that is hidden by a proxied record. Proxy all records that share an IP to fully hide your server.
+            - generic [ref=f77e709]:
+              - generic [ref=f77e710]:
+                - searchbox "Search" [ref=f77e714]
+                - button "Filters" [ref=f77e715] [cursor=pointer]
+                - button "Display options" [ref=f77e719] [cursor=pointer]
+              - generic [ref=f77e723]:
+                - button "Import" [ref=f77e724] [cursor=pointer]
+                - button "Export" [ref=f77e728] [cursor=pointer]
+                - button "Add record" [ref=f77e732] [cursor=pointer]
+            - generic [ref=f77e737]:
+              - paragraph [ref=f77e739]:
+                - text: You have used
+                - strong [ref=f77e740]: 2 of 200
+                - text: available DNS records in this domain.
+              - table "DNS records" [ref=f77e743]:
+                - rowgroup [ref=f77e744]:
+                  - row [ref=f77e745]:
+                    - columnheader [ref=f77e746]:
+                      - checkbox "Select All" [ref=f77e747] [cursor=pointer]
+                      - checkbox [aria-hidden] [ref=f77e748]
+                    - columnheader [ref=f77e749]
+                    - columnheader "Name Sort by Name Resize Name column" [ref=f77e754]:
+                      - generic [ref=f77e755]:
+                        - generic [ref=f77e1039]: Name
+                        - button "Sort by Name" [ref=f77e761] [cursor=pointer]
+                      - button "Resize Name column" [ref=f77e764]
+                    - columnheader "Type Sort by Type" [ref=f77e766]:
+                      - generic [ref=f77e767]:
+                        - generic [ref=f77e1044]: Type
+                        - button "Sort by Type" [ref=f77e773] [cursor=pointer]
+                    - columnheader "Content Sort by Content Resize Content column" [ref=f77e776]:
+                      - generic [ref=f77e777]:
+                        - generic [ref=f77e1049]: Content
+                        - button "Sort by Content" [ref=f77e783] [cursor=pointer]
+                      - button "Resize Content column" [ref=f77e786]
+                    - columnheader "Proxy status Sort by Proxy status" [ref=f77e788]:
+                      - generic [ref=f77e789]:
+                        - generic [ref=f77e1054]: Proxy status
+                        - button "Sort by Proxy status" [ref=f77e795] [cursor=pointer]
+                    - columnheader "TTL Sort by TTL" [ref=f77e798]:
+                      - generic [ref=f77e799]:
+                        - generic [ref=f77e1059]: TTL
+                        - button "Sort by TTL" [ref=f77e805] [cursor=pointer]
+                    - columnheader "Tags Resize Tags column" [ref=f77e808]:
+                      - generic [ref=f77e809]: Tags
+                      - button "Resize Tags column" [ref=f77e812]
+                    - columnheader "Comment Resize Comment column" [ref=f77e814]:
+                      - generic [ref=f77e815]: Comment
+                      - button "Resize Comment column" [ref=f77e818]
+                    - columnheader "Details Resize Details column" [ref=f77e820]:
+                      - generic [ref=f77e821]: Details
+                      - button "Resize Details column" [ref=f77e824]
+                    - columnheader [ref=f77e826]
+                - generic [ref=f77e827]:
+                  - rowgroup:
+                    - row "Select CNAME record with name kage95.com Warning kage95.com CNAME jagwey-001-site1.etempurl.com DNS only Auto — — — Edit CNAME record with name kage95.com":
+                      - cell "Select CNAME record with name kage95.com":
+                        - checkbox "Select CNAME record with name kage95.com"
+                        - checkbox [aria-hidden]
+                      - cell "Warning":
+                        - button "Warning"
+                      - cell "kage95.com"
+                      - cell "CNAME"
+                      - cell "jagwey-001-site1.etempurl.com":
+                        - generic:
+                          - generic "jagwey-001-site1.etempurl.com"
+                      - cell "DNS only"
+                      - cell "Auto"
+                      - cell "—"
+                      - cell "—"
+                      - cell "—"
+                      - cell "Edit CNAME record with name kage95.com":
+                        - generic:
+                          - button "Edit CNAME record with name kage95.com": Edit
+                    - row "Select CNAME record with name www.kage95.com www.kage95.com CNAME jagwey-001-site1.etempurl.com Proxied Auto — — — Edit CNAME record with name www.kage95.com":
+                      - cell "Select CNAME record with name www.kage95.com":
+                        - checkbox "Select CNAME record with name www.kage95.com"
+                        - checkbox [aria-hidden]
+                      - cell
+                      - cell "www.kage95.com":
+                        - generic "www.kage95.com":
+                          - text: www
+                          - generic: .kage95.com
+                      - cell "CNAME"
+                      - cell "jagwey-001-site1.etempurl.com":
+                        - generic:
+                          - generic "jagwey-001-site1.etempurl.com"
+                      - cell "Proxied"
+                      - cell "Auto"
+                      - cell "—"
+                      - cell "—"
+                      - cell "—"
+                      - cell "Edit CNAME record with name www.kage95.com":
+                        - generic:
+                          - button "Edit CNAME record with name www.kage95.com": Edit
+              - generic [ref=f77e965]: Showing 1-2 of 2
+        - contentinfo [ref=f77e968]:
+          - list [ref=f77e970]:
+            - listitem [ref=f77e971]:
+              - link "Support" [ref=f77e972] [cursor=pointer]:
+                - /url: https://support.cloudflare.com
+            - listitem [ref=f77e973]:
+              - link "System status" [ref=f77e974] [cursor=pointer]:
+                - /url: https://www.cloudflarestatus.com
+            - listitem [ref=f77e975]:
+              - link "Careers" [ref=f77e976] [cursor=pointer]:
+                - /url: https://www.cloudflare.com/careers/
+            - listitem [ref=f77e977]:
+              - link "Terms of Use" [ref=f77e978] [cursor=pointer]:
+                - /url: https://www.cloudflare.com/website-terms/
+            - listitem [ref=f77e979]:
+              - link "Report Security Issues" [ref=f77e980] [cursor=pointer]:
+                - /url: https://www.cloudflare.com/disclosure/
+            - listitem [ref=f77e981]:
+              - link "Privacy Policy" [ref=f77e982] [cursor=pointer]:
+                - /url: https://www.cloudflare.com/privacypolicy/
+            - listitem [ref=f77e983]:
+              - button "Cookie Preferences" [ref=f77e984] [cursor=pointer]
+            - listitem [ref=f77e985]:
+              - generic [ref=f77e986]: © 2026 Cloudflare, Inc.
+    - alert [ref=f77e1074] [cursor=pointer]:
+      - generic [ref=f77e1075]: DNS record updated successfully
+  - generic:
+    - region "Notifications"
