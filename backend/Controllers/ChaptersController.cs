@@ -183,6 +183,7 @@ namespace Kage95.Backend.Controllers
                 .Include(b => b.Sayfalar)
                 .FirstOrDefaultAsync(b => b.MangaId == manga.Id && b.BolumNo == bolumNo);
 
+            var yeniBolumMu = bolum == null;
             if (bolum == null)
             {
                 bolum = new Bolum
@@ -213,6 +214,23 @@ namespace Kage95.Backend.Controllers
             await _context.SaveChangesAsync();
             await _denetim.KaydetAsync(User, "bolum.olustur", $"Bölüm #{bolum.Id} ({manga.MangaAdi} {bolum.BolumNo})",
                 $"{sayfaUrlListesi.Count} sayfa eklendi");
+
+            if (yeniBolumMu && manga.Yayinda)
+            {
+                var takipciler = await _context.Favoriler.AsNoTracking()
+                    .Where(f => f.MangaId == manga.Id)
+                    .Select(f => f.KullaniciId)
+                    .ToListAsync();
+                if (takipciler.Count > 0)
+                {
+                    await BildirimController.BildirimKaydetAsync(
+                        _context,
+                        takipciler,
+                        "bolum",
+                        $"{manga.MangaAdi} · Bölüm {bolum.BolumNo} yayınlandı",
+                        $"read.html?chapter={bolum.Id}");
+                }
+            }
 
             return Ok(new
             {
@@ -298,6 +316,23 @@ namespace Kage95.Backend.Controllers
 
             var dto = await _yorumlar.TekAsync(false, chapterId, yorum.Id, userId);
             if (dto != null) dto.PuanKazanildi = kazanim.Kazanilan;
+            if (kokId != null)
+            {
+                var ustYazarId = await _context.Yorumlar.AsNoTracking()
+                    .Where(y => y.Id == kokId.Value)
+                    .Select(y => (int?)y.KullaniciId)
+                    .FirstOrDefaultAsync();
+                if (ustYazarId != null && ustYazarId.Value != userId)
+                {
+                    var yazarAdi = dto?.KullaniciAdi ?? User.Identity?.Name ?? "Bir kullanıcı";
+                    await BildirimController.BildirimKaydetAsync(
+                        _context,
+                        new[] { ustYazarId.Value },
+                        "yanit",
+                        $"{yazarAdi} bölüm yorumuna yanıt verdi",
+                        $"read.html?chapter={chapterId}");
+                }
+            }
             return Ok(dto);
         }
 

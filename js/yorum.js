@@ -207,7 +207,7 @@
         }
 
         var ust = h('div', { className: 'yr-ust' },
-            h('span', { className: 'yr-yazar ' + AS.sinif(y.adStili), style: AS.stil(y.adStili) }, y.kullaniciAdi),
+            h('a', { href: 'index.html#/kullanici/' + encodeURIComponent(y.kullaniciAdi || ''), className: 'yr-yazar ' + AS.sinif(y.adStili), style: AS.stil(y.adStili) }, y.kullaniciAdi),
             AS.unvan(y.adStili) ? h('span', { className: 'as-unvan' }, AS.unvan(y.adStili)) : null,
             h('time', { className: 'yr-tarih', dateTime: y.tarih }, tarihYaz(y.tarih)),
             y.duzenlendi ? h('span', { className: 'yr-duzenlendi', title: 'Düzenleme: ' + tarihYaz(y.duzenlendi) }, '(düzenlendi)') : null,

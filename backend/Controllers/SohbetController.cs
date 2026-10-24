@@ -16,6 +16,11 @@ namespace Kage95.Backend.Controllers
         public string? Neden { get; set; }
     }
 
+    public class SohbetSabitRequest
+    {
+        public string? Metin { get; set; }
+    }
+
     [ApiController]
     [Route("api")]
     public class SohbetController : ControllerBase
@@ -37,7 +42,35 @@ namespace Kage95.Backend.Controllers
 
         [HttpGet("sohbet/durum")]
         public async Task<IActionResult> Durum()
-            => Ok(new { cevrimici = SohbetHub.Cevrimici, acik = await _ayarlar.AcikMiAsync("sohbetAcik", true) });
+            => Ok(new
+            {
+                cevrimici = SohbetHub.Cevrimici,
+                acik = await _ayarlar.AcikMiAsync("sohbetAcik", true),
+                sabitMesaj = await _ayarlar.DegerAsync("sohbetSabitMesaj") ?? string.Empty
+            });
+
+        [Yetki("sohbet.yonet")]
+        [HttpPut("admin/sohbet/sabit")]
+        public async Task<IActionResult> SabitMesajKaydet([FromBody] SohbetSabitRequest? istek)
+        {
+            var temiz = SohbetMetni.Temizle(istek?.Metin);
+            if (temiz.Length > 300)
+                return BadRequest(new { message = "Sabit mesaj en fazla 300 karakter olabilir." });
+            await _ayarlar.KaydetAsync("sohbetSabitMesaj", temiz);
+            await _hub.Clients.All.SendAsync("SabitDegisti", new { metin = temiz });
+            await _denetim.KaydetAsync(User, "sohbet.sabit", "Sabit mesaj güncellendi", temiz);
+            return Ok(new { message = string.IsNullOrEmpty(temiz) ? "Sabit mesaj kaldırıldı." : "Mesaj sabitlendi.", sabitMesaj = temiz });
+        }
+
+        [Yetki("sohbet.yonet")]
+        [HttpDelete("admin/sohbet/sabit")]
+        public async Task<IActionResult> SabitMesajKaldir()
+        {
+            await _ayarlar.KaydetAsync("sohbetSabitMesaj", string.Empty);
+            await _hub.Clients.All.SendAsync("SabitDegisti", new { metin = string.Empty });
+            await _denetim.KaydetAsync(User, "sohbet.sabitKaldir", "Sabit mesaj kaldırıldı");
+            return Ok(new { message = "Sabit mesaj kaldırıldı.", sabitMesaj = string.Empty });
+        }
 
         /// <summary>Geçmiş mesajlar (anonim). onceki: bu kimlikten eski olanlar; en yeni "limit" mesaj ESKİDEN YENİYE sırayla döner.</summary>
         [HttpGet("sohbet/mesajlar")]

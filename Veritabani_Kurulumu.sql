@@ -1,4 +1,4 @@
-﻿/* =========================================================
+/* =========================================================
    Kage 95 - Manga Okuma Platformu
    Kapsamlı İlişkisel Veritabanı Kurulum Scripti (SQL Server / MSSQL)
    Faz 1: Veri Modeli ve Veritabanı Altyapısı
@@ -767,4 +767,26 @@ END
 GO
 IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_OneCikanlar_Aktif_Sira' AND object_id = OBJECT_ID(N'dbo.OneCikanlar'))
     CREATE NONCLUSTERED INDEX IX_OneCikanlar_Aktif_Sira ON dbo.OneCikanlar(Aktif, Sira, Tarih DESC);
+GO
+
+/* ---------------------------------------------------------
+   Bildirimler (yeni bolum, yorum yaniti, sohbet etiketi)
+   --------------------------------------------------------- */
+IF OBJECT_ID(N'dbo.Bildirimler', N'U') IS NULL
+BEGIN
+    CREATE TABLE dbo.Bildirimler
+    (
+        Id          INT IDENTITY(1,1) NOT NULL,
+        KullaniciId INT               NOT NULL,
+        Tur         VARCHAR(20)       NOT NULL CONSTRAINT DF_Bildirimler_Tur DEFAULT ('bilgi'),
+        Baslik      NVARCHAR(250)     NOT NULL,
+        Baglanti    NVARCHAR(300)     NULL,
+        Okundu      BIT               NOT NULL CONSTRAINT DF_Bildirimler_Okundu DEFAULT (0),
+        Tarih       DATETIME2         NOT NULL CONSTRAINT DF_Bildirimler_Tarih DEFAULT (SYSUTCDATETIME()),
+        CONSTRAINT PK_Bildirimler PRIMARY KEY (Id)
+    );
+END
+GO
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Bildirimler_KullaniciId_Okundu_Tarih' AND object_id = OBJECT_ID(N'dbo.Bildirimler'))
+    CREATE NONCLUSTERED INDEX IX_Bildirimler_KullaniciId_Okundu_Tarih ON dbo.Bildirimler(KullaniciId, Okundu, Tarih DESC);
 GO

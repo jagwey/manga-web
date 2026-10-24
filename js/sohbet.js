@@ -123,6 +123,12 @@
         '.ks-btn,.ks-giris{border-radius:999px}',
         '.ks-giris{padding-left:16px}',
         '.ks-sayfa .ks-liste{border-radius:12px}',
+        '.ks-sabit{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;margin:8px 0 4px;border-left:3px solid var(--vurgu-parlak,#e0343c);background:color-mix(in srgb,var(--vurgu-rengi,#8e0e15) 18%,var(--bg-kart,#141111));border-radius:4px;font-size:.875rem}',
+        '.ks-sabit-baslik{font-weight:700;color:var(--vurgu-parlak,#e0343c);margin-right:6px;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}',
+        '.ks-etiket{color:var(--vurgu-parlak,#e0343c);font-weight:600;text-decoration:none}',
+        '.ks-etiket:hover{text-decoration:underline}',
+        '.ks-bahset{background:none;border:0;padding:0 4px;color:var(--text-ikincil,#a79d96);cursor:pointer;font-size:.75rem}',
+        '.ks-bahset:hover{color:var(--vurgu-parlak,#e0343c)}',
         '@media (prefers-reduced-motion:reduce){.ks-m{animation:none}}'
     ].join('\n');
 
@@ -186,6 +192,7 @@
         mesajlar: [],        // eskiden yeniye
         cevrimici: null,
         acik: true,
+        sabitMesaj: '',
         bagli: false,
         hazir: false,
         dinleyen: [],        // { degisti: fn }
@@ -232,7 +239,11 @@
 
     function durumuYukle() {
         return getir('/sohbet/durum').then(function (v) {
-            if (v) { durum.acik = v.acik !== false; if (typeof v.cevrimici === 'number') durum.cevrimici = v.cevrimici; }
+            if (v) {
+                durum.acik = v.acik !== false;
+                if (typeof v.cevrimici === 'number') durum.cevrimici = v.cevrimici;
+                if (typeof v.sabitMesaj === 'string') durum.sabitMesaj = v.sabitMesaj;
+            }
             haber('durum');
         }).catch(function () {});
     }
@@ -260,6 +271,7 @@
             if (durum.mesajlar.length !== n) haber('silindi', v.id);
         });
         b.on('Cevrimici', function (v) { durum.cevrimici = v.sayi; haber('durum'); });
+        b.on('SabitDegisti', function (v) { durum.sabitMesaj = (v && typeof v.metin === 'string') ? v.metin : ''; haber('durum'); });
         b.onreconnecting(function () { durum.bagli = false; haber('durum'); });
         b.onreconnected(function () { durum.bagli = true; haber('durum'); gecmisiYukle(); durumuYukle(); });
         b.onclose(function () { durum.bagli = false; haber('durum'); });
@@ -348,6 +360,26 @@
     }
 
     /* ------------------------- Mesaj çizimi ------------------------- */
+    function metinDoldur(hedef, metin) {
+        var s = String(metin || '');
+        var re = /@([\p{L}\p{Nd}_.\-]{3,30})/gu;
+        var sonIndeks = 0;
+        var eslesme;
+        while ((eslesme = re.exec(s)) !== null) {
+            if (eslesme.index > sonIndeks) {
+                hedef.appendChild(document.createTextNode(s.slice(sonIndeks, eslesme.index)));
+            }
+            var kullaniciAdi = eslesme[1];
+            var link = el('a', 'ks-etiket', '@' + kullaniciAdi);
+            link.href = '#/kullanici/' + encodeURIComponent(kullaniciAdi);
+            hedef.appendChild(link);
+            sonIndeks = re.lastIndex;
+        }
+        if (sonIndeks < s.length) {
+            hedef.appendChild(document.createTextNode(s.slice(sonIndeks)));
+        }
+    }
+
     function mesajEl(m, secenek) {
         var li = el('li', 'ks-m');
         li.setAttribute('data-id', m.id);
@@ -368,7 +400,8 @@
 
         var govde = el('div', 'ks-govde');
         var ust = el('div', 'ks-ust');
-        var ad = el('span', 'ks-ad', m.kullaniciAdi);
+        var ad = el('a', 'ks-ad', m.kullaniciAdi);
+        ad.href = '#/kullanici/' + encodeURIComponent(m.kullaniciAdi || '');
         if (st.adRengiHex) ad.style.color = st.adRengiHex;
         if (st.parlak) ad.classList.add('ks-parlak');
         if (st.parlak && st.animasyon) ad.classList.add('ks-anim');
@@ -378,10 +411,27 @@
         sev.title = m.rutbe || '';
         ust.appendChild(sev);
         if (st.unvan) ust.appendChild(el('span', 'ks-unvan', st.unvan));
+        if (secenek.bahset) {
+            var bh = el('button', 'ks-bahset', '@');
+            bh.type = 'button';
+            bh.title = m.kullaniciAdi + ' kullanıcısını etiketle';
+            bh.setAttribute('aria-label', m.kullaniciAdi + ' kullanıcısını etiketle');
+            bh.addEventListener('click', function () { secenek.bahset(m.kullaniciAdi); });
+            ust.appendChild(bh);
+        }
         ust.appendChild(el('span', 'ks-saat', saatYaz(m.tarih)));
+        if (secenek.sabitle && m.metin) {
+            var sb = el('button', 'ks-sil', 'Sabitle');
+            sb.type = 'button';
+            sb.style.marginLeft = '0';
+            sb.setAttribute('aria-label', 'Bu mesajı sabitle');
+            sb.addEventListener('click', function () { secenek.sabitle(m, sb); });
+            ust.appendChild(sb);
+        }
         if (secenek.sil) {
             var b = el('button', 'ks-sil', 'Sil');
             b.type = 'button';
+            if (secenek.sabitle && m.metin) b.style.marginLeft = '0';
             b.setAttribute('aria-label', m.kullaniciAdi + ' kullanıcısının mesajını sil');
             b.addEventListener('click', function () { secenek.sil(m, b); });
             ust.appendChild(b);
@@ -390,7 +440,8 @@
 
         var balon = el('div', 'ks-balon' + (m.stickerId && !m.metin ? ' ks-balon-st' : ''));
         if (m.metin) {
-            var t = el('span', 'ks-metin', m.metin);
+            var t = el('span', 'ks-metin');
+            metinDoldur(t, m.metin);
             if (st.mesajFontu && FONTLAR[st.mesajFontu]) t.style.fontFamily = FONTLAR[st.mesajFontu];
             balon.appendChild(t);
         }
@@ -433,6 +484,13 @@
         cev.appendChild(cevYazi);
         ust.appendChild(bas);
         ust.appendChild(cev);
+        var sabitKutusu = el('div', 'ks-sabit');
+        sabitKutusu.hidden = true;
+        var sabitSol = el('div');
+        sabitSol.appendChild(el('span', 'ks-sabit-baslik', 'Sabit'));
+        var sabitMetinEl = el('span');
+        sabitSol.appendChild(sabitMetinEl);
+        sabitKutusu.appendChild(sabitSol);
         var liste = el('ul', 'ks-liste');
         // Şerit herkesin gördüğü ana sayfada akıyor; ekran okuyucuyu her mesajda bölmemek için canlı bölge kullanılmaz.
         var kapi = el('div', 'ks-kapi');
@@ -451,12 +509,15 @@
         }
         kapi.appendChild(tam);
         kok.appendChild(ust);
+        kok.appendChild(sabitKutusu);
         kok.appendChild(liste);
         kok.appendChild(kapi);
         kap.appendChild(kok);
 
         function ciz() {
             var altta = liste.scrollHeight - liste.scrollTop - liste.clientHeight < 60;
+            sabitKutusu.hidden = !durum.sabitMesaj;
+            sabitMetinEl.textContent = durum.sabitMesaj || '';
             liste.textContent = '';
             var son = durum.mesajlar.slice(-30);
             if (!son.length) {
@@ -500,6 +561,25 @@
 
         var uyari = el('div', 'ks-not');
         uyari.style.display = 'none';
+        var sabitKutusu = el('div', 'ks-sabit');
+        sabitKutusu.hidden = true;
+        var sabitSol = el('div');
+        sabitSol.appendChild(el('span', 'ks-sabit-baslik', 'Sabit'));
+        var sabitMetinEl = el('span');
+        sabitSol.appendChild(sabitMetinEl);
+        sabitKutusu.appendChild(sabitSol);
+        if (yonetici) {
+            var sabitKaldirBtn = el('button', 'ks-sil', 'Kaldır');
+            sabitKaldirBtn.type = 'button';
+            sabitKaldirBtn.style.marginLeft = 'auto';
+            sabitKaldirBtn.addEventListener('click', function () {
+                var h = { 'Authorization': 'Bearer ' + (durum.tokenFn() || '') };
+                fetch(durum.apiUrl + '/admin/sohbet/sabit', { method: 'DELETE', headers: h })
+                    .then(function (r) { if (!r.ok) throw new Error(); })
+                    .catch(function () { hataYaz('Sabit mesaj kaldırılamadı.'); });
+            });
+            sabitKutusu.appendChild(sabitKaldirBtn);
+        }
         var liste = el('ul', 'ks-liste');
         liste.setAttribute('role', 'log');
         liste.setAttribute('aria-live', 'polite');
@@ -509,6 +589,7 @@
 
         kok.appendChild(ust);
         kok.appendChild(uyari);
+        kok.appendChild(sabitKutusu);
         kok.appendChild(eski);
         kok.appendChild(liste);
 
@@ -561,6 +642,27 @@
 
         var secenekMesaj = {
             profilAdresi: null,
+            bahset: girisli ? function (ad) {
+                if (!giris || !ad) return;
+                var ek = '@' + ad + ' ';
+                if (giris.value.indexOf(ek) < 0) {
+                    var yeni = (giris.value ? giris.value.replace(/\s+$/, '') + ' ' : '') + ek;
+                    if (yeni.length <= MAKS_UZUNLUK) {
+                        giris.value = yeni;
+                        sayac.textContent = giris.value.length + '/' + MAKS_UZUNLUK;
+                    }
+                }
+                giris.focus();
+            } : null,
+            sabitle: yonetici ? function (m, btn) {
+                if (!m || !m.metin) return;
+                btn.disabled = true;
+                var h = { 'Authorization': 'Bearer ' + (durum.tokenFn() || ''), 'Content-Type': 'application/json' };
+                fetch(durum.apiUrl + '/admin/sohbet/sabit', { method: 'PUT', headers: h, body: JSON.stringify({ metin: m.kullaniciAdi + ': ' + m.metin }) })
+                    .then(function (r) { if (!r.ok) throw new Error(); })
+                    .catch(function () { hataYaz('Mesaj sabitlenemedi.'); })
+                    .then(function () { btn.disabled = false; });
+            } : null,
             sil: yonetici ? function (m, btn) {
                 if (!window.confirm('Bu mesaj silinsin mi?')) return;
                 btn.disabled = true;
@@ -582,6 +684,8 @@
 
         function durumCiz() {
             durumYazisi(kok, cevYazi);
+            sabitKutusu.hidden = !durum.sabitMesaj;
+            sabitMetinEl.textContent = durum.sabitMesaj || '';
             eski.hidden = !durum.mesajlar.length;
             if (!durum.acik) {
                 uyari.style.display = '';

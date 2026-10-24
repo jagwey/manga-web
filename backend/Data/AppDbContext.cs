@@ -31,6 +31,7 @@ namespace Kage95.Backend.Data
         public DbSet<SohbetMesaji> SohbetMesajlari => Set<SohbetMesaji>();
         public DbSet<SohbetSusturma> SohbetSusturmalari => Set<SohbetSusturma>();
         public DbSet<KullaniciTercihi> KullaniciTercihleri => Set<KullaniciTercihi>();
+        public DbSet<Bildirim> Bildirimler => Set<Bildirim>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -288,6 +289,17 @@ namespace Kage95.Backend.Data
                 e.Property(x => x.AdRengi).HasMaxLength(20);
                 e.Property(x => x.MesajFontu).HasMaxLength(20);
                 e.Property(x => x.Unvan).HasMaxLength(24);
+            });
+            modelBuilder.Entity<Bildirim>(e =>
+            {
+                e.ToTable("Bildirimler");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Tur).HasMaxLength(20).IsUnicode(false).HasDefaultValue("bilgi");
+                e.Property(x => x.Baslik).HasMaxLength(250).IsRequired();
+                e.Property(x => x.Baglanti).HasMaxLength(300);
+                e.Property(x => x.Okundu).HasDefaultValue(false);
+                e.Property(x => x.Tarih).HasDefaultValueSql("SYSUTCDATETIME()");
+                e.HasIndex(x => new { x.KullaniciId, x.Okundu, x.Tarih });
             });
 
             // Favoriler

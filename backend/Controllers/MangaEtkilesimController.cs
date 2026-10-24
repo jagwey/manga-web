@@ -122,6 +122,23 @@ namespace Kage95.Backend.Controllers
 
             var dto = await _yorumlar.TekAsync(true, id, yorum.Id, userId.Value);
             if (dto != null) dto.PuanKazanildi = kazanim.Kazanilan;
+            if (kokId != null)
+            {
+                var ustYazarId = await _context.MangaYorumlari.AsNoTracking()
+                    .Where(y => y.Id == kokId.Value)
+                    .Select(y => (int?)y.KullaniciId)
+                    .FirstOrDefaultAsync();
+                if (ustYazarId != null && ustYazarId.Value != userId.Value)
+                {
+                    var yazarAdi = dto?.KullaniciAdi ?? User.Identity?.Name ?? "Bir kullanıcı";
+                    await BildirimController.BildirimKaydetAsync(
+                        _context,
+                        new[] { ustYazarId.Value },
+                        "yanit",
+                        $"{yazarAdi} seri yorumuna yanıt verdi",
+                        $"#/manga/{id}");
+                }
+            }
             return Ok(dto);
         }
 

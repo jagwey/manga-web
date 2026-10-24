@@ -46,7 +46,7 @@ namespace Kage95.Backend.Controllers
 
             // Aşırı uzun metinler SQL kolon sınırını aşıp 500 üretmesin.
             if (search != null && search.Length > 100) search = search[..100];
-            if (category != null && category.Length > 100) category = category[..100];
+            if (category != null && category.Length > 300) category = category[..300];
 
             var query = _context.Mangalar.AsNoTracking().AsQueryable();
 
@@ -70,8 +70,13 @@ namespace Kage95.Backend.Controllers
 
             if (!string.IsNullOrWhiteSpace(category))
             {
-                var catTerm = category.Trim().ToLower();
-                query = query.Where(m => m.MangaKategorileri.Any(mk => mk.Kategori.KategoriAdi.ToLower() == catTerm));
+                var secilenKategoriler = category.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(k => k.ToLower()).Distinct().Take(10).ToList();
+                foreach (var catTerm in secilenKategoriler)
+                {
+                    var k = catTerm;
+                    query = query.Where(m => m.MangaKategorileri.Any(mk => mk.Kategori.KategoriAdi.ToLower() == k));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(durum))
@@ -120,6 +125,16 @@ namespace Kage95.Backend.Controllers
             Response.Headers.Append("X-Total-Count", totalCount.ToString());
 
             return Ok(mangas);
+        }
+
+        /// <summary>Yayındaki serilerden rastgele birini döner.</summary>
+        [HttpGet("rastgele")]
+        public async Task<IActionResult> Rastgele()
+        {
+            var idler = await _context.Mangalar.AsNoTracking().Where(m => m.Yayinda).Select(m => new { m.Id, m.MangaAdi }).ToListAsync();
+            if (idler.Count == 0) return NotFound(new { message = "Henüz yayında seri yok." });
+            var secilen = idler[System.Security.Cryptography.RandomNumberGenerator.GetInt32(idler.Count)];
+            return Ok(new { id = secilen.Id, mangaAdi = secilen.MangaAdi });
         }
 
         /// <summary>

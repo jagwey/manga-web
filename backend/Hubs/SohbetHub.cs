@@ -3,9 +3,11 @@ using System.Globalization;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Kage95.Backend.Controllers;
 using Kage95.Backend.Data;
 using Kage95.Backend.Models;
 using Kage95.Backend.Security;
@@ -171,6 +173,28 @@ namespace Kage95.Backend.Hubs
                 Tarih = SohbetMetni.Utc(kayit.Tarih),
                 AdStili = stil
             });
+
+            if (temiz.Contains('@'))
+            {
+                var eslesmeler = Regex.Matches(temiz, @"@([\p{L}\p{Nd}_.\-]{3,30})");
+                var adlar = eslesmeler.Select(m => m.Groups[1].Value).Distinct(StringComparer.OrdinalIgnoreCase).Take(3).ToList();
+                if (adlar.Count > 0)
+                {
+                    var etiketlenenIdler = await _db.Kullanicilar.AsNoTracking()
+                        .Where(x => x.Aktif && x.Id != uid && adlar.Contains(x.KullaniciAdi))
+                        .Select(x => x.Id)
+                        .ToListAsync(ct);
+                    if (etiketlenenIdler.Count > 0)
+                    {
+                        await BildirimController.BildirimKaydetAsync(
+                            _db,
+                            etiketlenenIdler,
+                            "etiket",
+                            $"{k.KullaniciAdi} sohbette senden bahsetti",
+                            "#/sohbet");
+                    }
+                }
+            }
         }
     }
 

@@ -283,4 +283,15 @@ namespace Kage95.Backend.Models
         public bool Rozet { get; set; }
         public string? Unvan { get; set; }
     }
+
+    public class Bildirim
+    {
+        public int Id { get; set; }
+        public int KullaniciId { get; set; }
+        public string Tur { get; set; } = "bilgi"; // bolum | yanit | etiket
+        public string Baslik { get; set; } = string.Empty;
+        public string? Baglanti { get; set; }
+        public bool Okundu { get; set; }
+        public DateTime Tarih { get; set; } = DateTime.UtcNow;
+    }
 }

@@ -195,13 +195,36 @@
 
         /* --- OKUYUCU GÖVDE ALANI --- */
         .reader-alani {
-            max-width: 900px;
+            max-width: var(--okuma-genislik, 900px);
             margin: 0 auto;
             padding: var(--s3) var(--s2) var(--s4);
             display: flex;
             flex-direction: column;
             align-items: center;
         }
+        .cift-sayfa-satir {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 8px;
+            width: 100%;
+        }
+        .cift-sayfa-satir .manga-sayfasi {
+            max-width: calc(50% - 4px);
+            max-height: 86vh;
+        }
+        @media (max-width: 640px) {
+            .cift-sayfa-satir { flex-direction: column; align-items: center; }
+            .cift-sayfa-satir .manga-sayfasi { max-width: 100%; }
+        }
+        .ayar-grup-etiket { font-size: 0.8rem; color: var(--text-ikincil); margin-top: 4px; }
+        .ayar-buton-satir { display: flex; gap: 4px; flex-wrap: wrap; }
+        .ayar-kucuk-btn {
+            flex: 1 1 auto; min-height: 32px; padding: 0 8px; background: transparent;
+            border: 1px solid var(--border-renk); border-radius: 2px; color: var(--text-ikincil);
+            font: inherit; font-size: 0.8rem; cursor: pointer;
+        }
+        .ayar-kucuk-btn.aktif { border-color: var(--vurgu-parlak); color: var(--text-ana); }
 
         /* Görsellere parlaklık filtresi */
         .manga-sayfasi, .webtoon-sayfasi { filter: brightness(var(--parlaklik, 1)); }
@@ -277,7 +300,7 @@
         /* WEBTOON MODU: görseller arasında hiç boşluk yok */
         .webtoon-kapsayici {
             width: 100%;
-            max-width: 800px;
+            max-width: var(--okuma-genislik, 800px);
             display: flex;
             flex-direction: column;
             gap: 0;
@@ -631,7 +654,39 @@
                 setFavorideMi(!favorideMi);
             };
 
-            const modDegistir = (m) => { setOkumaModu(m); lsSet('kage95_okumaModu', m); };
+            const modDegistir = (m) => { setOkumaModu(m); lsSet('kage95_okumaModu', m); if (m !== 'webtoon') setOtoKaydir(false); };
+
+            // --- Sayfa genişliği ve otomatik kaydırma ---
+            const GENISLIKLER = { dar: '600px', normal: '800px', genis: '1080px', tam: '100%' };
+            const [genislik, setGenislik] = React.useState(() => {
+                const g = lsGet('kage95_genislik') || 'normal';
+                return GENISLIKLER[g] ? g : 'normal';
+            });
+            React.useEffect(() => {
+                document.documentElement.style.setProperty('--okuma-genislik', GENISLIKLER[genislik] || '800px');
+                lsSet('kage95_genislik', genislik);
+            }, [genislik]);
+
+            const [otoKaydir, setOtoKaydir] = React.useState(false);
+            const [otoHiz, setOtoHiz] = React.useState(() => {
+                const h = parseInt(lsGet('kage95_otoHiz') || '2', 10);
+                return [1, 2, 3, 4].includes(h) ? h : 2;
+            });
+            React.useEffect(() => { lsSet('kage95_otoHiz', String(otoHiz)); }, [otoHiz]);
+            React.useEffect(() => {
+                if (!otoKaydir || okumaModu !== 'webtoon') return;
+                let raf = null, sonZaman = performance.now();
+                const adim = (simdi) => {
+                    const dt = Math.min(64, simdi - sonZaman);
+                    sonZaman = simdi;
+                    const maks = document.documentElement.scrollHeight - window.innerHeight;
+                    if (window.scrollY >= maks - 2) { setOtoKaydir(false); return; }
+                    window.scrollBy(0, (otoHiz * 45 * dt) / 1000);
+                    raf = requestAnimationFrame(adim);
+                };
+                raf = requestAnimationFrame(adim);
+                return () => { if (raf) cancelAnimationFrame(raf); };
+            }, [otoKaydir, otoHiz, okumaModu]);
 
             // --- Parlaklık (gece okuma) ---
             const [parlaklik, setParlaklik] = React.useState(() => {
@@ -706,22 +761,23 @@
                 return () => window.removeEventListener('popstate', pop);
             }, []);
 
-            // --- Sayfa kontrolleri (klasik) ---
+            // --- Sayfa kontrolleri (klasik ve çift sayfa) ---
+            const sayfaAdimi = okumaModu === 'cift' ? 2 : 1;
             const sonrakiSayfa = React.useCallback(() => {
                 if (sayfaIndex < sayfalar.length - 1) {
-                    setSayfaIndex((p) => p + 1);
+                    setSayfaIndex((p) => Math.min(sayfalar.length - 1, p + sayfaAdimi));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-            }, [sayfaIndex, sayfalar.length]);
+            }, [sayfaIndex, sayfalar.length, sayfaAdimi]);
             const oncekiSayfa = React.useCallback(() => {
                 if (sayfaIndex > 0) {
-                    setSayfaIndex((p) => p - 1);
+                    setSayfaIndex((p) => Math.max(0, p - sayfaAdimi));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 }
-            }, [sayfaIndex]);
+            }, [sayfaIndex, sayfaAdimi]);
 
             React.useEffect(() => {
-                if (okumaModu !== 'klasik') return;
+                if (okumaModu !== 'klasik' && okumaModu !== 'cift') return;
                 const k = (e) => {
                     const t = e.target.tagName;
                     if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
@@ -732,12 +788,12 @@
                 return () => window.removeEventListener('keydown', k);
             }, [okumaModu, sonrakiSayfa, oncekiSayfa]);
 
-            // Klasik modda sonraki sayfayı önceden yükle
+            // Klasik / çift sayfa modunda sonraki sayfayı önceden yükle
             React.useEffect(() => {
-                if (okumaModu === 'klasik' && !yerTutucuMu && sayfalar[sayfaIndex + 1]) {
-                    const im = new Image(); im.src = sayfalar[sayfaIndex + 1];
+                if ((okumaModu === 'klasik' || okumaModu === 'cift') && !yerTutucuMu && sayfalar[sayfaIndex + sayfaAdimi]) {
+                    const im = new Image(); im.src = sayfalar[sayfaIndex + sayfaAdimi];
                 }
-            }, [okumaModu, sayfaIndex, sayfalar]);
+            }, [okumaModu, sayfaIndex, sayfalar, sayfaAdimi]);
 
             // --- Webtoon: görünür sayfayı izle, kayıtlı sayfaya kaydır ---
             const webtoonRef = React.useRef(null);
@@ -895,7 +951,8 @@
                     const t = e.target.tagName;
                     if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
                     if (e.key === '?') { e.preventDefault(); setKisayolAcik((a) => !a); }
-                    else if (e.key === 'Escape') setKisayolAcik(false);
+                    else if ((e.key === 'o' || e.key === 'O') && okumaModu === 'webtoon') { e.preventDefault(); setOtoKaydir((a) => !a); }
+                    else if (e.key === 'Escape') { setKisayolAcik(false); setOtoKaydir(false); }
                 };
                 window.addEventListener('keydown', k);
                 return () => window.removeEventListener('keydown', k);
@@ -950,8 +1007,20 @@
                         <div className="header-sag">
                             <div className="mod-secici-grup" role="group" aria-label="Okuma Modu Seçimi">
                                 <button className={`mod-btn ${okumaModu === 'klasik' ? 'aktif' : ''}`} onClick={() => modDegistir('klasik')} aria-pressed={okumaModu === 'klasik'}>Klasik</button>
+                                <button className={`mod-btn ${okumaModu === 'cift' ? 'aktif' : ''}`} onClick={() => modDegistir('cift')} aria-pressed={okumaModu === 'cift'}>Çift</button>
                                 <button className={`mod-btn ${okumaModu === 'webtoon' ? 'aktif' : ''}`} onClick={() => modDegistir('webtoon')} aria-pressed={okumaModu === 'webtoon'}>Webtoon</button>
                             </div>
+                            {okumaModu === 'webtoon' && (
+                                <button
+                                    type="button"
+                                    className={`btn-aksiyon ${otoKaydir ? 'aktif' : ''}`}
+                                    onClick={() => setOtoKaydir((a) => !a)}
+                                    aria-pressed={otoKaydir}
+                                    title="Otomatik kaydırma (O)"
+                                >
+                                    {otoKaydir ? `Oto (${otoHiz}x)` : 'Oto kaydır'}
+                                </button>
+                            )}
                             <button
                                 className={`btn-aksiyon ${favorideMi ? 'aktif' : ''}`}
                                 onClick={toggleFavori}
@@ -965,15 +1034,15 @@
                             )}
                             <div className="parlaklik-sarmal" ref={parlaklikRef}>
                                 <button
-                                    className={`btn-aksiyon ${parlaklikAcik || parlaklik < 100 ? 'aktif' : ''}`}
+                                    className={`btn-aksiyon ${parlaklikAcik || parlaklik < 100 || genislik !== 'normal' ? 'aktif' : ''}`}
                                     onClick={() => setParlaklikAcik((a) => !a)}
-                                    title="Parlaklık"
-                                    aria-label="Parlaklık ayarı"
+                                    title="Okuma ve görünüm ayarları"
+                                    aria-label="Okuma ayarları"
                                     aria-expanded={parlaklikAcik}
                                     aria-controls="parlaklik-paneli"
-                                >Parlaklık</button>
+                                >Ayarlar</button>
                                 {parlaklikAcik && (
-                                    <div className="parlaklik-panel" id="parlaklik-paneli" role="group" aria-label="Parlaklık">
+                                    <div className="parlaklik-panel" id="parlaklik-paneli" role="group" aria-label="Okuma ayarları">
                                         <label htmlFor="parlaklik-kaydirici">Parlaklık <b>%{parlaklik}</b></label>
                                         <input
                                             id="parlaklik-kaydirici"
@@ -985,6 +1054,22 @@
                                             onChange={(e) => setParlaklik(parseInt(e.target.value, 10))}
                                             autoFocus
                                         />
+                                        <span className="ayar-grup-etiket">Sayfa genişliği</span>
+                                        <div className="ayar-buton-satir">
+                                            {[['dar', 'Dar'], ['normal', 'Normal'], ['genis', 'Geniş'], ['tam', 'Tam']].map(([k, ad]) => (
+                                                <button key={k} type="button" className={`ayar-kucuk-btn ${genislik === k ? 'aktif' : ''}`} onClick={() => setGenislik(k)}>{ad}</button>
+                                            ))}
+                                        </div>
+                                        {okumaModu === 'webtoon' && (
+                                            <>
+                                                <span className="ayar-grup-etiket">Otomatik kaydırma hızı</span>
+                                                <div className="ayar-buton-satir">
+                                                    {[1, 2, 3, 4].map((h) => (
+                                                        <button key={h} type="button" className={`ayar-kucuk-btn ${otoHiz === h ? 'aktif' : ''}`} onClick={() => setOtoHiz(h)}>{h}x</button>
+                                                    ))}
+                                                </div>
+                                            </>
+                                        )}
                                     </div>
                                 )}
                             </div>
@@ -1028,28 +1113,53 @@
                                     </div>
                                 )}
 
-                                {okumaModu === 'klasik' ? (
+                                {(okumaModu === 'klasik' || okumaModu === 'cift') ? (
                                     <div className="klasik-kapsayici">
                                         <div className="sayfa-gorsel-kapsayici" aria-label="Manga Sayfası">
                                             <div className="sayfa-tiklama-bolgesi tiklama-sol" onClick={oncekiSayfa} title="Önceki Sayfa (Sol Ok)"></div>
                                             <div className="sayfa-tiklama-bolgesi tiklama-sag" onClick={sonrakiSayfa} title="Sonraki Sayfa (Sağ Ok)"></div>
-                                            <img
-                                                key={sayfaIndex}
-                                                src={sayfalar[sayfaIndex]}
-                                                alt={`Sayfa ${sayfaIndex + 1}`}
-                                                className="manga-sayfasi"
-                                                decoding="async"
-                                                onError={(e) => gorselHata(e, sayfaIndex)}
-                                            />
+                                            {okumaModu === 'cift' && sayfalar[sayfaIndex + 1] ? (
+                                                <div className="cift-sayfa-satir">
+                                                    <img
+                                                        key={sayfaIndex}
+                                                        src={sayfalar[sayfaIndex]}
+                                                        alt={`Sayfa ${sayfaIndex + 1}`}
+                                                        className="manga-sayfasi"
+                                                        decoding="async"
+                                                        onError={(e) => gorselHata(e, sayfaIndex)}
+                                                    />
+                                                    <img
+                                                        key={sayfaIndex + 1}
+                                                        src={sayfalar[sayfaIndex + 1]}
+                                                        alt={`Sayfa ${sayfaIndex + 2}`}
+                                                        className="manga-sayfasi"
+                                                        decoding="async"
+                                                        onError={(e) => gorselHata(e, sayfaIndex + 1)}
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <img
+                                                    key={sayfaIndex}
+                                                    src={sayfalar[sayfaIndex]}
+                                                    alt={`Sayfa ${sayfaIndex + 1}`}
+                                                    className="manga-sayfasi"
+                                                    decoding="async"
+                                                    onError={(e) => gorselHata(e, sayfaIndex)}
+                                                />
+                                            )}
                                         </div>
 
                                         <nav className="navigasyon-cubugu" aria-label="Sayfa Navigasyonu">
                                             <button className="nav-btn" onClick={oncekiSayfa} disabled={sayfaIndex === 0} aria-label="Önceki Sayfaya Git">Önceki</button>
-                                            <div className="sayfa-gostergesi" aria-live="polite">{sayfaIndex + 1} / {sayfalar.length}</div>
-                                            <button className="nav-btn" onClick={sonrakiSayfa} disabled={sayfaIndex >= sayfalar.length - 1} aria-label="Sonraki Sayfaya Git">Sonraki</button>
+                                            <div className="sayfa-gostergesi" aria-live="polite">
+                                                {okumaModu === 'cift' && sayfalar[sayfaIndex + 1]
+                                                    ? `${sayfaIndex + 1}-${sayfaIndex + 2} / ${sayfalar.length}`
+                                                    : `${sayfaIndex + 1} / ${sayfalar.length}`}
+                                            </div>
+                                            <button className="nav-btn" onClick={sonrakiSayfa} disabled={sayfaIndex + sayfaAdimi > sayfalar.length - 1} aria-label="Sonraki Sayfaya Git">Sonraki</button>
                                         </nav>
 
-                                        {sayfaIndex >= sayfalar.length - 1 && bolumSonu}
+                                        {sayfaIndex + sayfaAdimi > sayfalar.length - 1 && bolumSonu}
 
                                         <div className="kisayol-bilgi">
                                             <span>İpucu: Sayfayı değiştirmek için <kbd>←</kbd> <kbd>→</kbd> ok tuşlarını veya görselin sol/sağ yarısına tıklamayı kullanabilirsiniz.</span>
@@ -1104,10 +1214,11 @@
                             <div className="kisayol-pencere" role="dialog" aria-modal="true" aria-labelledby="kisayolBaslik" onClick={(e) => e.stopPropagation()}>
                                 <h2 id="kisayolBaslik">Klavye kısayolları</h2>
                                 <dl>
-                                    <div><dt><kbd>←</kbd> <kbd>A</kbd></dt><dd>Önceki sayfa (klasik mod)</dd></div>
-                                    <div><dt><kbd>→</kbd> <kbd>D</kbd></dt><dd>Sonraki sayfa (klasik mod)</dd></div>
+                                    <div><dt><kbd>←</kbd> <kbd>A</kbd></dt><dd>Önceki sayfa (klasik / çift mod)</dd></div>
+                                    <div><dt><kbd>→</kbd> <kbd>D</kbd></dt><dd>Sonraki sayfa (klasik / çift mod)</dd></div>
+                                    <div><dt><kbd>O</kbd></dt><dd>Otomatik kaydırmayı başlat / durdur (Webtoon)</dd></div>
                                     <div><dt><kbd>?</kbd></dt><dd>Bu yardımı aç / kapat</dd></div>
-                                    <div><dt><kbd>Esc</kbd></dt><dd>Yardımı kapat</dd></div>
+                                    <div><dt><kbd>Esc</kbd></dt><dd>Yardımı / otomatik kaydırmayı kapat</dd></div>
                                 </dl>
                                 <button type="button" className="nav-btn btn-dolgu" autoFocus onClick={() => setKisayolAcik(false)}>Kapat</button>
                             </div>
