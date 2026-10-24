@@ -145,10 +145,13 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // 7. Middleware Boru Hattı
-app.UseForwardedHeaders(new ForwardedHeadersOptions
+var fho = new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
-});
+};
+fho.KnownNetworks.Clear();
+fho.KnownProxies.Clear();
+app.UseForwardedHeaders(fho);
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,9 +1,16 @@
 // Tüm sayfaların ortak kullandığı API adresi. Yayına alırken yalnızca buradaki varsayılanı değiştirin.
 // Geliştirme kolaylığı: tarayıcıda localStorage 'kage95_api' kaydı varsa o adres kullanılır.
 (function () {
-    // Sayfa başka bir cihazdan (örn. 192.168.1.20:5500) açıldıysa API de aynı makinede, 5035 portunda aranır.
-    var sunucu = (location.hostname && location.protocol.indexOf('http') === 0) ? location.hostname : 'localhost';
-    var varsayilan = 'http://' + sunucu + ':5035/api';
+    // Geliştirme (örn. 5500 portu): API 5035 portunda aranır.
+    // Canlı yayın (80, 443 veya portsuz alan adı): Aynı alan adı üzerinden /api kullanılır (Reverse Proxy / Nginx uyumlu).
+    var port = location.port;
+    var varsayilan;
+    if (!port || port === '80' || port === '443' || location.protocol === 'https:') {
+        varsayilan = (location.origin ? location.origin : ('http://' + (location.hostname || 'localhost'))) + '/api';
+    } else {
+        var sunucu = (location.hostname && location.protocol.indexOf('http') === 0) ? location.hostname : 'localhost';
+        varsayilan = 'http://' + sunucu + ':5035/api';
+    }
     var adres = varsayilan;
     try { adres = localStorage.getItem('kage95_api') || varsayilan; } catch (e) {}
     window.KAGE95_API_URL = adres;
