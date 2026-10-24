@@ -10,6 +10,7 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - Puan defteri (PuanKayitlari) ve kuralları: bölüm oku +10 (günde 10 bölüm), yorum +5 (günde 5, >=20 karakter), puan ver +2 (günde 10), kütüphane +3, günlük giriş +2, 7 gün seri +10, profil resmi +10; günlük tavan 250.
 - Liderlik ön yüzü: `#/liderlik` (hafta/ay/tüm zamanlar), Hesabım "Puanım", "+N puan" toast, admin "Puanları sıfırla". 5 tema x 3 boyut temiz.
 - Profil resmi yükleme, Jagwey Owner paneli, kullanıcı adı büyük/küçük harf duyarsız.
+- (Bitti, 24.10) Backend başlatma & API erişimi: appsettings.Local.json ile JwtSettings:Secret tanımlandı, Kage95DB SQL Server bağlantısı ve /api/mangas endpoint'i doğrulandı.
 
 ## Devam edenler
 - Yok. Backend v2 BİTTİ (geçici DB'de 162 kontrol geçti, gerçek DB'ye yalnızca yeni tablo/nullable kolon, yedek C:\Temp\Kage95DB_oncesi_yorumv2_sohbet_*.bak). Ön yüz ikinci turu sürüyor: madde 2 (sohbet ön yüzü) ve madde 5 (yorum aracı) bitti, sıradaki madde 3.
