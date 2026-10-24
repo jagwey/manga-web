@@ -12,6 +12,8 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - Profil resmi yükleme, Jagwey Owner paneli, kullanıcı adı büyük/küçük harf duyarsız.
 - (Bitti, 24.10) Backend başlatma & API erişimi: appsettings.Local.json ile JwtSettings:Secret tanımlandı, Kage95DB SQL Server bağlantısı ve /api/mangas endpoint'i doğrulandı.
 
+- (Bitti, 24.10) PWA: manifest.webmanifest, sw.js (kabuk önbelleği, /api ve /hub hiç önbelleğe alınmaz), js/pwa.js kayıt, icon-192/512.png; 4 HTML sayfasına manifest+apple-touch-icon+pwa.js eklendi.
+
 ## Devam edenler
 - Yok. Backend v2 BİTTİ (geçici DB'de 162 kontrol geçti, gerçek DB'ye yalnızca yeni tablo/nullable kolon, yedek C:\Temp\Kage95DB_oncesi_yorumv2_sohbet_*.bak). Ön yüz ikinci turu sürüyor: madde 2 (sohbet ön yüzü) ve madde 5 (yorum aracı) bitti, sıradaki madde 3.
 
