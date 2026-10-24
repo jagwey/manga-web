@@ -77,7 +77,7 @@ namespace Kage95.Backend.Controllers
         public async Task<IActionResult> Mesajlar([FromQuery] int? onceki = null, [FromQuery] int limit = 50)
         {
             if (limit < 1) limit = 50;
-            if (limit > 100) limit = 100;
+            if (limit > 50) limit = 50;
             var q = _context.SohbetMesajlari.AsNoTracking().Where(m => !m.Silindi);
             if (onceki.HasValue) q = q.Where(m => m.Id < onceki.Value);
             var ham = await q.OrderByDescending(m => m.Id).Take(limit)

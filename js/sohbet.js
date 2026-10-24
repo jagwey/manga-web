@@ -11,7 +11,7 @@
     var SVGNS = 'http://www.w3.org/2000/svg';
     var MAKS_UZUNLUK = 300;
     var SERIT_ADET = 6;
-    var BELLEK_SINIRI = 300;
+    var BELLEK_SINIRI = 50;
     var FONTLAR = {
         serif: "Georgia, 'Times New Roman', Times, serif",
         mono: "'Courier New', Consolas, Menlo, monospace",
@@ -686,7 +686,7 @@
             durumYazisi(kok, cevYazi);
             sabitKutusu.hidden = !durum.sabitMesaj;
             sabitMetinEl.textContent = durum.sabitMesaj || '';
-            eski.hidden = !durum.mesajlar.length;
+            eski.hidden = true;
             if (!durum.acik) {
                 uyari.style.display = '';
                 uyari.textContent = 'Sohbet şu an kapalı. Eski mesajları okuyabilirsin.';
@@ -713,6 +713,9 @@
                 var yakinMi = yakin();
                 if (liste.querySelector('.ks-bos')) liste.textContent = '';
                 liste.appendChild(mesajEl(veri, secenekMesaj));
+                while (liste.children.length > BELLEK_SINIRI) {
+                    liste.removeChild(liste.firstElementChild);
+                }
                 if (yakinMi) alta();
             } else if (tur === 'silindi') {
                 var li = liste.querySelector('[data-id="' + veri + '"]');

@@ -159,6 +159,18 @@ namespace Kage95.Backend.Hubs
             await _db.SaveChangesAsync(ct);
             if (temiz.Length > 0) SonMetin[uid] = temiz;
 
+            // Sohbette en fazla 50 mesaj tutulsun; 51. mesaj yazıldığında en eski mesajlar veritabanından silinsin.
+            var ellinciId = await _db.SohbetMesajlari.AsNoTracking()
+                .Where(m => !m.Silindi)
+                .OrderByDescending(m => m.Id)
+                .Skip(50 - 1)
+                .Select(m => (int?)m.Id)
+                .FirstOrDefaultAsync(ct);
+            if (ellinciId.HasValue)
+            {
+                await _db.SohbetMesajlari.Where(m => m.Id < ellinciId.Value).ExecuteDeleteAsync(ct);
+            }
+
             var stil = await _tercihler.TekAsync(uid);
             await Clients.All.SendAsync("MesajGeldi", new SohbetMesajDto
             {
