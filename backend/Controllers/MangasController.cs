@@ -251,6 +251,19 @@ namespace Kage95.Backend.Controllers
             {
                 return BadRequest(new { message = "Manga adı zorunludur." });
             }
+            if (request.MangaAdi.Trim().Length > 200)
+                return BadRequest(new { message = "Manga adı en fazla 200 karakter olabilir." });
+            if (request.Aciklama != null && request.Aciklama.Length > 4000)
+                return BadRequest(new { message = "Açıklama en fazla 4000 karakter olabilir." });
+            if (request.Yazar != null && request.Yazar.Length > 100)
+                return BadRequest(new { message = "Yazar adı en fazla 100 karakter olabilir." });
+            if (request.Cizer != null && request.Cizer.Length > 100)
+                return BadRequest(new { message = "Çizer adı en fazla 100 karakter olabilir." });
+            if (!string.IsNullOrWhiteSpace(request.KapakResmiURL))
+            {
+                var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.KapakResmiURL, "Kapak görseli adresi");
+                if (urlHata != null) return BadRequest(new { message = urlHata });
+            }
 
             var existing = await _context.Mangalar
                 .AnyAsync(m => m.MangaAdi.ToLower() == request.MangaAdi.Trim().ToLower());
@@ -330,6 +343,19 @@ namespace Kage95.Backend.Controllers
             if (string.IsNullOrWhiteSpace(request.MangaAdi))
             {
                 return BadRequest(new { message = "Manga adı zorunludur." });
+            }
+            if (request.MangaAdi.Trim().Length > 200)
+                return BadRequest(new { message = "Manga adı en fazla 200 karakter olabilir." });
+            if (request.Aciklama != null && request.Aciklama.Length > 4000)
+                return BadRequest(new { message = "Açıklama en fazla 4000 karakter olabilir." });
+            if (request.Yazar != null && request.Yazar.Length > 100)
+                return BadRequest(new { message = "Yazar adı en fazla 100 karakter olabilir." });
+            if (request.Cizer != null && request.Cizer.Length > 100)
+                return BadRequest(new { message = "Çizer adı en fazla 100 karakter olabilir." });
+            if (!string.IsNullOrWhiteSpace(request.KapakResmiURL))
+            {
+                var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.KapakResmiURL, "Kapak görseli adresi");
+                if (urlHata != null) return BadRequest(new { message = urlHata });
             }
 
             var manga = await _context.Mangalar

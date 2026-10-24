@@ -13,11 +13,13 @@ namespace Kage95.Backend.Controllers
     {
         private readonly AppDbContext _context;
         private readonly IDenetimServisi _denetim;
+        private readonly IWebHostEnvironment _env;
 
-        public OneCikanController(AppDbContext context, IDenetimServisi denetim)
+        public OneCikanController(AppDbContext context, IDenetimServisi denetim, IWebHostEnvironment env)
         {
             _context = context;
             _denetim = denetim;
+            _env = env;
         }
 
         private static object Dto(OneCikan o) => new
@@ -68,9 +70,12 @@ namespace Kage95.Backend.Controllers
             if (istek == null) return BadRequest(new { message = "Geçersiz istek." });
             var o = await _context.OneCikanlar.FirstOrDefaultAsync(x => x.Id == id);
             if (o == null) return NotFound(new { message = "Öne çıkan kayıt bulunamadı." });
+            var eskiGorsel = o.GorselUrl;
             var hata = Uygula(o, istek, yeni: false);
             if (hata != null) return BadRequest(new { message = hata });
             await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(eskiGorsel) && !string.Equals(eskiGorsel, o.GorselUrl, StringComparison.Ordinal))
+                await UploadDosyaServisi.TemizleAsync(_context, _env, new[] { eskiGorsel });
             await _denetim.KaydetAsync(User, "onecikan.guncelle", $"Öne çıkan #{o.Id}", o.Baslik);
             return Ok(Dto(o));
         }
@@ -81,8 +86,11 @@ namespace Kage95.Backend.Controllers
         {
             var o = await _context.OneCikanlar.FirstOrDefaultAsync(x => x.Id == id);
             if (o == null) return NotFound(new { message = "Öne çıkan kayıt bulunamadı." });
+            var eskiGorsel = o.GorselUrl;
             _context.OneCikanlar.Remove(o);
             await _context.SaveChangesAsync();
+            if (!string.IsNullOrEmpty(eskiGorsel))
+                await UploadDosyaServisi.TemizleAsync(_context, _env, new[] { eskiGorsel });
             await _denetim.KaydetAsync(User, "onecikan.sil", $"Öne çıkan #{id}", o.Baslik);
             return Ok(new { message = "Öne çıkan kayıt silindi." });
         }

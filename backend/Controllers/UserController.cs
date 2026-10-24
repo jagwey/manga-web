@@ -14,10 +14,12 @@ namespace Kage95.Backend.Controllers
     public class UserController : ControllerBase
     {
         private readonly AppDbContext _context;
+        private readonly IslemSinirlayici _sinir;
 
-        public UserController(AppDbContext context)
+        public UserController(AppDbContext context, IslemSinirlayici sinir)
         {
             _context = context;
+            _sinir = sinir;
         }
 
         private int GetUserId()
@@ -35,7 +37,7 @@ namespace Kage95.Backend.Controllers
             var userId = GetUserId();
 
             var mangas = await _context.Favoriler
-                .Where(f => f.KullaniciId == userId)
+                .Where(f => f.KullaniciId == userId && f.Manga.Yayinda)
                 .Include(f => f.Manga)
                     .ThenInclude(m => m.MangaKategorileri)
                         .ThenInclude(mk => mk.Kategori)
@@ -65,12 +67,8 @@ namespace Kage95.Backend.Controllers
         public async Task<ActionResult> ToggleLibrary([FromBody] ToggleLibraryRequest request)
         {
             var userId = GetUserId();
-
-            var mangaExists = await _context.Mangalar.AnyAsync(m => m.Id == request.MangaId);
-            if (!mangaExists)
-            {
-                return NotFound(new { message = "Manga bulunamadı." });
-            }
+            if (!_sinir.Dene($"kutuphane:{userId}", 30, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık işlem yapıyorsunuz, lütfen biraz bekleyin." });
 
             var existing = await _context.Favoriler
                 .FirstOrDefaultAsync(f => f.KullaniciId == userId && f.MangaId == request.MangaId);
@@ -83,6 +81,12 @@ namespace Kage95.Backend.Controllers
             }
             else
             {
+                var mangaExists = await _context.Mangalar.AnyAsync(m => m.Id == request.MangaId && m.Yayinda);
+                if (!mangaExists)
+                {
+                    return NotFound(new { message = "Manga bulunamadı." });
+                }
+
                 _context.Favoriler.Add(new Favori
                 {
                     KullaniciId = userId,
@@ -103,7 +107,7 @@ namespace Kage95.Backend.Controllers
         {
             var userId = GetUserId();
             var exists = await _context.Favoriler
-                .AnyAsync(f => f.KullaniciId == userId && f.MangaId == mangaId);
+                .AnyAsync(f => f.KullaniciId == userId && f.MangaId == mangaId && f.Manga.Yayinda);
 
             return Ok(new { isSaved = exists });
         }
@@ -119,7 +123,7 @@ namespace Kage95.Backend.Controllers
             var progress = await _context.OkumaGecmisi
                 .Include(p => p.Manga)
                 .Include(p => p.SonOkunanBolum)
-                .FirstOrDefaultAsync(p => p.KullaniciId == userId && p.MangaId == mangaId);
+                .FirstOrDefaultAsync(p => p.KullaniciId == userId && p.MangaId == mangaId && p.Manga.Yayinda);
 
             if (progress == null)
             {
@@ -146,9 +150,11 @@ namespace Kage95.Backend.Controllers
         public async Task<ActionResult> SaveProgress([FromBody] SaveProgressRequest request)
         {
             var userId = GetUserId();
+            if (!_sinir.Dene($"ilerleme:{userId}", 120, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık işlem yapıyorsunuz, lütfen biraz bekleyin." });
 
             var bolumExists = await _context.Bolumler
-                .AnyAsync(b => b.Id == request.BolumId && b.MangaId == request.MangaId);
+                .AnyAsync(b => b.Id == request.BolumId && b.MangaId == request.MangaId && b.Manga.Yayinda);
 
             if (!bolumExists)
             {

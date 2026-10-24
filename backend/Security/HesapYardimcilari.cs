@@ -128,6 +128,8 @@ namespace Kage95.Backend.Security
             await db.Yorumlar.Where(y => y.YanitId != null && bolumYorumIdleri.Contains(y.YanitId.Value)).ExecuteDeleteAsync();
             await db.MangaYorumlari.Where(y => y.YanitId != null && mangaYorumIdleri.Contains(y.YanitId.Value)).ExecuteDeleteAsync();
             await db.SohbetMesajlari.Where(m => m.KullaniciId == id).ExecuteDeleteAsync();
+            await db.SohbetSusturmalari.Where(s => s.KullaniciId == id).ExecuteDeleteAsync();
+            await db.KullaniciTercihleri.Where(t => t.KullaniciId == id).ExecuteDeleteAsync();
             await db.Yorumlar.Where(y => y.KullaniciId == id).ExecuteDeleteAsync();
             await db.MangaYorumlari.Where(y => y.KullaniciId == id).ExecuteDeleteAsync();
             await db.MangaPuanlari.Where(p => p.KullaniciId == id).ExecuteDeleteAsync();

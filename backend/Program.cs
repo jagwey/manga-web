@@ -1,5 +1,6 @@
 using System.Text;
 using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -144,6 +145,11 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // 7. Middleware Boru Hattı
+app.UseForwardedHeaders(new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+});
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -203,6 +209,31 @@ app.UseStaticFiles();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Bakım modu: aktifken yönetici/site sahibi dışındaki yazma istekleri (giriş hariç) 503 döner.
+app.Use(async (ctx, next) =>
+{
+    var m = ctx.Request.Method;
+    if (!HttpMethods.IsGet(m) && !HttpMethods.IsHead(m) && !HttpMethods.IsOptions(m)
+        && ctx.Request.Path.StartsWithSegments("/api")
+        && !ctx.Request.Path.StartsWithSegments("/api/auth/login")
+        && !ctx.Request.Path.StartsWithSegments("/api/admin"))
+    {
+        var ayarlar = ctx.RequestServices.GetRequiredService<ISiteAyarServisi>();
+        if (await ayarlar.AcikMiAsync("bakimModu", false))
+        {
+            var rol = ctx.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value;
+            if (!string.Equals(rol, "Owner", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(rol, "Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                ctx.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                await ctx.Response.WriteAsJsonAsync(new { message = "Site şu an bakım modundadır. Lütfen daha sonra tekrar deneyin." });
+                return;
+            }
+        }
+    }
+    await next();
+});
 
 app.MapControllers();
 app.MapHub<SohbetHub>(SohbetHub.Yol);

@@ -391,68 +391,11 @@
             margin: var(--s4) auto;
             user-select: auto;
         }
-        .yorum-baslik {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: var(--s3);
-            gap: var(--s2);
-        }
-        .yorum-baslik > span { white-space: nowrap; font-size: 0.875rem; color: var(--text-ikincil); }
-        .yorum-baslik h2 { font-size: 1rem; font-weight: 500; color: var(--text-ana); }
         .bolum-puan { margin: 0 0 var(--s3); padding-bottom: var(--s2); border-bottom: 1px solid var(--border-renk); }
-        .yorum-form { display: flex; flex-direction: column; gap: var(--s2); margin-bottom: var(--s4); }
-        .yorum-textarea {
-            background: transparent;
-            border: 1px solid var(--border-renk);
-            border-radius: 2px;
-            padding: var(--s2);
-            color: var(--text-ana);
-            font-size: 0.9rem;
-            min-height: 96px;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.15s ease;
-        }
-        .yorum-textarea:focus { border-color: var(--vurgu-parlak); }
-        .yorum-gonder-satir { display: flex; justify-content: space-between; align-items: center; gap: var(--s2); }
-        .yorum-bilgi { font-size: 0.875rem; color: var(--text-ikincil); max-width: var(--satir-olcu); }
-        .yorum-uyari { font-size: 0.875rem; color: var(--text-ikincil); max-width: var(--satir-olcu); }
-        .yorum-uyari a { color: var(--text-ana); }
-        .yorum-gonder-btn {
-            background: transparent;
-            color: var(--text-ana);
-            border: 1px solid var(--border-renk);
-            padding: 0 var(--s3);
-            border-radius: 2px;
-            font-weight: 500;
-            font-size: 0.9rem;
-            cursor: pointer;
-            transition: border-color 0.15s ease;
-            min-height: 40px;
-        }
-        @media (hover:hover) { .yorum-gonder-btn:hover:not(:disabled) { border-color: var(--vurgu-parlak); } }
-        .yorum-gonder-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-        .yorum-bos { display: flex; align-items: center; gap: var(--s2); flex-wrap: wrap; color: var(--text-ikincil); }
-        .yorum-bos svg { width: 20px; height: 20px; flex-shrink: 0; }
-        .yorum-bos .btn-aksiyon { color: var(--text-ana); text-decoration: underline; padding: 0; }
-
-        .yorum-kart { padding: var(--s2) 0; border-top: 1px solid var(--border-renk); }
-        .yorum-ust { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 4px; gap: var(--s1); flex-wrap: wrap; }
-        .yorum-yazar { font-weight: 500; font-size: 0.9rem; color: var(--text-ana); }
-        .yorum-tarih { font-size: 0.875rem; color: var(--text-ikincil); }
-        .yorum-metin {
-            color: var(--text-ana);
-            font-size: 0.9rem;
-            line-height: 1.6;
-            max-width: var(--satir-olcu);
-            overflow-wrap: anywhere;
-        }
 
         @media (prefers-reduced-motion: reduce) {
             .reader-header, .okuma-ilerleme > span, .btn-geri, .btn-aksiyon, .nav-btn, .mod-btn,
-            .bolum-secici, .yorum-textarea, .yorum-gonder-btn { transition: none; }
+            .bolum-secici { transition: none; }
             .spinner { animation-duration: 2.4s; }
         }
 
@@ -512,8 +455,7 @@
             .nav-btn { padding: 0 var(--s2); }
             .yorum-gonder-satir { flex-direction: column; align-items: stretch; }
             .yorumlar-bolumu { margin-top: var(--s3); padding: 0 var(--s1); }
-            .yorum-bilgi, .yorum-uyari { max-width: none; }
-            .yorum-uyari a, .yorum-bos .btn-aksiyon, .uyari-serit .btn-aksiyon { display: inline-flex; align-items: center; min-height: 44px; }
+            .uyari-serit .btn-aksiyon { display: inline-flex; align-items: center; min-height: 44px; }
             .kisayol-bilgi { display: none; }
             .bolum-sonu-ctalar .nav-btn { flex: 1 1 130px; }
             .durum-aksiyonlar .nav-btn { flex: 1 1 140px; }
@@ -570,15 +512,6 @@
             const r = await fetch(API + yol);
             if (!r.ok) throw new Error('HTTP ' + r.status);
             return r.json();
-        };
-
-        // Sunucu yorumları HTML-encode eder; metne geri çevir (React zaten kaçışlar).
-        const htmlCoz = (s) => new DOMParser().parseFromString(s || '', 'text/html').body.textContent || '';
-
-        const tarihYaz = (t) => {
-            if (!t) return '';
-            const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(t) ? t : t + 'Z');
-            return isNaN(d) ? '' : d.toLocaleString('tr-TR', { dateStyle: 'medium', timeStyle: 'short' });
         };
 
         // Kendi ürettiğimiz yer tutucu sayfa (SVG data-URI)
@@ -852,17 +785,28 @@
                 }));
                 const token = tokenAl();
                 if (!token) return;
-                const t = setTimeout(() => {
-                    fetch(API + '/user/progress', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                        body: JSON.stringify({ mangaId: veri.mangaId, bolumId: veri.bolumId, sayfaNo: sayfaIndex + 1 })
+                let t2 = null;
+                const gonderIlerleme = () => fetch(API + '/user/progress', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ mangaId: veri.mangaId, bolumId: veri.bolumId, sayfaNo: sayfaIndex + 1 })
+                })
+                    .then((r) => (r.ok ? r.json() : null))
+                    .then((g) => {
+                        if (g && window.Kage95Liderlik) window.Kage95Liderlik.yanittan(g);
+                        return g;
                     })
-                        .then((r) => (r.ok ? r.json() : null))
-                        .then((g) => { if (g && window.Kage95Liderlik) window.Kage95Liderlik.yanittan(g); })
-                        .catch(() => {});
+                    .catch(() => null);
+                const t = setTimeout(() => {
+                    gonderIlerleme().then((g) => {
+                        const toplam = (veri.sayfalar || []).length;
+                        if (toplam > 0 && sayfaIndex + 1 >= toplam && (!g || !g.puanKazanildi)) {
+                            const bekleSn = Math.min(toplam * 4, 90);
+                            t2 = setTimeout(gonderIlerleme, bekleSn * 1000 + 500);
+                        }
+                    });
                 }, 1500);
-                return () => clearTimeout(t);
+                return () => { clearTimeout(t); if (t2) clearTimeout(t2); };
             }, [sayfaIndex, durum, veri && veri.bolumId]);
 
             // --- Tam ekran ---

@@ -142,7 +142,17 @@
         btn.setAttribute('aria-haspopup', 'dialog');
         btn.setAttribute('aria-expanded', 'false');
         btn.setAttribute('aria-controls', 'k95yPanel');
-        btn.innerHTML = '<svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" aria-hidden="true"><path d="M3 4.5h14v9H8.5L5 16.5v-3H3z"/></svg>';
+        var ikonSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+        ikonSvg.setAttribute('viewBox', '0 0 20 20');
+        ikonSvg.setAttribute('fill', 'none');
+        ikonSvg.setAttribute('stroke', 'currentColor');
+        ikonSvg.setAttribute('stroke-width', '1.5');
+        ikonSvg.setAttribute('stroke-linejoin', 'round');
+        ikonSvg.setAttribute('aria-hidden', 'true');
+        var ikonYol = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        ikonYol.setAttribute('d', 'M3 4.5h14v9H8.5L5 16.5v-3H3z');
+        ikonSvg.appendChild(ikonYol);
+        btn.appendChild(ikonSvg);
         btn.appendChild(el('span', '', 'Yardım'));
 
         var panel = el('div', 'k95y-panel');
@@ -211,7 +221,9 @@
             mesgulYap(true);
             var m = el('div', 'k95y-m bot');
             var nokta = el('span', 'k95y-yaziyor');
-            nokta.innerHTML = '<i></i><i></i><i></i>';
+            nokta.appendChild(document.createElement('i'));
+            nokta.appendChild(document.createElement('i'));
+            nokta.appendChild(document.createElement('i'));
             m.appendChild(nokta);
             liste.appendChild(m);
             liste.scrollTop = liste.scrollHeight;

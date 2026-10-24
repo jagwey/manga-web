@@ -111,6 +111,8 @@ namespace Kage95.Backend.Hubs
 
             if (!await _ayarlar.AcikMiAsync("sohbetAcik", true))
                 throw new HubException("Sohbet şu an kapalı.");
+            if (await _ayarlar.AcikMiAsync("bakimModu", false) && !Izinler.OwnerMi(k) && !Izinler.AdminMi(k))
+                throw new HubException("Site şu an bakım modundadır.");
 
             var sus = await _db.SohbetSusturmalari.AsNoTracking().FirstOrDefaultAsync(s => s.KullaniciId == uid, ct);
             if (sus != null && sus.Bitis > DateTime.UtcNow)

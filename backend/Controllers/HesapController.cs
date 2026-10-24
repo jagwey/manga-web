@@ -21,9 +21,10 @@ namespace Kage95.Backend.Controllers
         private readonly IGirisSinirlayici _sinirlayici;
         private readonly IWebHostEnvironment _env;
         private readonly TercihServisi _tercihler;
+        private readonly IslemSinirlayici _hizSinir;
 
         public HesapController(AppDbContext context, ITokenService tokenService, IDenetimServisi denetim,
-            IGirisSinirlayici sinirlayici, IWebHostEnvironment env, TercihServisi tercihler)
+            IGirisSinirlayici sinirlayici, IWebHostEnvironment env, TercihServisi tercihler, IslemSinirlayici hizSinir)
         {
             _tercihler = tercihler;
             _context = context;
@@ -31,6 +32,7 @@ namespace Kage95.Backend.Controllers
             _denetim = denetim;
             _sinirlayici = sinirlayici;
             _env = env;
+            _hizSinir = hizSinir;
         }
 
         private async Task<Kullanici?> MevcutAsync()
@@ -148,6 +150,8 @@ namespace Kage95.Backend.Controllers
         {
             var k = await MevcutAsync();
             if (k == null) return Unauthorized(new { message = "Oturumunuz geçersiz." });
+            if (!_hizSinir.Dene($"tercih:{k.Id}", 20, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık işlem yapıyorsunuz, lütfen biraz bekleyin." });
             if (istek == null) return BadRequest(new { message = "Geçersiz istek." });
             var toplam = await _tercihler.ToplamPuanAsync(k.Id);
             var seviye = PuanServisi.Seviye(toplam);
@@ -275,6 +279,8 @@ namespace Kage95.Backend.Controllers
             var dosya = form?.Dosya;
             var k = await MevcutAsync();
             if (k == null) return Unauthorized(new { message = "Oturumunuz geçersiz." });
+            if (!_hizSinir.Dene($"avatar:{k.Id}", 5, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık profil resmi değiştiriyorsunuz, lütfen 1 dakika bekleyin." });
 
             if (dosya == null || dosya.Length == 0)
                 return BadRequest(new { message = "Yüklenecek dosya seçilmedi (alan adı: dosya)." });
@@ -317,7 +323,7 @@ namespace Kage95.Backend.Controllers
             }
 
             var eski = k.ProfilResmiURL;
-            k.ProfilResmiURL = $"{Request.Scheme}://{Request.Host}/avatars/{ad}";
+            k.ProfilResmiURL = $"{UploadDosyaServisi.GuvenliSunucuKoku(Request)}/avatars/{ad}";
             await _context.SaveChangesAsync();
             AvatarYardimcisi.DosyayiSil(_env, eski);
             await _denetim.KaydetAsync(User, "hesap.avatar", $"Kullanıcı #{k.Id} {k.KullaniciAdi}", "Profil resmi yüklendi.");

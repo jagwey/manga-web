@@ -702,30 +702,6 @@
         .manga-puan { display: inline-flex; align-items: center; gap: 4px; margin-left: var(--bosluk-1); color: var(--text-ikincil); }
         .manga-puan svg { width: 12px; height: 12px; color: var(--vurgu-parlak); fill: currentColor; flex-shrink: 0; }
         .seri-yorumlar { margin-top: var(--bosluk-4); max-width: 720px; }
-        .seri-yorumlar .yorum-baslik span { font-size: .85rem; color: var(--text-ikincil); }
-        .yorum-form { display: flex; flex-direction: column; gap: var(--bosluk-1); margin-bottom: var(--bosluk-3); }
-        .yorum-alan {
-            width: 100%; min-height: 96px; resize: vertical; padding: 12px; font: inherit; font-size: .95rem; line-height: 1.6;
-            color: var(--text-ana); background: var(--bg-kart); border: 1px solid var(--border-belirgin); border-radius: 2px;
-        }
-        .yorum-alan:focus-visible { outline: 1px solid var(--vurgu-parlak); border-color: var(--vurgu-parlak); }
-        .yorum-form-alt { display: flex; justify-content: space-between; align-items: center; gap: var(--bosluk-2); flex-wrap: wrap; }
-        .yorum-sayac { font-size: .85rem; color: var(--text-ikincil); }
-        .yorum-sayac.asti { color: var(--vurgu-parlak); }
-        .yorum-hata { font-size: .9rem; color: var(--vurgu-parlak); }
-        .yorum-hata a { text-decoration: underline; text-underline-offset: 3px; }
-        .yorum-giris { padding: var(--bosluk-2); border: 1px solid var(--border-renk); border-radius: 2px; margin-bottom: var(--bosluk-3); display: flex; align-items: center; justify-content: space-between; gap: var(--bosluk-2); flex-wrap: wrap; color: var(--text-ikincil); }
-        .yorum-liste { list-style: none; }
-        .yorum-oge { display: flex; gap: 12px; padding: var(--bosluk-2) 0; border-top: 1px solid var(--border-renk); }
-        .yorum-avatar { flex: 0 0 32px; width: 32px; height: 32px; border-radius: 50%; overflow: hidden; display: flex; align-items: center; justify-content: center; background: var(--bg-yuzey, var(--bg-kart)); border: 1px solid var(--border-renk); color: var(--text-ikincil); font-size: .85rem; font-weight: 600; }
-        .yorum-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .yorum-govde { min-width: 0; flex: 1; }
-        .yorum-ust { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px var(--bosluk-1); margin-bottom: 4px; }
-        .yorum-yazar { font-size: .9rem; font-weight: 500; overflow-wrap: anywhere; }
-        .yorum-tarih { font-size: .8rem; color: var(--text-ikincil); }
-        .yorum-metin { font-size: .95rem; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
-        .yorum-durum { color: var(--text-ikincil); font-size: .9rem; padding: var(--bosluk-2) 0; border-top: 1px solid var(--border-renk); display: flex; flex-wrap: wrap; align-items: center; gap: var(--bosluk-1) var(--bosluk-2); }
-        @media (max-width: 768px) { .yorum-alan { font-size: 1rem; } .yorum-form-alt .btn-ana { flex: 1 1 140px; } }
 
         .bolum-listesi { list-style: none; border-top: 1px solid var(--border-renk); }
         .bolum-listesi li { border-bottom: 1px solid var(--border-renk); }
@@ -1147,7 +1123,6 @@
             </div>
         );
 
-        const htmlCoz = (s) => new DOMParser().parseFromString(s || '', 'text/html').body.textContent || '';
         const yorumTarihYaz = (t) => {
             if (!t) return '';
             const d = new Date(/[zZ]|[+-]\d\d:?\d\d$/.test(t) ? t : t + 'Z');

@@ -37,12 +37,14 @@ namespace Kage95.Backend.Controllers
         private readonly AppDbContext _context;
         private readonly ISiteAyarServisi _ayarlar;
         private readonly YorumServisi _yorumlar;
+        private readonly IslemSinirlayici _sinir;
 
-        public MangaEtkilesimController(AppDbContext context, ISiteAyarServisi ayarlar, YorumServisi yorumlar)
+        public MangaEtkilesimController(AppDbContext context, ISiteAyarServisi ayarlar, YorumServisi yorumlar, IslemSinirlayici sinir)
         {
             _yorumlar = yorumlar;
             _context = context;
             _ayarlar = ayarlar;
+            _sinir = sinir;
         }
 
         private int? KullaniciId()
@@ -140,6 +142,8 @@ namespace Kage95.Backend.Controllers
                 return BadRequest(new { message = "Puan 1 ile 5 arasında bir tam sayı olmalıdır." });
             var userId = KullaniciId();
             if (userId == null) return Unauthorized();
+            if (!_sinir.Dene($"puan:{userId.Value}", 30, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık puanlama yapıyorsunuz, lütfen biraz bekleyin." });
             if (!await MangaGorunurMuAsync(id)) return NotFound(new { message = "Seri bulunamadı." });
 
             var deger = (byte)request.Deger.Value;
@@ -164,6 +168,8 @@ namespace Kage95.Backend.Controllers
         {
             var userId = KullaniciId();
             if (userId == null) return Unauthorized();
+            if (!_sinir.Dene($"puan:{userId.Value}", 30, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık puanlama yapıyorsunuz, lütfen biraz bekleyin." });
             if (!await MangaGorunurMuAsync(id)) return NotFound(new { message = "Seri bulunamadı." });
             await _context.MangaPuanlari.Where(p => p.MangaId == id && p.KullaniciId == userId.Value).ExecuteDeleteAsync();
             return Ok(await MangaOzetAsync(id, userId));
@@ -186,6 +192,8 @@ namespace Kage95.Backend.Controllers
                 return BadRequest(new { message = "Puan 1 ile 5 arasında bir tam sayı olmalıdır." });
             var userId = KullaniciId();
             if (userId == null) return Unauthorized();
+            if (!_sinir.Dene($"puan:{userId.Value}", 30, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık puanlama yapıyorsunuz, lütfen biraz bekleyin." });
             if (!await BolumGorunurMuAsync(id)) return NotFound(new { message = "Bölüm bulunamadı." });
 
             var deger = (byte)request.Deger.Value;
@@ -210,6 +218,8 @@ namespace Kage95.Backend.Controllers
         {
             var userId = KullaniciId();
             if (userId == null) return Unauthorized();
+            if (!_sinir.Dene($"puan:{userId.Value}", 30, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık puanlama yapıyorsunuz, lütfen biraz bekleyin." });
             if (!await BolumGorunurMuAsync(id)) return NotFound(new { message = "Bölüm bulunamadı." });
             await _context.BolumPuanlari.Where(p => p.BolumId == id && p.KullaniciId == userId.Value).ExecuteDeleteAsync();
             return Ok(await BolumOzetAsync(id, userId));

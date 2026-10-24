@@ -94,37 +94,14 @@ namespace Kage95.Backend.Controllers
             {
                 return BadRequest(new { message = "Manga ID veya Manga Adı belirtilmelidir." });
             }
-
-            Manga? manga = null;
-            if (request.MangaId.HasValue)
+            if (!string.IsNullOrWhiteSpace(request.MangaAdi) && request.MangaAdi.Trim().Length > 200)
+                return BadRequest(new { message = "Manga adı en fazla 200 karakter olabilir." });
+            if (!string.IsNullOrWhiteSpace(request.BolumAdi) && request.BolumAdi.Trim().Length > 200)
+                return BadRequest(new { message = "Bölüm adı en fazla 200 karakter olabilir." });
+            if (!string.IsNullOrWhiteSpace(request.KapakGorseli))
             {
-                manga = await _context.Mangalar.FindAsync(request.MangaId.Value);
-            }
-            else if (!string.IsNullOrWhiteSpace(request.MangaAdi))
-            {
-                manga = await _context.Mangalar.FirstOrDefaultAsync(m => m.MangaAdi.ToLower() == request.MangaAdi.Trim().ToLower());
-                // Manga henüz yoksa admin.html kolaylığı için otomatik oluştur
-                if (manga == null)
-                {
-                    manga = new Manga
-                    {
-                        MangaAdi = request.MangaAdi.Trim(),
-                        KapakResmiURL = request.KapakGorseli,
-                        Aciklama = "Admin paneli üzerinden otomatik eklendi.",
-                        Durum = "DevamEdiyor",
-                        EklenmeTarihi = DateTime.UtcNow,
-                        Puan = 9.0m,
-                        OkunmaSayisi = "0"
-                    };
-                    _context.Mangalar.Add(manga);
-                    await _context.SaveChangesAsync();
-                    await _denetim.KaydetAsync(User, "manga.olustur", $"Manga #{manga.Id} {manga.MangaAdi}", "Bölüm eklenirken otomatik oluşturuldu");
-                }
-            }
-
-            if (manga == null)
-            {
-                return NotFound(new { message = "Belirtilen manga bulunamadı." });
+                var kapakHata = UploadDosyaServisi.GorselUrlHatasi(request.KapakGorseli, "Kapak görseli adresi");
+                if (kapakHata != null) return BadRequest(new { message = kapakHata });
             }
 
             // Sayfaları parse et (hem virgülle ayrılmış string hem dizi kabul edilir)
@@ -156,6 +133,46 @@ namespace Kage95.Backend.Controllers
                     var parts = str.Split(new[] { ',', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
                     sayfaUrlListesi.AddRange(parts.Select(p => p.Trim()).Where(p => !string.IsNullOrWhiteSpace(p)));
                 }
+            }
+
+            if (sayfaUrlListesi.Count > 200)
+                return BadRequest(new { message = "Tek seferde en fazla 200 sayfa eklenebilir." });
+            foreach (var u in sayfaUrlListesi)
+            {
+                var sayfaHata = UploadDosyaServisi.GorselUrlHatasi(u, "Sayfa görseli adresi");
+                if (sayfaHata != null) return BadRequest(new { message = sayfaHata });
+            }
+
+            Manga? manga = null;
+            if (request.MangaId.HasValue)
+            {
+                manga = await _context.Mangalar.FindAsync(request.MangaId.Value);
+            }
+            else if (!string.IsNullOrWhiteSpace(request.MangaAdi))
+            {
+                manga = await _context.Mangalar.FirstOrDefaultAsync(m => m.MangaAdi.ToLower() == request.MangaAdi.Trim().ToLower());
+                // Manga henüz yoksa admin.html kolaylığı için otomatik oluştur
+                if (manga == null)
+                {
+                    manga = new Manga
+                    {
+                        MangaAdi = request.MangaAdi.Trim(),
+                        KapakResmiURL = request.KapakGorseli,
+                        Aciklama = "Admin paneli üzerinden otomatik eklendi.",
+                        Durum = "DevamEdiyor",
+                        EklenmeTarihi = DateTime.UtcNow,
+                        Puan = 9.0m,
+                        OkunmaSayisi = "0"
+                    };
+                    _context.Mangalar.Add(manga);
+                    await _context.SaveChangesAsync();
+                    await _denetim.KaydetAsync(User, "manga.olustur", $"Manga #{manga.Id} {manga.MangaAdi}", "Bölüm eklenirken otomatik oluşturuldu");
+                }
+            }
+
+            if (manga == null)
+            {
+                return NotFound(new { message = "Belirtilen manga bulunamadı." });
             }
 
             // Bölüm numarasını normalize et (arama ve oluşturma aynı değeri kullansın)

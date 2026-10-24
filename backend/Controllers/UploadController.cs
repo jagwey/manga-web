@@ -10,7 +10,7 @@ namespace Kage95.Backend.Controllers
     [Yetki("manga.yaz", "bolum.yaz")]
     public class UploadController : ControllerBase
     {
-        private const int MaxFiles = 80;
+        private const int MaxFiles = 200;
         private const long MaxFileSize = 15L * 1024 * 1024;
         private const long MaxRequestSize = 500L * 1024 * 1024;
 
@@ -69,7 +69,7 @@ namespace Kage95.Backend.Controllers
             var dir = Path.Combine(_env.WebRootPath ?? Path.Combine(_env.ContentRootPath, "wwwroot"), "uploads");
             Directory.CreateDirectory(dir);
 
-            var baseUrl = $"{Request.Scheme}://{Request.Host}";
+            var baseUrl = UploadDosyaServisi.GuvenliSunucuKoku(Request);
             var urls = new List<string>();
             var saved = new List<string>();
             try
