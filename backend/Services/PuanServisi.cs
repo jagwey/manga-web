@@ -57,8 +57,8 @@ namespace Kage95.Backend.Services
             [ProfilResmi] = new(ProfilResmiPuan, true, 0),
         };
 
-        // ---- Seviye: L seviyesine ulasmak icin gereken toplam puan = 50*(L-1)*L (en yuksek seviye 50) ----
-        public const int MaksSeviye = 50;
+        // ---- Seviye: L seviyesine ulasmak icin gereken toplam puan = 50*(L-1)*L (en yuksek seviye 95) ----
+        public const int MaksSeviye = 95;
         public static int SeviyeIcinGereken(int seviye) => 50 * (Math.Max(1, seviye) - 1) * Math.Max(1, seviye);
 
         public static int Seviye(int toplam)

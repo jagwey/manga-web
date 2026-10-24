@@ -1,6 +1,6 @@
 // Kage 95 - basit servis çalışanı: uygulama kabuğu önbelleği.
 // /api ve /hub istekleri asla önbelleğe alınmaz, doğrudan ağa gider.
-const SURUM = 'kage95-v1';
+const SURUM = 'kage95-v3';
 const KABUK = [
     './', 'index.html', 'read.html', 'login.html', 'admin.html',
     'favicon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'

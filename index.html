@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Kage 95 - Modern Manga Arşivi ve Kütüphanesi</title>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
-    <meta name="theme-color" content="#0e0c0c">
+    <meta name="theme-color" content="#e60000">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
@@ -3000,6 +3000,18 @@
                 const f = () => setKullanici(kullaniciAl());
                 window.addEventListener('kage95-kullanici', f);
                 return () => window.removeEventListener('kage95-kullanici', f);
+            }, []);
+            // Rol sunucuda değiştiyse (ör. site sahibi atandı) eski oturum bilgisi kalmasın; yeniden girişe zorla.
+            React.useEffect(() => {
+                const t = tokenAl();
+                if (!t) return;
+                fetch(API_URL + '/auth/me', { headers: { 'Authorization': 'Bearer ' + t } })
+                    .then(r => r.ok ? r.json() : null)
+                    .then(v => {
+                        const k = kullaniciAl();
+                        if (v && k && v.rol !== k.rol) cikisYap();
+                    })
+                    .catch(() => {});
             }, []);
             const [acik, setAcik] = React.useState(false);
             const kap = React.useRef(null);
