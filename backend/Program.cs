@@ -208,6 +208,7 @@ using (var scope = app.Services.CreateScope())
 
 app.UseCors("Site");
 app.UseRateLimiter();
+app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseAuthentication();

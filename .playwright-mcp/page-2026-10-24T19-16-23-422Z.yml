@@ -1,0 +1,110 @@
+- generic [ref=f13e3]:
+  - banner [ref=f13e4]:
+    - link "Web barındırma ana sayfası" [ref=f13e6] [cursor=pointer]:
+      - /url: /panel_simple?cpId=11338414&section=websites
+      - generic [ref=f13e11]:
+        - text: Smarter
+        - strong [ref=f13e12]: ASP.NET
+    - generic [ref=f13e13]:
+      - link "Gelişmiş Mod" [ref=f13e14] [cursor=pointer]:
+        - /url: /panel_cp?section=websites&cpId=11338414
+      - group [ref=f13e19]:
+        - generic "Destek" [ref=f13e20] [cursor=pointer]:
+          - strong [ref=f13e25]: "1"
+      - group [ref=f13e26]:
+        - generic "Jagwey" [ref=f13e27] [cursor=pointer]
+      - generic "Yazı tipi boyutu" [ref=f13e31]:
+        - button "S" [pressed] [ref=f13e36] [cursor=pointer]
+        - button "M" [ref=f13e38] [cursor=pointer]
+        - button "L" [ref=f13e40] [cursor=pointer]
+      - 'button "Hesap Uyarıları: 1" [ref=f13e42] [cursor=pointer]':
+        - generic [aria-hidden] [ref=f13e45]: "1"
+      - 'button "Language: Türkçe" [ref=f13e47] [cursor=pointer]':
+        - generic [aria-hidden] [ref=f13e48]: 🇹🇷
+        - generic [ref=f13e49]: Türkçe
+      - 'button "Geçerli mod: Gün. Klasik moduna geç" [ref=f13e51] [cursor=pointer]'
+  - navigation "Hesap hizmetleri" [ref=f13e57]:
+    - generic [ref=f13e58]:
+      - generic [ref=f13e59]:
+        - generic [ref=f13e60]: Web barındırma planı
+        - generic [ref=f13e61]: Windows
+      - generic [ref=f13e62]:
+        - button "jagwey-001 - W60-EU" [ref=f13e64] [cursor=pointer]
+        - link "İçinde sona eriyor 60 günler!" [ref=f13e73] [cursor=pointer]:
+          - /url: /account/cp_upgrade_list?panelMode=simple&cpId=11338414&clientProductId=2093360
+    - link "Tüm Web Hosting Planlarını Görüntüle" [ref=f13e74] [cursor=pointer]:
+      - /url: /panel_simple?scope=account&section=hosting&cpId=11338414
+    - link "Yeni web barındırma satın al" [ref=f13e80] [cursor=pointer]:
+      - /url: /panel_simple?scope=account&section=new-order&cpId=11338414
+    - link "Ek hizmetler" [ref=f13e84] [cursor=pointer]:
+      - /url: /panel_simple?scope=account&section=addon&cpId=11338414
+  - main [ref=f13e88]:
+    - generic [ref=f13e89]:
+      - navigation "Web barındırma hizmetleri" [ref=f13e90]:
+        - button "genel bakış" [ref=f13e91] [cursor=pointer]
+        - button "Web siteleri 1" [ref=f13e97] [cursor=pointer]:
+          - text: Web siteleri
+          - generic [ref=f13e101]: "1"
+        - button "Veritabanları 1" [ref=f13e102] [cursor=pointer]:
+          - text: Veritabanları
+          - generic [ref=f13e106]: "1"
+        - button "E-posta" [ref=f13e107] [cursor=pointer]
+        - button "Etki" [ref=f13e111] [cursor=pointer]
+      - group [ref=f13e115]:
+        - generic "Diğer web barındırma araçları" [ref=f13e116] [cursor=pointer]: Diğer
+    - generic [ref=f13e122]:
+      - generic [ref=f13e123]:
+        - generic "Website resources" [ref=f13e124]:
+          - generic [ref=f13e125]:
+            - generic [ref=f13e126]: Web siteleri
+            - strong [ref=f13e127]: "1"
+          - generic [ref=f13e128]:
+            - generic [ref=f13e129]: Subsites
+            - strong [ref=f13e130]: "0"
+        - generic [ref=f13e131]:
+          - button "+ Yeni Site" [ref=f13e132] [cursor=pointer]
+          - button "+ Alt Alan Adı" [ref=f13e133] [cursor=pointer]
+        - generic [ref=f13e134]:
+          - searchbox "Web sitelerinde ara" [ref=f13e139]
+          - generic [ref=f13e140]:
+            - generic [ref=f13e141]: Sırala
+            - button [ref=f13e142] [cursor=pointer]:
+              - strong [ref=f13e143]: Site Adı
+          - generic "Web sitesi görüntüleme modu" [ref=f13e146]:
+            - button "Kartlar" [ref=f13e147] [cursor=pointer]
+            - button "Tablo" [ref=f13e153] [cursor=pointer]
+          - button "Yenile" [ref=f13e157] [cursor=pointer]
+      - dialog "Domain Manager işlevi" [ref=f13e208]:
+        - generic [ref=f13e209]:
+          - generic [ref=f13e210]:
+            - text: Web Sitesi Yapılandırması
+            - generic [ref=f13e216]:
+              - heading "Etki Alanı Yöneticisi" [level=2] [ref=f13e217]
+              - generic [ref=f13e218]: KAGE95
+          - generic [ref=f13e219]:
+            - text: ESC to Close
+            - button "Yenile" [ref=f13e220] [cursor=pointer]
+            - button "Kapat" [ref=f13e226] [cursor=pointer]
+        - generic [ref=f13e229]:
+          - generic [ref=f13e230]:
+            - article [ref=f13e231]:
+              - strong [ref=f13e237]: jagwey-001-site1.etempurl.com
+              - generic [ref=f13e238]: Sistem URL'si
+            - article [ref=f13e246]:
+              - strong [ref=f13e252]: kage95.com
+              - generic [ref=f13e253]:
+                - button "Taşı" [disabled] [ref=f13e254]
+                - button "silmek" [disabled] [ref=f13e255]
+          - generic [ref=f13e241]:
+            - generic [ref=f13e242]: yeni Alan
+            - generic [ref=f13e243]:
+              - textbox "yeni Alan" [ref=f13e244]:
+                - /placeholder: example.com
+              - button [disabled] [ref=f13e256]:
+                - status "Alan adı ekleniyor" [ref=f13e257]
+          - status [ref=f13e259]:
+            - generic [ref=f13e263]:
+              - strong [ref=f13e264]: Başarı
+              - generic [ref=f13e265]: Alan adı IIS, DNS ve hesap verilerine eklendi.
+            - button "success mesajını reddet" [ref=f13e266] [cursor=pointer]
+          - paragraph [ref=f13e270]: Alan adı sağlayıcınızda bu alan adının DNS sunucularını NS1.SITE4NOW.NET, NS2.SITE4NOW.NET, NS3.SITE4NOW.NET olarak ayarlayın.
