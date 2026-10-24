@@ -242,12 +242,12 @@ app.Use(async (ctx, next) =>
 app.MapControllers();
 app.MapHub<SohbetHub>(SohbetHub.Yol);
 
-// Basit kök karşılama rotası
-app.MapGet("/", () => Results.Ok(new
+// Basit sağlık/durum rotası (kök '/' ise UseDefaultFiles + UseStaticFiles üzerinden wwwroot/index.html sunar)
+app.MapGet("/api/durum", () => Results.Ok(new
 {
     api = "Kage 95 Manga API",
     status = "Active",
-    version = "1.0.0"
+    version = "2.0.0"
 }));
 
 app.Run();
