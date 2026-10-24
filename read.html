@@ -465,11 +465,13 @@
             .header-sol .btn-geri { padding: 0 var(--s1) 0 0; white-space: nowrap; }
             .header-sol .btn-aksiyon { padding: 0 var(--s1); flex: none; }
             .header-sol .bolum-secici { flex: 1 1 0; min-width: 72px; margin: 0 var(--s1); text-overflow: ellipsis; }
-            .header-sag { flex-wrap: wrap; justify-content: space-between; }
+            .header-sag { flex-wrap: nowrap; overflow-x: auto; justify-content: space-between; scrollbar-width: none; gap: 4px; }
+            .header-sag::-webkit-scrollbar { display: none; }
             .header-sag > * { flex: none; }
-            .header-sag .btn-aksiyon { padding: 0 4px; white-space: nowrap; font-size: 0.875rem; }
+            .header-sag .btn-aksiyon { padding: 0 6px; white-space: nowrap; font-size: 0.85rem; }
             .mod-secici-grup { gap: 0; }
-            .mod-btn { padding: 0 6px; font-size: 0.875rem; white-space: nowrap; }
+            .mod-secici-grup .mod-btn:nth-child(2) { display: none; }
+            .mod-btn { padding: 0 8px; font-size: 0.85rem; white-space: nowrap; }
             .manga-baslik-alani { order: -1; text-align: left; flex: none; padding: 2px 0 0; }
             .manga-baslik-alani h1 { font-size: 1.05rem; }
             .reader-alani { padding-top: var(--s2); padding-left: max(var(--s1), env(safe-area-inset-left)); padding-right: max(var(--s1), env(safe-area-inset-right)); }
@@ -480,6 +482,8 @@
             .yorumlar-bolumu { margin-top: var(--s3); padding: 0 var(--s1); }
             .uyari-serit .btn-aksiyon { display: inline-flex; align-items: center; min-height: 44px; }
             .kisayol-bilgi { display: none; }
+            .okuma-ek-eylemler { justify-content: center; }
+            .okuma-ek-eylemler button:nth-of-type(2) { display: none; }
             .bolum-sonu-ctalar .nav-btn { flex: 1 1 130px; }
             .durum-aksiyonlar .nav-btn { flex: 1 1 140px; }
         }

@@ -718,23 +718,28 @@
 
         /* --- MOBİL --- */
         @media (max-width: 640px) {
-            .header-ic { padding: var(--bosluk-1) var(--bosluk-2); gap: var(--bosluk-1) var(--bosluk-2); }
-            .hero { padding: var(--bosluk-4) var(--bosluk-2) var(--bosluk-3); }
+            .header-ic { padding: var(--bosluk-1) var(--bosluk-2); gap: var(--bosluk-1); }
+            .hesap-alani > a.btn-ikincil { display: none; }
+            .hero { padding: var(--bosluk-3) var(--bosluk-2) var(--bosluk-2); }
+            .hero-baslik { min-height: 0; font-size: clamp(1.5rem, 6vw, 2rem); }
             .tur-bolum, .ana-icerik { padding-left: var(--bosluk-2); padding-right: var(--bosluk-2); }
-            .manga-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bosluk-4) var(--bosluk-2); }
-            .manga-baslik { font-size: .95rem; margin-top: 12px; }
-            .manga-meta { font-size: .85rem; margin-top: 4px; }
-            .hero { padding-top: var(--bosluk-4); padding-bottom: var(--bosluk-3); }
-            .hero-aciklama { margin-top: var(--bosluk-2); font-size: 1rem; line-height: 1.6; }
-            .tur-bolum { flex-wrap: nowrap; overflow-x: auto; gap: 0 var(--bosluk-3); padding-bottom: var(--bosluk-4); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+            .manga-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--bosluk-3) var(--bosluk-2); }
+            .manga-baslik { font-size: .92rem; margin-top: 8px; }
+            .manga-meta { font-size: .8rem; margin-top: 2px; }
+            .hero-aciklama { margin-top: var(--bosluk-1); font-size: .95rem; line-height: 1.5; }
+            .tur-bolum { flex-wrap: nowrap; overflow-x: auto; gap: 0 var(--bosluk-2); padding-bottom: var(--bosluk-2); scrollbar-width: none; -webkit-overflow-scrolling: touch; }
             .tur-bolum::-webkit-scrollbar { display: none; }
             .tur-bolum > * { flex: none; white-space: nowrap; }
             .tur-etiket { display: none; }
-            .bolum-baslik-satir { margin-bottom: var(--bosluk-3); }
+            .bolum-baslik-satir { flex-wrap: wrap; gap: 10px; margin-bottom: var(--bosluk-2); }
+            #seriler .bolum-baslik-satir .baslik-sag { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+            #seriler .bolum-baslik-satir .baslik-sag .sonuc-sayisi { grid-column: 1 / -1; text-align: right; font-size: .82rem; }
+            .devam-serit { flex-wrap: wrap; padding: 12px; margin-bottom: var(--bosluk-3); }
+            .devam-serit .btn-ana { width: 100%; }
             .site-footer { padding: var(--bosluk-4) var(--bosluk-2); }
             .btn-ana .yazi-uzun { display: none; }
             .hero-gorsel { display: none; }
-            .detay-kapak { flex-basis: 160px; margin: 0 auto; }
+            .detay-kapak { flex-basis: 150px; margin: 0 auto; }
             .detay-eylemler > * { flex: 1 1 100%; }
             .bolum-sag .bolum-tarih { display: none; }
             .profil-ad { display: none; }
