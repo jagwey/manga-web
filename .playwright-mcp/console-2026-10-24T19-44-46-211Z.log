@@ -1,2 +1,12 @@
 [    2728ms] [ERROR] Base UI: A component that acts as a button expected a native <button> because the `nativeButton` prop is true. Rendering a non-<button> removes native button semantics, which can impact forms and accessibility. Use a real <button> in the `render` prop, or set `nativeButton` to `false`. @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
 [    4127ms] [ERROR] Failed to load resource: the server responded with a status of 403 () @ https://dash.cloudflare.com/api/v4/accounts/dd1782358fb0252d2720b6b68f398346/access/organizations:0
+[ 1532724ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dash.cloudflare.com/api/v4/zones/3417df29e318c5b4445dfe57bfdb36e0/email/sending/subdomains:0
+[ 1533753ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dash.cloudflare.com/api/v4/accounts/dd1782358fb0252d2720b6b68f398346/email/sending/zones?page=1&per_page=50:0
+[ 1534058ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dash.cloudflare.com/api/v4/accounts/dd1782358fb0252d2720b6b68f398346/email/sending/limits:0
+[ 1549961ms] [INFO] Route is ready. @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
+[ 1549983ms] [INFO] Gate: ☑️ billing-on-session-payment @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
+[ 1549984ms] [INFO] [Vaulted] Loading Stripe.js for on-session payment support. @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
+[ 1549993ms] [INFO] [Vaulted] Stripe.js loaded successfully. @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
+[ 1551014ms] [INFO] App is loaded. @ https://dash.cloudflare.com/assets/cf-init-core.Dhw3Riwn.js:33
+[ 1555149ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dash.cloudflare.com/api/v4/accounts/dd1782358fb0252d2720b6b68f398346/email/sending/limits:0
+[ 1555260ms] [ERROR] Failed to load resource: the server responded with a status of 401 () @ https://dash.cloudflare.com/api/v4/accounts/dd1782358fb0252d2720b6b68f398346/email/sending/zones?page=1&per_page=50:0
