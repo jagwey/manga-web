@@ -17,11 +17,13 @@ namespace Kage95.Backend.Controllers
         private readonly IWebHostEnvironment _env;
 
         private readonly IDenetimServisi _denetim;
+        private readonly IslemSinirlayici _sinir;
 
-        public UploadController(IWebHostEnvironment env, IDenetimServisi denetim)
+        public UploadController(IWebHostEnvironment env, IDenetimServisi denetim, IslemSinirlayici sinir)
         {
             _env = env;
             _denetim = denetim;
+            _sinir = sinir;
         }
 
         [HttpPost]
@@ -29,6 +31,10 @@ namespace Kage95.Backend.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = MaxRequestSize, ValueCountLimit = 2000)]
         public async Task<IActionResult> Upload([FromForm] List<IFormFile>? files)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? HttpContext.Connection.RemoteIpAddress?.ToString() ?? "x";
+            if (!_sinir.Dene($"yukleme:{userId}", 10, TimeSpan.FromMinutes(1)))
+                return StatusCode(429, new { message = "Çok sık yükleme yapıyorsunuz, lütfen biraz bekleyin." });
+
             if (files == null || files.Count == 0)
                 return BadRequest(new { message = "Yüklenecek dosya seçilmedi." });
             if (files.Count > MaxFiles)
@@ -78,9 +84,9 @@ namespace Kage95.Backend.Controllers
                 {
                     var name = Guid.NewGuid().ToString("N") + ext;
                     var path = Path.Combine(dir, name);
+                    saved.Add(path); // kopyalama yarıda kalırsa kısmi dosya da silinsin
                     await using (var fs = new FileStream(path, FileMode.CreateNew, FileAccess.Write))
                         await file.CopyToAsync(fs);
-                    saved.Add(path);
                     urls.Add($"{baseUrl}/uploads/{name}");
                 }
             }

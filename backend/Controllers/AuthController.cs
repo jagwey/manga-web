@@ -56,20 +56,13 @@ namespace Kage95.Backend.Controllers
             var sifreHata = HesapKurallari.SifreHata(request.Sifre, kullaniciAdi);
             if (sifreHata != null) return BadRequest(new { message = sifreHata });
 
-            var usernameExists = await _context.Kullanicilar
-                .AnyAsync(k => k.KullaniciAdi.ToLower() == kullaniciAdi.ToLowerInvariant());
+            // Hesap varlığı sızmasın diye tek genel mesaj.
+            var mevcut = await _context.Kullanicilar
+                .AnyAsync(k => k.KullaniciAdi.ToLower() == kullaniciAdi.ToLowerInvariant() || k.Email.ToLower() == email);
 
-            if (usernameExists)
+            if (mevcut)
             {
-                return BadRequest(new { message = "Bu kullanıcı adı zaten kullanılıyor." });
-            }
-
-            var emailExists = await _context.Kullanicilar
-                .AnyAsync(k => k.Email.ToLower() == email);
-
-            if (emailExists)
-            {
-                return BadRequest(new { message = "Bu e-posta adresi ile zaten bir hesap mevcut." });
+                return BadRequest(new { message = "Kayıt oluşturulamadı. Bilgileri değiştirip tekrar deneyin." });
             }
 
             // Şifreyi BCrypt ile güvenli hash'le
@@ -116,7 +109,11 @@ namespace Kage95.Backend.Controllers
 
             var query = request.KullaniciAdiOrEmail.Trim().ToLowerInvariant();
 
-            var bekleme = _sinirlayici.Engelli(query);
+            // Kilit IP + kullanıcı bazlı: yabancı biri gerçek hesabı kilitleyemesin.
+            var ip = HttpContext.Connection.RemoteIpAddress?.ToString() ?? "bilinmiyor";
+            var sinirAnahtari = $"{ip}|{query}";
+
+            var bekleme = _sinirlayici.Engelli(sinirAnahtari);
             if (bekleme != null)
             {
                 var dk = Math.Max(1, (int)Math.Ceiling(bekleme.Value.TotalMinutes));
@@ -130,7 +127,7 @@ namespace Kage95.Backend.Controllers
 
             if (kullanici == null)
             {
-                _sinirlayici.HataKaydet(query);
+                _sinirlayici.HataKaydet(sinirAnahtari);
                 return Unauthorized(new { message = "Kullanıcı adı veya şifre hatalı." });
             }
 
@@ -144,11 +141,11 @@ namespace Kage95.Backend.Controllers
 
             if (!sifreDogru)
             {
-                _sinirlayici.HataKaydet(query);
+                _sinirlayici.HataKaydet(sinirAnahtari);
                 return Unauthorized(new { message = "Kullanıcı adı veya şifre hatalı." });
             }
 
-            _sinirlayici.Sifirla(query);
+            _sinirlayici.Sifirla(sinirAnahtari);
 
             if (await HesapDurumu.BanliMiAsync(_context, kullanici))
             {

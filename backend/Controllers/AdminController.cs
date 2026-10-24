@@ -183,6 +183,9 @@ namespace Kage95.Backend.Controllers
             if (Izinler.OwnerMi(hedef) || Izinler.AdminMi(hedef))
                 return BadRequest(new { message = "Bu kullanıcı zaten yönetici veya site sahibi." });
 
+            if (!hedef.Aktif)
+                return BadRequest(new { message = "Banlı kullanıcı yönetici yapılamaz." });
+
             hedef.Rol = Roller.Admin;
             hedef.Yetkiler = Izinler.Birlestir(yetkiler!);
             await _context.SaveChangesAsync();
