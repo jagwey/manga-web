@@ -1000,9 +1000,27 @@
             try {
                 const tum = JSON.parse(localStorage.getItem(OKUNAN_ANAHTAR) || '{}');
                 const liste = new Set((tum[mangaId] || []).map(String));
-                liste.add(String(bolumId));
+                liste.delete(String(bolumId)); liste.add(String(bolumId));
                 tum[mangaId] = Array.from(liste);
                 localStorage.setItem(OKUNAN_ANAHTAR, JSON.stringify(tum));
+            } catch (e) {}
+        };
+
+        // Kutuphane okuma durumu: sunucuda alan yok, cihazda saklanir. Secilmediyse okunan bolumden turetilir.
+        const KUTUPHANE_DURUM_ANAHTAR = 'kage95_kutuphane_durum';
+        const KUTUPHANE_DURUMLARI = [['okuyorum', 'Okuyorum'], ['okunacak', 'Okunacak'], ['bitirdim', 'Bitirdim']];
+        const kutuphaneDurumuAl = (mangaId) => {
+            try {
+                const d = JSON.parse(localStorage.getItem(KUTUPHANE_DURUM_ANAHTAR) || '{}')[mangaId];
+                if (KUTUPHANE_DURUMLARI.some(x => x[0] === d)) return d;
+            } catch (e) {}
+            return okunanlariAl(mangaId).size > 0 ? 'okuyorum' : 'okunacak';
+        };
+        const kutuphaneDurumuYaz = (mangaId, durum) => {
+            try {
+                const tum = JSON.parse(localStorage.getItem(KUTUPHANE_DURUM_ANAHTAR) || '{}');
+                tum[mangaId] = durum;
+                localStorage.setItem(KUTUPHANE_DURUM_ANAHTAR, JSON.stringify(tum));
             } catch (e) {}
         };
 
@@ -1191,6 +1209,7 @@
             const [yukleniyor, setYukleniyor] = React.useState(giris);
             const [hata, setHata] = React.useState(null);
             const [sayac, setSayac] = React.useState(0);
+            const [durumSekme, setDurumSekme] = React.useState('tumu');
 
             React.useEffect(() => {
                 if (!giris) return;
@@ -1209,6 +1228,8 @@
             }, [giris, sayac]);
 
             const girisGerekli = !giris || hata === 'OTURUM';
+            const gorunen = durumSekme === 'tumu' ? liste : liste.filter(m => kutuphaneDurumuAl(m.id) === durumSekme);
+            const sekmeSayisi = (k) => k === 'tumu' ? liste.length : liste.filter(m => kutuphaneDurumuAl(m.id) === k).length;
 
             return (
                 <div className="ana-icerik detay">
@@ -1216,6 +1237,13 @@
                         <h2>Kütüphane</h2>
                         {giris && !girisGerekli && !yukleniyor && !hata && <span className="sonuc-sayisi">{liste.length} seri</span>}
                     </div>
+                    {giris && !girisGerekli && !yukleniyor && !hata && liste.length > 0 && (
+                        <div className="kutuphane-sekmeler" role="group" aria-label="Okuma durumu">
+                            {[['tumu', 'Tümü'], ...KUTUPHANE_DURUMLARI].map(([k, ad]) => (
+                                <button key={k} type="button" className={`kategori-btn ${durumSekme === k ? 'aktif' : ''}`} aria-pressed={durumSekme === k} onClick={() => setDurumSekme(k)}>{ad} ({sekmeSayisi(k)})</button>
+                            ))}
+                        </div>
+                    )}
                     {girisGerekli ? (
                         <DurumKutu ikon="kilit" baslik="Kütüphaneni görmek için giriş yap"
                             metin={hata === 'OTURUM' ? 'Oturumun sona ermiş olabilir. Yeniden giriş yaparak kaldığın yerden devam et.' : 'Kaydettiğin seriler hesabına bağlı olarak burada listelenir.'}>
@@ -1235,7 +1263,7 @@
                         </DurumKutu>
                     ) : (
                         <div className="manga-grid">
-                            {liste.map(m => <MangaKart key={m.id} m={m} yeniGoster={false} />)}
+                            {gorunen.length === 0 ? <p className="bilgi-satir" role="status">Bu durumda seri yok.</p> : gorunen.map(m => <MangaKart key={m.id} m={m} yeniGoster={false} />)}
                         </div>
                     )}
                 </div>
@@ -2248,7 +2276,7 @@
             return (
                 <section className="ana-icerik populer" aria-labelledby="populerBaslik">
                     <div className="bolum-baslik-satir">
-                        <h2 id="populerBaslik">Popüler seriler</h2>
+                        <h2 id="populerBaslik">En çok okunanlar</h2>
                         <div className="baslik-sag" role="group" aria-label="Dönem">
                             {DONEMLER.map(([k, ad]) => (
                                 <button key={k} type="button" className={`kategori-btn ${donem === k ? 'aktif' : ''}`} aria-pressed={donem === k} onClick={() => setDonem(k)}>{ad}</button>
@@ -2497,6 +2525,27 @@
             const [kutuphaneMesaj, setKutuphaneMesaj] = React.useState('');
             const [kutuphaneBusy, setKutuphaneBusy] = React.useState(false);
             const [dene, setDene] = React.useState(0);
+            const [kopyaMesaj, setKopyaMesaj] = React.useState('');
+            const [okumaDurumu, setOkumaDurumu] = React.useState(() => kutuphaneDurumuAl(id));
+            React.useEffect(() => {
+                if (manga && manga.mangaAdi) document.title = manga.mangaAdi + ' | Kage 95';
+            }, [manga]);
+            const baglantiKopyala = () => {
+                const url = window.location.href;
+                const bitti = (ok) => setKopyaMesaj(ok ? 'Bağlantı kopyalandı.' : 'Kopyalanamadı; adresi adres çubuğundan kopyalayın.');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(() => bitti(true), () => bitti(false));
+                    return;
+                }
+                try {
+                    const t = document.createElement('textarea');
+                    t.value = url; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+                    document.body.appendChild(t); t.select();
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(t);
+                    bitti(ok);
+                } catch (e) { bitti(false); }
+            };
 
             React.useEffect(() => {
                 let iptal = false;
@@ -2571,6 +2620,15 @@
 
             const bolumler = [...(manga.bolumler || [])].sort((a, b) => yeniFirst ? b.bolumNo - a.bolumNo : a.bolumNo - b.bolumNo);
             const ilkBolum = [...(manga.bolumler || [])].sort((a, b) => a.bolumNo - b.bolumNo)[0];
+            // Kaldığı bölüm: okunan listesinde en son açılan, bu seride hâlâ var olan bölüm
+            const devamBolum = (() => {
+                const l = Array.from(okunan);
+                for (let i = l.length - 1; i >= 0; i--) {
+                    const b = (manga.bolumler || []).find(x => String(x.id) === l[i]);
+                    if (b) return b;
+                }
+                return null;
+            })();
 
             return (
                 <div className="ana-icerik detay">
@@ -2600,10 +2658,23 @@
                                 ) : (
                                     <span className="btn-ana pasif" aria-disabled="true">Henüz bölüm yok</span>
                                 )}
+                                {devamBolum && (
+                                    <a className="btn-ikincil" href={`read.html?chapter=${devamBolum.id}`} onClick={() => okunduIsaretle(id, devamBolum.id)}>Bölüm {bolumNoYaz(devamBolum.bolumNo)}'ten devam et</a>
+                                )}
+                                <button type="button" className="btn-ikincil" onClick={baglantiKopyala}>Bağlantıyı kopyala</button>
                                 <button className={`btn-ikincil ${kayitli ? 'aktif' : ''}`} onClick={kutuphaneDegistir} disabled={kutuphaneBusy} aria-pressed={kayitli}>
                                     {kayitli ? 'Kütüphanede' : 'Kütüphaneye ekle'}
                                 </button>
                             </div>
+                            {kopyaMesaj && <p className="bilgi-satir" role="status">{kopyaMesaj}</p>}
+                            {kayitli && (
+                                <div className="durum-secici">
+                                    <label htmlFor="okumaDurumu">Okuma durumu</label>
+                                    <select id="okumaDurumu" value={okumaDurumu} onChange={(e) => { setOkumaDurumu(e.target.value); kutuphaneDurumuYaz(id, e.target.value); }}>
+                                        {KUTUPHANE_DURUMLARI.map(([k, ad]) => <option key={k} value={k}>{ad}</option>)}
+                                    </select>
+                                </div>
+                            )}
                             {kutuphaneMesaj === 'GIRIS' ? (
                                 <p className="bilgi-satir" role="status">Kütüphaneye eklemek için <a href="login.html">giriş yapın</a>.</p>
                             ) : kutuphaneMesaj ? (
@@ -2737,6 +2808,18 @@
             const [aramaAcik, setAramaAcik] = React.useState(false);
             const mobilAramaRef = React.useRef(null);
             const girisli = !!kullaniciAl();
+            const [yukariGoster, setYukariGoster] = React.useState(false);
+            React.useEffect(() => {
+                const f = () => setYukariGoster(window.scrollY > 600);
+                f();
+                window.addEventListener('scroll', f, { passive: true });
+                return () => window.removeEventListener('scroll', f);
+            }, []);
+            // Sayfa başlığı rotaya göre güncellenir (seri adı MangaDetay yüklenince yazılır)
+            React.useEffect(() => {
+                const BASLIKLAR = { ana: 'Ana Sayfa', kutuphane: 'Kütüphane', profil: 'Hesabım', liderlik: 'Liderlik', sohbet: 'Sohbet' };
+                document.title = (rota.sayfa === 'manga' ? 'Seri' : (BASLIKLAR[rota.sayfa] || 'Ana Sayfa')) + ' | Kage 95';
+            }, [rota]);
             const pop = usePopTema();
 
             // Herkese açık site ayarları (kayıt açık mı, duyuru, bakım). Ulaşılamazsa varsayılanlarla devam edilir.
@@ -2839,6 +2922,7 @@
 
             return (
                 <div style={arkaPlanStili}>
+                    <a href="#ana-icerik" className="atla-link" onClick={(e) => { e.preventDefault(); const m = document.getElementById('ana-icerik'); if (m) m.focus(); }}>Ana içeriğe atla</a>
                     {ayarlar.duyuruAcik && ayarlar.duyuruMetni && !duyuruKapali && (
                         <div className="duyuru-bandi" role="status">
                             <span>{ayarlar.duyuruMetni}</span>
@@ -2967,7 +3051,7 @@
                         </div>
                     </aside>
 
-                    <main role="main">
+                    <main role="main" id="ana-icerik" tabIndex={-1}>
                         {rota.sayfa === 'manga' ? <MangaDetay key={rota.id} id={rota.id} />
                             : rota.sayfa === 'kutuphane' ? <Kutuphane />
                             : rota.sayfa === 'profil' ? <ProfilSayfasi />
@@ -2987,6 +3071,9 @@
                         </div>
                     </footer>
 
+                    {yukariGoster && (
+                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                    )}
                     <nav className="alt-gezinme" aria-label="Mobil gezinme">
                         <a href="#/" className={rota.sayfa === 'ana' || rota.sayfa === 'manga' ? 'aktif' : ''}
                            aria-current={rota.sayfa === 'ana' ? 'page' : undefined}>

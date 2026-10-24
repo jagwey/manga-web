@@ -558,7 +558,7 @@
 
         const IZINLI_UZANTI = ['jpg', 'jpeg', 'png', 'webp', 'gif'];
         const MAX_BOYUT = 15 * 1024 * 1024;
-        const MAX_DOSYA = 80;
+        const MAX_DOSYA = 200;
         const GRUP = 20;
 
         function dosyaDogrula(f) {
@@ -1287,6 +1287,26 @@
             );
         };
 
+        /* ---------- Sayfa sıra numarası girişi ---------- */
+        const SiraGirdisi = ({ mevcut, toplam, kilit, tasi }) => {
+            const [deger, setDeger] = useState(String(mevcut));
+            const uygula = () => {
+                const n = parseInt(deger, 10);
+                if (!Number.isFinite(n)) { setDeger(String(mevcut)); return; }
+                const h = Math.min(Math.max(n, 1), toplam);
+                setDeger(String(h));
+                if (h !== mevcut) tasi(h);
+            };
+            return (
+                <div className="form-grubu" style={{ margin: '6px 0' }}>
+                    <label htmlFor={`sira${mevcut}`} className="ikincil">Sıra numarası (1-{toplam})</label>
+                    <input id={`sira${mevcut}`} type="number" className="form-input" min="1" max={toplam} value={deger} disabled={kilit}
+                        onChange={(e) => setDeger(e.target.value)} onBlur={uygula}
+                        onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); uygula(); } }} />
+                </div>
+            );
+        };
+
         /* ---------- Sayfa yöneticisi ---------- */
         const SayfaYoneticisi = ({ bolumId, mangaId, git, can }) => {
             const [veri, setVeri] = useState(null);
@@ -1330,6 +1350,13 @@
                 if (j < 0 || j >= s.length) return s;
                 const k = s.slice(); const t = k[i]; k[i] = k[j]; k[j] = t; return k;
             });
+            // Bir sayfayı doğrudan hedef sıraya taşır (sürükle-bırak ve sıra numarası girişi ortak kullanır)
+            const hedefeTasi = (i, j) => setSira(s => {
+                if (j < 0 || j >= s.length || i === j) return s;
+                const k = s.slice(); const [oge] = k.splice(i, 1); k.splice(j, 0, oge); return k;
+            });
+            const [surukle, setSurukle] = useState(null);
+            const [uzerinde, setUzerinde] = useState(null);
             // Taşıma sonrası kirli durumu: sıra, sunucudaki sıradan farklı mı
             useEffect(() => {
                 if (!veri) return;
@@ -1444,8 +1471,14 @@
                     {veri && sira.length === 0 && <div className="bos">Bu bölümde henüz sayfa yok.</div>}
                     <ul className="sayfa-izgara" style={{ marginTop: 20 }}>
                         {sira.map((p, i) => (
-                            <li className="sayfa-kart" key={p.id}>
-                                <img src={gorselUrl(p.resimURL)} alt={`Sayfa ${i + 1} önizlemesi`} loading="lazy" onError={(e) => { e.target.style.visibility = 'hidden'; }} />
+                            <li className="sayfa-kart" key={p.id}
+                                draggable={duzenleyebilir && !mesgul}
+                                onDragStart={(e) => { setSurukle(i); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', String(i)); }}
+                                onDragOver={(e) => { if (surukle !== null) { e.preventDefault(); setUzerinde(i); } }}
+                                onDrop={(e) => { e.preventDefault(); if (surukle !== null) hedefeTasi(surukle, i); setSurukle(null); setUzerinde(null); }}
+                                onDragEnd={() => { setSurukle(null); setUzerinde(null); }}
+                                style={{ opacity: surukle === i ? 0.4 : 1, outline: uzerinde === i && surukle !== null && surukle !== i ? '2px solid #c0392b' : undefined, cursor: duzenleyebilir ? 'grab' : undefined }}>
+                                <img src={gorselUrl(p.resimURL)} alt={`Sayfa ${i + 1} önizlemesi`} draggable="false" loading="lazy" onError={(e) => { e.target.style.visibility = 'hidden'; }} />
                                 <div className="sira">Sayfa {i + 1}{kirli && p.sayfaNo !== i + 1 ? ` (şu an ${p.sayfaNo})` : ''}</div>
                                 {duzenleyebilir && (
                                     <React.Fragment>
@@ -1453,6 +1486,7 @@
                                             <button type="button" className="btn" aria-label={`Sayfa ${i + 1} yukarı taşı`} disabled={mesgul || i === 0} onClick={() => tasi(i, -1)}>Yukarı</button>
                                             <button type="button" className="btn" aria-label={`Sayfa ${i + 1} aşağı taşı`} disabled={mesgul || i === sira.length - 1} onClick={() => tasi(i, 1)}>Aşağı</button>
                                         </div>
+                                        <SiraGirdisi key={`${p.id}-${i}`} mevcut={i + 1} toplam={sira.length} kilit={mesgul} tasi={(h) => hedefeTasi(i, h - 1)} />
                                         <input id={`deg${p.id}`} type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={(e) => degistir(p, e)} disabled={kilit} />
                                         <label htmlFor={`deg${p.id}`} className="btn tam-btn" style={{ cursor: kilit ? 'default' : 'pointer', opacity: kilit ? 0.5 : 1 }}>Değiştir</label>
                                         <button type="button" className="btn btn-tehlike tam-btn" disabled={kilit} onClick={() => setSilId(silId === p.id ? null : p.id)}>Sil</button>

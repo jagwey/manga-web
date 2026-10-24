@@ -838,6 +838,14 @@
             React.useEffect(() => {
                 if (durum !== 'hazir' || !veri) return;
                 lsSet('kage95_sayfa_bolum_' + veri.bolumId, String(sayfaIndex));
+                // Seri sayfasindaki "Bolum X'ten devam et" icin: son acilan bolum listenin sonuna yazilir
+                try {
+                    const tumO = JSON.parse(lsGet('kage95_okunan') || '{}');
+                    const lO = (tumO[veri.mangaId] || []).map(String).filter((x) => x !== String(veri.bolumId));
+                    lO.push(String(veri.bolumId));
+                    tumO[veri.mangaId] = lO;
+                    lsSet('kage95_okunan', JSON.stringify(tumO));
+                } catch (e) {}
                 lsSet('kage95_son_okunan', JSON.stringify({
                     mangaId: veri.mangaId, mangaAdi: veri.mangaAdi, bolumId: veri.bolumId, bolumNo: veri.bolumNo,
                     sayfa: sayfaIndex + 1, toplam: (veri.sayfalar || []).length, zaman: Date.now()
@@ -928,6 +936,43 @@
                 </select>
             );
 
+            // --- Dost ozellikler: kisayol yardimi, baglanti kopyala, yukari cik ---
+            const [kisayolAcik, setKisayolAcik] = React.useState(false);
+            const [yukariGoster, setYukariGoster] = React.useState(false);
+            const [kopyaMesaj, setKopyaMesaj] = React.useState('');
+            React.useEffect(() => {
+                const f = () => setYukariGoster(window.scrollY > 600);
+                f();
+                window.addEventListener('scroll', f, { passive: true });
+                return () => window.removeEventListener('scroll', f);
+            }, []);
+            React.useEffect(() => {
+                const k = (e) => {
+                    const t = e.target.tagName;
+                    if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
+                    if (e.key === '?') { e.preventDefault(); setKisayolAcik((a) => !a); }
+                    else if (e.key === 'Escape') setKisayolAcik(false);
+                };
+                window.addEventListener('keydown', k);
+                return () => window.removeEventListener('keydown', k);
+            }, []);
+            const baglantiKopyala = () => {
+                const url = window.location.href;
+                const bitti = (ok) => setKopyaMesaj(ok ? 'Bağlantı kopyalandı.' : 'Kopyalanamadı; adresi adres çubuğundan kopyalayın.');
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(url).then(() => bitti(true), () => bitti(false));
+                    return;
+                }
+                try {
+                    const t = document.createElement('textarea');
+                    t.value = url; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+                    document.body.appendChild(t); t.select();
+                    const ok = document.execCommand('copy');
+                    document.body.removeChild(t);
+                    bitti(ok);
+                } catch (e) { bitti(false); }
+            };
+
             const bolumSonu = (
                 <div className="bolum-sonu">
                     <h3>{yerTutucuMu ? 'Örnek bölümün sonu' : 'Bölümün sonu'}</h3>
@@ -943,6 +988,7 @@
 
             return (
                 <div>
+                    <a href="#ana-icerik" className="atla-link" onClick={(e) => { e.preventDefault(); const m = document.getElementById('ana-icerik'); if (m) m.focus(); }}>Ana içeriğe atla</a>
 
                     <header className={'reader-header' + (ustGizli && !parlaklikAcik ? ' gizli' : '')} role="banner">
                         <div className="header-sol">
@@ -1001,7 +1047,7 @@
                         </div>
                     </header>
 
-                    <main className="reader-alani" role="main">
+                    <main className="reader-alani" role="main" id="ana-icerik" tabIndex={-1}>
                         {durum === 'yukleniyor' && (
                             <div className="durum-kutusu" role="status">
                                 <div className="spinner"></div>
@@ -1087,6 +1133,12 @@
                             </>
                         )}
 
+                        <div className="okuma-ek-eylemler">
+                            <button type="button" className="nav-btn" onClick={baglantiKopyala}>Bağlantıyı kopyala</button>
+                            <button type="button" className="nav-btn" onClick={() => setKisayolAcik(true)}>Klavye kısayolları</button>
+                            {kopyaMesaj && <span role="status" className="okuma-ek-mesaj">{kopyaMesaj}</span>}
+                        </div>
+
                         {/* Yorumlar */}
                         <section className="yorumlar-bolumu" aria-label="Bölüm Yorumları">
                             {yorumBolumId != null && (
@@ -1098,6 +1150,25 @@
                                 placeholder="Bu bölüm hakkında ne düşünüyorsun? (Spoiler uyarısı yapmayı unutma)" />
                         </section>
                     </main>
+
+                    {yukariGoster && (
+                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                    )}
+
+                    {kisayolAcik && (
+                        <div className="kisayol-arka" onClick={() => setKisayolAcik(false)}>
+                            <div className="kisayol-pencere" role="dialog" aria-modal="true" aria-labelledby="kisayolBaslik" onClick={(e) => e.stopPropagation()}>
+                                <h2 id="kisayolBaslik">Klavye kısayolları</h2>
+                                <dl>
+                                    <div><dt><kbd>←</kbd> <kbd>A</kbd></dt><dd>Önceki sayfa (klasik mod)</dd></div>
+                                    <div><dt><kbd>→</kbd> <kbd>D</kbd></dt><dd>Sonraki sayfa (klasik mod)</dd></div>
+                                    <div><dt><kbd>?</kbd></dt><dd>Bu yardımı aç / kapat</dd></div>
+                                    <div><dt><kbd>Esc</kbd></dt><dd>Yardımı kapat</dd></div>
+                                </dl>
+                                <button type="button" className="nav-btn btn-dolgu" autoFocus onClick={() => setKisayolAcik(false)}>Kapat</button>
+                            </div>
+                        </div>
+                    )}
 
                     {sayfalar.length > 0 && (
                         <div

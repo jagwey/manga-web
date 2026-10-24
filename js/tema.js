@@ -6,6 +6,7 @@
 
     var TEMALAR = [
         { id: 'kage', ad: 'Kage', not: 'Koyu, kan kırmızısı', renk: '#8e0e15', zemin: '#0e0c0c', vars: null },
+        { id: 'sistem', ad: 'Sistem', not: 'Cihaz temasını izler', renk: '#8e0e15', zemin: '#0e0c0c', vars: null },
         { id: 'kagit', ad: 'Kâğıt', not: 'Açık, krem zemin', renk: '#8e0e15', zemin: '#f3ede3', vars: {
             'color-scheme': 'light',
             '--vurgu-rengi': '#8e0e15', '--vurgu-parlak': '#a3121a',
@@ -77,7 +78,16 @@
     }).join('\n');
     (document.head || document.documentElement).appendChild(stil);
 
+    // 'sistem' secenegi: cihazin acik/koyu tercihini izler (koyu: kage, acik: kagit)
+    function sistemKoyuMu() {
+        return !(window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches);
+    }
+    function cozumle(id) {
+        return id === 'sistem' ? (sistemKoyuMu() ? 'kage' : 'kagit') : id;
+    }
+
     function uygula(id) {
+        id = cozumle(id);
         var t = bul(id);
         document.documentElement.setAttribute('data-tema', t.id);
         popLinkleri(t.id === 'pop');
@@ -99,5 +109,16 @@
         var id = uygula(oku());
         window.dispatchEvent(new CustomEvent('kage95-tema', { detail: id }));
     });
+    // Sistem temasi secili iken cihaz tercihi degisirse otomatik guncelle
+    if (window.matchMedia) {
+        var sistemMq = window.matchMedia('(prefers-color-scheme: light)');
+        var sistemDegisti = function () {
+            if (oku() !== 'sistem') return;
+            uygula('sistem');
+            window.dispatchEvent(new CustomEvent('kage95-tema', { detail: 'sistem' }));
+        };
+        if (sistemMq.addEventListener) sistemMq.addEventListener('change', sistemDegisti);
+        else if (sistemMq.addListener) sistemMq.addListener(sistemDegisti);
+    }
     window.Kage95Tema = { liste: TEMALAR, al: oku, sec: sec };
 })();

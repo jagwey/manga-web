@@ -1,0 +1,8 @@
+{
+  "liveServer.settings.ignoreFiles": [
+    "backend/**",
+    "**/uploads/**",
+    "**/avatars/**"
+  ],
+  "liveServer.settings.port": 5501
+}
