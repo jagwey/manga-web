@@ -527,7 +527,7 @@
         '.k95y-btn[aria-expanded="true"]{border-color:var(--vurgu-parlak,#e0343c);color:var(--vurgu-parlak,#e0343c)}',
         '.k95y-btn svg{width:18px;height:18px;flex:none}',
         // Sabit buton alt bilgideki bağlantıların üstüne binmesin
-        '@media (min-width:769px){:root .site-footer{padding-bottom:calc(var(--bosluk-4,32px) + 56px)}}',
+        '@media (min-width:769px){:root .site-footer{padding-bottom:calc(var(--bosluk-4,32px) + 56px)}.site-footer .footer-ic nav{padding-right:140px}}',
         // Panel her zaman flex; kapalıyken görünmez + hafif aşağıda. visibility gecikmeli kapanır ki çıkış animasyonu görünsün.
         '.k95y-panel{position:fixed;right:16px;bottom:72px;z-index:95;display:flex;flex-direction:column;box-sizing:border-box;width:380px;max-width:calc(100vw - 32px);',
         'height:560px;height:min(560px,calc(100vh - 96px));height:min(560px,calc(var(--k95y-vh,100dvh) - 96px));',
@@ -1608,6 +1608,19 @@
         document.addEventListener('keydown', function (e) {
             if (e.key === 'Escape' && panel.classList.contains('acik')) ac(false);
         });
+
+        function rotaGuncelle() {
+            var h = window.location.hash || '';
+            var sohbetMi = /^#\/sohbet\b/.test(h);
+            if (sohbetMi) {
+                btn.style.display = 'none';
+                if (panel.classList.contains('acik')) ac(false);
+            } else {
+                btn.style.display = '';
+            }
+        }
+        window.addEventListener('hashchange', rotaGuncelle);
+        rotaGuncelle();
     }
 
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', kur);

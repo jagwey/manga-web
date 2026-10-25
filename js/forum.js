@@ -169,7 +169,7 @@
         return h('aside', { className: 'fr-yan' },
             girisli
                 ? h('a', { className: 'fr-ac-dugme', href: '#/forum/yeni' + (p.seri ? '?seri=' + p.seri : '') }, h('span', { 'aria-hidden': 'true' }, '筆'), 'Konu aç')
-                : h('a', { className: 'fr-ac-dugme ikincil', href: 'login.html' }, 'Konu açmak için giriş yap'),
+                : h('a', { className: 'fr-ac-dugme ikincil', href: 'login.html' }, h('span', { 'aria-hidden': 'true' }, '鍵'), 'Konu açmak için giriş yap'),
             h('nav', { className: 'fr-katlar', 'aria-label': 'Forum kategorileri' },
                 h('a', { href: '#/forum', className: 'fr-kat' + (!p.secili && !p.seri ? ' aktif' : '') },
                     h('span', { className: 'fr-kanji', 'aria-hidden': 'true' }, '全'), h('span', { className: 'fr-kat-ad' }, 'Tüm başlıklar'), h('b', null, toplam)),

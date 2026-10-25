@@ -12,7 +12,19 @@
 .fr-ac-dugme { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 12px; border-radius: 6px; background: var(--vurgu-rengi); color: #fff; font-weight: 600; text-decoration: none; transition: background .15s; }
 .fr-ac-dugme:hover { background: #a8141c; }
 .fr-ac-dugme span { font-family: var(--font-kanji); }
-.fr-ac-dugme.ikincil { background: transparent; border: 1px solid var(--border-belirgin); color: var(--text-ana); font-weight: 500; font-size: 14px; }
+.fr-ac-dugme.ikincil {
+    background: rgba(255, 255, 255, .04);
+    border: 1px solid var(--border-belirgin);
+    color: var(--text-ana);
+    font-weight: 500;
+    font-size: 14px;
+    min-height: 44px;
+    box-sizing: border-box;
+}
+.fr-ac-dugme.ikincil:hover {
+    border-color: var(--vurgu-parlak);
+    background: rgba(255, 255, 255, .08);
+}
 .fr-katlar { display: flex; flex-direction: column; border: 1px solid var(--border-renk); border-radius: 6px; background: var(--bg-kart); overflow: hidden; }
 .fr-kat { display: flex; align-items: center; gap: 10px; padding: 10px 12px; color: var(--text-ikincil); text-decoration: none; font-size: 14px; border-left: 2px solid transparent; }
 .fr-kat + .fr-kat { border-top: 1px solid var(--border-renk); }
@@ -165,14 +177,44 @@
 @media (max-width: 820px) {
     .fr-duzen { grid-template-columns: 1fr; }
     .fr-yan { position: static; }
-    .fr-katlar { flex-direction: row; overflow-x: auto; scrollbar-width: none; }
-    .fr-kat { flex-shrink: 0; border-left: 0; border-bottom: 2px solid transparent; }
+    .fr-katlar {
+        flex-direction: row;
+        overflow-x: auto;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px;
+        gap: 6px;
+    }
+    .fr-katlar::-webkit-scrollbar { display: none; }
+    .fr-kat {
+        flex-shrink: 0;
+        border-left: 0;
+        border-bottom: 2px solid transparent;
+        border-radius: 4px;
+        min-height: 44px;
+        box-sizing: border-box;
+        padding: 8px 14px;
+    }
     .fr-kat + .fr-kat { border-top: 0; }
-    .fr-kat.aktif { border-bottom-color: var(--vurgu-parlak); }
+    .fr-kat.aktif {
+        border-bottom-color: var(--vurgu-parlak);
+        background: rgba(142, 14, 21, .2);
+    }
     .fr-kural { display: none; }
     .fr-kafa-kanji { font-size: 40px; }
     .fr-kafa h1 { font-size: 22px; }
     .fr-ara, .fr-ara input { width: 100%; }
     .fr-son { margin-left: 0; }
     .fr-konu-baslik { font-size: 20px; }
+
+    /* iOS Safari zoom engelleme: input ve textarea en az 16px */
+    .fr-ara input,
+    .fr-yazim textarea,
+    .fr-alan input[type=text],
+    .fr-seri-ara input,
+    .fr-bolum {
+        font-size: 16px !important;
+    }
+    .fr-ac-dugme { min-height: 44px; }
 }

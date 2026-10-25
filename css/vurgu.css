@@ -473,3 +473,8 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
     .kprof-ad { font-size: 1.25rem; }
     .kprof-rozetler { font-size: .8rem; gap: 6px; }
 }
+
+
+@media (min-width: 769px) {
+    :root .site-footer .footer-ic nav { padding-right: 140px; }
+}

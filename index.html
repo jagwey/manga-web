@@ -923,7 +923,7 @@
         }
         .lider-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; background: var(--bg-kart); }
         .lider-kimlik { min-width: 0; display: flex; flex-direction: column; }
-        .lider-ad { display: block; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .lider-ad { display: inline-block; padding: 4px 0; min-height: 24px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lider-sen { font-style: normal; font-weight: 400; color: var(--text-ikincil); }
         .lider-rutbe { display: block; font-size: .85rem; color: var(--text-ikincil); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .lider-puan { display: flex; flex-direction: column; align-items: flex-end; text-align: right; line-height: 1.2; }
@@ -1651,7 +1651,7 @@
                                             className={`lider-satir ${x.sira <= 3 ? `ust t${x.sira}` : ''} ${benim ? 'ben' : ''}`}
                                             aria-current={benim ? 'true' : undefined}>
                                             <span className="lider-sira"><span className="sr-only">Sıra </span>{x.sira}</span>
-                                            <Avatarcik ad={x.kullaniciAdi} resim={x.profilResmiURL} />
+                                            <a href={`#/kullanici/${encodeURIComponent(x.kullaniciAdi || '')}`} aria-label={`${x.kullaniciAdi} profili`}><Avatarcik ad={x.kullaniciAdi} resim={x.profilResmiURL} /></a>
                                             <span className="lider-kimlik">
                                                 <a href={`#/kullanici/${encodeURIComponent(x.kullaniciAdi || '')}`} className={`lider-ad ${window.Kage95AdStili.sinif(x.adStili)}`} style={window.Kage95AdStili.stil(x.adStili)} title={x.kullaniciAdi}>{x.kullaniciAdi}{window.Kage95AdStili.unvan(x.adStili) && <span className="as-unvan">{window.Kage95AdStili.unvan(x.adStili)}</span>}{benim && <em className="lider-sen"> (sen)</em>}</a>
                                                 <span className="lider-rutbe">{x.rutbe}</span>
