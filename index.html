@@ -1475,6 +1475,15 @@
 
         const IletisimSayfasi = () => {
             const [kopyalandi, setKopyalandi] = React.useState(false);
+            const [discordKopyalandi, setDiscordKopyalandi] = React.useState(false);
+            const discordKopyala = () => {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(SOSYAL.discord).then(() => {
+                        setDiscordKopyalandi(true);
+                        setTimeout(() => setDiscordKopyalandi(false), 2000);
+                    });
+                }
+            };
             const epostaKopyala = () => {
                 if (navigator.clipboard && navigator.clipboard.writeText) {
                     navigator.clipboard.writeText(SOSYAL.eposta).then(() => {
@@ -1517,9 +1526,15 @@
                                     <strong style={{ fontSize: '0.95rem' }}>Discord</strong>
                                 </div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-ikincil)', margin: 0 }}>Topluluk, sohbet ve oyun testleri</p>
-                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" className="btn-ana" style={{ marginTop: 'auto', textAlign: 'center', textDecoration: 'none', minHeight: 40, fontSize: '.85rem' }}>
-                                    Sunucuya Katıl
-                                </a>
+                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" style={{ fontSize: '.9rem', fontWeight: 600, color: 'var(--vurgu-parlak)', overflowWrap: 'anywhere' }}>{SOSYAL.discord}</a>
+                                <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
+                                    <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" className="btn-ana" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', minHeight: 40, fontSize: '.85rem' }}>
+                                        Sunucuya Katıl
+                                    </a>
+                                    <button type="button" onClick={discordKopyala} className="btn-ikincil" style={{ minHeight: 40, padding: '0 12px', fontSize: '.85rem' }} title="Davet bağlantısını kopyala">
+                                        {discordKopyalandi ? 'Kopyalandı' : 'Kopyala'}
+                                    </button>
+                                </div>
                             </div>
                             <div style={{ background: 'var(--bg-ana)', border: '1px solid var(--border-renk)', borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -3791,6 +3806,14 @@
                                 )}
                             </div>
 
+                            <div className="ayar-kutu">
+                                <div className="ayar-kutu-baslik">Topluluk</div>
+                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" className="btn-ana" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, textDecoration: 'none', minHeight: 42, width: '100%' }}>
+                                    <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor" aria-hidden="true"><path d={DISCORD_YOLU} /></svg>
+                                    <span>Discord Topluluğuna Katıl</span>
+                                </a>
+                            </div>
+
                             <button className="sifirla-btn" onClick={temayiSifirla}>Varsayılan temayı geri yükle</button>
                         </div>
                     </aside>
@@ -3823,6 +3846,7 @@
                             <nav aria-label="Alt menü">
                                 <a href="#/">Ana Sayfa</a>
                                 <a href="#/iletisim">İletişim</a>
+                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer">Discord</a>
                                 {!kullaniciAl() && <a href="login.html">Giriş</a>}
                             </nav>
                         </div>

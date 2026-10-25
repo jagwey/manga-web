@@ -23,7 +23,7 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - (Bitti, 25.10) Sohbet şeridi küçültüldü: varsayılan 1 mesaj, "Büyüt/Küçült" düğmesi (localStorage ks-serit-genis). Mobilde (≤600px) şerit Son güncellenenler + Popüler'in altına iner, mangalar önce görünür. sw v19. Canlıda, 390px doğrulandı.
 - (Bitti, 25.10) Antigravity'nin commit'lenmemiş bozucu değişiklikleri geri alındı (Discord kartı/linki, afiş deploy listesi, sw v17); fark yedeği scratchpad'de. Afiş yolu '/kage95-afis.png' yapıldı (ocGorselGuvenli göreli yolu reddediyordu). sw v21. Canlıda.
 - (Bitti, 25.10) Hero orijinal öne çıkan carousel'e döndü: KAGE95_OZEL_SLAYT ve Discord butonları kaldırıldı, .oc-afis CSS e146ede öncesine alındı. Antigravity çalışma ağacını eski sürüme (sw v14, sohbet altta, e-posta düzeltmesi yok) sarmıştı; sohbet yerleşimi, Gmail e-posta, config/css/sohbet sürüm etiketleri geri eklendi. sw v22. Canlıda doğrulandı.
-- (Bitti, 25.10) Discord davet linki https://discord.gg/yxZZ7m2x8a olarak güncellendi (js/config.js SOSYAL.discord; üst/alt bar ikonları ve #/iletisim kartı). config.js?v=20261025c, sw v24. Canlıda.
+- (Bitti, 25.10) Discord linki tüm temas noktalarına işlendi: #/iletisim kartına doğrudan tıklanabilir bağlantı metni (discord.gg/yxZZ7m2x8a) ve "Kopyala" düğmesi eklendi; alt bilgi (footer) gezinme menüsüne ve açılır yan menüye doğrudan Discord bağlantısı eklendi; Kage Asistan'a Discord sorusu/bağlantısı eklendi. Canlıda.
 - Yok. Backend v2 BİTTİ (geçici DB'de 162 kontrol geçti, gerçek DB'ye yalnızca yeni tablo/nullable kolon, yedek C:\Temp\Kage95DB_oncesi_yorumv2_sohbet_*.bak). Ön yüz ikinci turu sürüyor: madde 2 (sohbet ön yüzü) ve madde 5 (yorum aracı) bitti, sıradaki madde 3.
 
 ## Backend v2 sözleşmesi (ön yüz için)

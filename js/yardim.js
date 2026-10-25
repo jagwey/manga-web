@@ -218,6 +218,9 @@
           cevap: 'Sayfayı yenile. Siteyi uygulama olarak yüklediysen uygulamayı tamamen kapatıp yeniden aç; yeni sürüm bir sonraki açılışta yüklenir.' },
 
         // --- İletişim ---
+        { konu: 'iletisim', soru: 'Discord sunucusu var mı?', anahtar: ['discord', 'dc', 'topluluk', 'sunucu', 'discord link', 'discord davet'],
+          cevap: 'Evet! Kage 95 topluluğumuz ve Kage-95 oyunumuz için resmi Discord sunucumuza katılabilirsin.',
+          baglanti: { ad: 'Discord Sunucusuna Katıl', url: 'https://discord.gg/yxZZ7m2x8a' } },
         { konu: 'iletisim', soru: 'Site sahibine nasıl ulaşırım?', anahtar: ['iletisim', 'ulas', 'site sahibi', 'yonetici', 'admin', 'instagram', 'e posta', 'mail', 'destek'],
           cevap: 'İletişim sayfasında site sahibinin (Jagwey) Instagram ve e-posta adresi var. Menüdeki "İletişim" bağlantısından da açılır.',
           baglanti: ILETISIM },
