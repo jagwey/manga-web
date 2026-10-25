@@ -51,13 +51,25 @@ foreach ($f in $htmlDosyalar) {
     curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
 }
 
-$digerKokDosyalar = @("logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
+$digerKokDosyalar = @("manifest.webmanifest", "sw.js")
 foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
         Write-Host "  -> wwwroot/$f"
         curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
     }
+}
+
+Get-ChildItem (Join-Path $kokDizin "assets") -File | ForEach-Object {
+    Write-Host "  -> wwwroot/assets/$($_.Name)"
+    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/assets/$($_.Name)"
+}
+# Tarayici varsayilan kok favicon.ico ve favicon.svg geriye donuk uyumluluk
+if (Test-Path (Join-Path $kokDizin "assets\favicon.ico")) {
+    curl.exe -s -S --ssl-reqd -k -u $kimlik -T (Join-Path $kokDizin "assets\favicon.ico") "$ftpKok/wwwroot/favicon.ico"
+}
+if (Test-Path (Join-Path $kokDizin "assets\favicon.svg")) {
+    curl.exe -s -S --ssl-reqd -k -u $kimlik -T (Join-Path $kokDizin "assets\favicon.svg") "$ftpKok/wwwroot/favicon.svg"
 }
 
 Get-ChildItem (Join-Path $kokDizin "css") -File | ForEach-Object {

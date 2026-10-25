@@ -270,6 +270,8 @@ namespace Kage95.Backend.Models
         public string? MesajFontu { get; set; }
         public bool Parlak { get; set; }
         public bool Animasyon { get; set; }
+        /// <summary>Ad efekti kimligi. Null ise eski Parlak/Animasyon alanlarindan turetilir.</summary>
+        public string? AdEfekti { get; set; }
         public bool Rozet { get; set; }
         public string? Unvan { get; set; }
     }
@@ -283,5 +285,43 @@ namespace Kage95.Backend.Models
         public string? Baglanti { get; set; }
         public bool Okundu { get; set; }
         public DateTime Tarih { get; set; } = DateTime.UtcNow;
+    }
+
+    public class ForumKonu
+    {
+        public int Id { get; set; }
+        public string Kategori { get; set; } = "dojo";
+        public int KullaniciId { get; set; }
+        public string Baslik { get; set; } = string.Empty;
+        public string Icerik { get; set; } = string.Empty;
+        public int? MangaId { get; set; }
+        /// <summary>Konunun konuştuğu bölüm; spoiler eşiği olarak kullanılır.</summary>
+        public decimal? BolumNo { get; set; }
+        public bool Spoiler { get; set; }
+        public bool Sabit { get; set; }
+        public bool Kilitli { get; set; }
+        public bool Silindi { get; set; }
+        public DateTime Tarih { get; set; } = DateTime.UtcNow;
+        public DateTime SonYanitTarihi { get; set; } = DateTime.UtcNow;
+        public int YanitSayisi { get; set; }
+        public int BegeniSayisi { get; set; }
+    }
+
+    public class ForumYanit
+    {
+        public int Id { get; set; }
+        public int KonuId { get; set; }
+        public int KullaniciId { get; set; }
+        public string Icerik { get; set; } = string.Empty;
+        public bool Spoiler { get; set; }
+        public bool Silindi { get; set; }
+        public DateTime Tarih { get; set; } = DateTime.UtcNow;
+    }
+
+    public class ForumBegeni
+    {
+        public int Id { get; set; }
+        public int KonuId { get; set; }
+        public int KullaniciId { get; set; }
     }
 }

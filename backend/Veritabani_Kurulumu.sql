@@ -740,6 +740,7 @@ BEGIN
         Parlak      BIT           NOT NULL CONSTRAINT DF_KullaniciTercihleri_Parlak DEFAULT (0),
         Animasyon   BIT           NOT NULL CONSTRAINT DF_KullaniciTercihleri_Animasyon DEFAULT (0),
         Rozet       BIT           NOT NULL CONSTRAINT DF_KullaniciTercihleri_Rozet DEFAULT (0),
+        AdEfekti    NVARCHAR(20)  NULL,
         Unvan       NVARCHAR(24)  NULL,
         CONSTRAINT PK_KullaniciTercihleri PRIMARY KEY (KullaniciId),
         CONSTRAINT FK_KullaniciTercihleri_Kullanicilar FOREIGN KEY (KullaniciId) REFERENCES dbo.Kullanicilar(Id) ON DELETE CASCADE

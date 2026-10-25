@@ -26,14 +26,19 @@ namespace Kage95.Backend.Services
             var s = new AdStiliDto();
             var renk = OdulKatalogu.Renk(t.AdRengi);
             if (renk != null && seviye >= renk.Seviye) { s.AdRengi = renk.Id; s.AdRengiHex = renk.Hex; }
+            else if (renk == null && seviye >= OdulKatalogu.OzelRenkSeviye && OdulKatalogu.OzelRenk(t.AdRengi) is string ozel)
+            { s.AdRengi = ozel; s.AdRengiHex = ozel; }
             var font = OdulKatalogu.Font(t.MesajFontu);
             if (font != null && font.Id != "varsayilan" && seviye >= font.Seviye) s.MesajFontu = font.Id;
-            if (t.Parlak && seviye >= OdulKatalogu.ParlakSeviye) s.Parlak = true;
-            if (t.Animasyon && seviye >= OdulKatalogu.AnimasyonSeviye) s.Animasyon = true;
+            // Eski kayitlar: Parlak -> aura, Parlak + Animasyon -> nabiz
+            var efekt = OdulKatalogu.Efekt(t.AdEfekti ?? (t.Parlak ? "aura" : null));
+            if (t.AdEfekti == null && t.Parlak && t.Animasyon && seviye >= OdulKatalogu.Efekt("nabiz")!.Seviye) efekt = OdulKatalogu.Efekt("nabiz");
+            if (efekt != null && seviye >= efekt.Seviye) s.AdEfekti = efekt.Id;
             if (t.Rozet && seviye >= OdulKatalogu.RozetSeviye) s.Rozet = true;
-            if (!string.IsNullOrWhiteSpace(t.Unvan) && seviye >= OdulKatalogu.UnvanSeviye && OdulKatalogu.UnvanHatasi(t.Unvan) == null)
+            if (!string.IsNullOrWhiteSpace(t.Unvan) && seviye >= OdulKatalogu.UnvanGerekenSeviye(t.Unvan)
+                && (OdulKatalogu.HazirUnvan(t.Unvan) != null || OdulKatalogu.UnvanHatasi(t.Unvan) == null))
                 s.Unvan = t.Unvan.Trim();
-            return s.AdRengi == null && s.MesajFontu == null && s.Parlak == null && s.Animasyon == null && s.Rozet == null && s.Unvan == null ? null : s;
+            return s.AdRengi == null && s.MesajFontu == null && s.AdEfekti == null && s.Rozet == null && s.Unvan == null ? null : s;
         }
 
         private sealed record Giris(AdStiliDto? Stil);

@@ -31,6 +31,9 @@ namespace Kage95.Backend.Data
         public DbSet<SohbetSusturma> SohbetSusturmalari => Set<SohbetSusturma>();
         public DbSet<KullaniciTercihi> KullaniciTercihleri => Set<KullaniciTercihi>();
         public DbSet<Bildirim> Bildirimler => Set<Bildirim>();
+        public DbSet<ForumKonu> ForumKonulari => Set<ForumKonu>();
+        public DbSet<ForumYanit> ForumYanitlari => Set<ForumYanit>();
+        public DbSet<ForumBegeni> ForumBegenileri => Set<ForumBegeni>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -278,6 +281,7 @@ namespace Kage95.Backend.Data
                 e.Property(x => x.KullaniciId).ValueGeneratedNever();
                 e.Property(x => x.AdRengi).HasMaxLength(20);
                 e.Property(x => x.MesajFontu).HasMaxLength(20);
+                e.Property(x => x.AdEfekti).HasMaxLength(20);
                 e.Property(x => x.Unvan).HasMaxLength(24);
             });
             modelBuilder.Entity<Bildirim>(e =>
@@ -290,6 +294,30 @@ namespace Kage95.Backend.Data
                 e.Property(x => x.Okundu).HasDefaultValue(false);
                 e.Property(x => x.Tarih).HasDefaultValueSql("SYSUTCDATETIME()");
                 e.HasIndex(x => new { x.KullaniciId, x.Okundu, x.Tarih });
+            });
+            modelBuilder.Entity<ForumKonu>(e =>
+            {
+                e.ToTable("ForumKonulari");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Kategori).HasMaxLength(20).IsUnicode(false);
+                e.Property(x => x.Baslik).HasMaxLength(120).IsRequired();
+                e.Property(x => x.Icerik).HasMaxLength(4000).IsRequired();
+                e.HasIndex(x => new { x.Kategori, x.SonYanitTarihi });
+                e.Property(x => x.BolumNo).HasColumnType("decimal(6,2)");
+                e.HasIndex(x => x.MangaId);
+            });
+            modelBuilder.Entity<ForumYanit>(e =>
+            {
+                e.ToTable("ForumYanitlari");
+                e.HasKey(x => x.Id);
+                e.Property(x => x.Icerik).HasMaxLength(4000).IsRequired();
+                e.HasIndex(x => new { x.KonuId, x.Tarih });
+            });
+            modelBuilder.Entity<ForumBegeni>(e =>
+            {
+                e.ToTable("ForumBegenileri");
+                e.HasKey(x => x.Id);
+                e.HasIndex(x => new { x.KonuId, x.KullaniciId }).IsUnique();
             });
 
             // Favoriler

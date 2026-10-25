@@ -153,8 +153,13 @@ using (var kapsam = app.Services.CreateScope())
         kapsam.ServiceProvider.GetRequiredService<AppDbContext>().Database.ExecuteSqlRaw(
             "IF COL_LENGTH(N'dbo.Mangalar', N'OneCikanResimURL') IS NULL ALTER TABLE dbo.Mangalar ADD OneCikanResimURL NVARCHAR(500) NULL;" +
             "IF COL_LENGTH(N'dbo.Mangalar', N'SilinmeTarihi') IS NULL ALTER TABLE dbo.Mangalar ADD SilinmeTarihi DATETIME2 NULL;" +
+            "IF OBJECT_ID(N'dbo.KullaniciTercihleri') IS NOT NULL AND COL_LENGTH(N'dbo.KullaniciTercihleri', N'AdEfekti') IS NULL ALTER TABLE dbo.KullaniciTercihleri ADD AdEfekti NVARCHAR(20) NULL;" +
             // Eski ayrı öne çıkanlar tablosu kaldırıldı; öne çıkanlar artık mangadaki OneCikan bayrağından gelir.
-            "IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NOT NULL DROP TABLE dbo.OneCikanlar;");
+            "IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NOT NULL DROP TABLE dbo.OneCikanlar;" +
+            // Forum tabloları
+            "IF OBJECT_ID(N'dbo.ForumKonulari', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumKonulari (Id INT IDENTITY(1,1) PRIMARY KEY, Kategori VARCHAR(20) NOT NULL, KullaniciId INT NOT NULL, Baslik NVARCHAR(120) NOT NULL, Icerik NVARCHAR(4000) NOT NULL, MangaId INT NULL, BolumNo DECIMAL(6,2) NULL, Spoiler BIT NOT NULL DEFAULT 0, Sabit BIT NOT NULL DEFAULT 0, Kilitli BIT NOT NULL DEFAULT 0, Silindi BIT NOT NULL DEFAULT 0, Tarih DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), SonYanitTarihi DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), YanitSayisi INT NOT NULL DEFAULT 0, BegeniSayisi INT NOT NULL DEFAULT 0); CREATE INDEX IX_ForumKonulari_Kategori_SonYanit ON dbo.ForumKonulari (Kategori, SonYanitTarihi); CREATE INDEX IX_ForumKonulari_MangaId ON dbo.ForumKonulari (MangaId); END;" +
+            "IF OBJECT_ID(N'dbo.ForumYanitlari', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumYanitlari (Id INT IDENTITY(1,1) PRIMARY KEY, KonuId INT NOT NULL, KullaniciId INT NOT NULL, Icerik NVARCHAR(4000) NOT NULL, Spoiler BIT NOT NULL DEFAULT 0, Silindi BIT NOT NULL DEFAULT 0, Tarih DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()); CREATE INDEX IX_ForumYanitlari_KonuId_Tarih ON dbo.ForumYanitlari (KonuId, Tarih); END;" +
+            "IF OBJECT_ID(N'dbo.ForumBegenileri', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumBegenileri (Id INT IDENTITY(1,1) PRIMARY KEY, KonuId INT NOT NULL, KullaniciId INT NOT NULL); CREATE UNIQUE INDEX UX_ForumBegenileri ON dbo.ForumBegenileri (KonuId, KullaniciId); END;");
     }
     catch (Exception ex)
     {

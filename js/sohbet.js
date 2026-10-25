@@ -22,7 +22,13 @@
         { id: 'sade', ad: 'Sade', seviye: 8, liste: [['ok', 'Ok'], ['kalp', 'Kalp'], ['yildiz', 'Yıldız'], ['tebrik', 'Tebrik'], ['gulumse', 'Gülümse'], ['uzgun', 'Üzgün'],
             ['saskin', 'Şaşkın'], ['kilic', 'Kılıç'], ['kitap', 'Kitap'], ['cay', 'Çay'], ['uyku', 'Uyku'], ['bravo', 'Bravo']] },
         { id: 'golge', ad: 'Gölge', seviye: 15, liste: [['golge', 'Gölge'], ['maske', 'Maske'], ['ay', 'Ay'], ['kaplan', 'Kaplan'], ['shuriken', 'Shuriken'], ['fener', 'Fener'],
-            ['sakura', 'Sakura'], ['ejderha', 'Ejderha'], ['daga', 'Hançer'], ['tilsim', 'Tılsım'], ['bulut', 'Bulut'], ['ates', 'Ateş']] }
+            ['sakura', 'Sakura'], ['ejderha', 'Ejderha'], ['daga', 'Hançer'], ['tilsim', 'Tılsım'], ['bulut', 'Bulut'], ['ates', 'Ateş']] },
+        { id: 'okur', ad: 'Okur', seviye: 4, liste: [['yeni', 'Yeni bölüm'], ['yerimi', 'Yer imi'], ['spoiler', 'Spoiler yok'], ['panel', 'Panel'], ['devam', 'Devamı gelsin'], ['bekle', 'Bekliyorum'],
+            ['agla', 'Ağladım'], ['gul', 'Kahkaha'], ['teori', 'Teorim var'], ['unlem', 'Olamaz!!'], ['okundu', 'Okudum'], ['kupa', 'Başyapıt']] },
+        { id: 'manga', ad: 'Manga dili', seviye: 22, liste: [['ter', 'Ter damlası'], ['damar', 'Öfke damarı'], ['balon', 'Konuşma balonu'], ['dusunce', 'Düşünce balonu'], ['patlama', 'Patlama'], ['parilti', 'Parıltı'],
+            ['hiz', 'Hız çizgileri'], ['ruh', 'Ruhum çıktı'], ['kizar', 'Kızardım'], ['kalpgoz', 'Aşık oldum'], ['sok', 'Şok'], ['sessiz', 'Sessizlik']] },
+        { id: 'kage', ad: 'Kage', seviye: 40, liste: [['sapka', 'Kage şapkası'], ['kunai', 'Kunai'], ['parsomen', 'Parşömen'], ['muhur', 'Mühür'], ['torii', 'Torii'], ['katana', 'Katana'],
+            ['oni', 'Oni maskesi'], ['yildirim', 'Yıldırım'], ['ruzgar', 'Rüzgar'], ['kale', 'Kale'], ['goz', 'Keskin göz'], ['amblem', 'Kage 95']] }
     ];
 
     // Sticker çizimleri: 24x24 çizgi ikonları (currentColor), emoji yok.
@@ -50,7 +56,43 @@
         'golge:daga': 'M12 2l3 4-1 9h-4L9 6zM8 15h8M12 15v6',
         'golge:tilsim': 'M8 3h8v18H8zM10 7h4M10 11h4M10 15h2',
         'golge:bulut': 'M7 18a4 4 0 0 1-.6-8A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 0 9H7z',
-        'golge:ates': 'M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z'
+        'golge:ates': 'M12 3c1 4 5 5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3-1-5 1-9z',
+        'okur:yeni': 'M6 16v-5a6 6 0 0 1 12 0v5l2 2H4zM10 20a2 2 0 0 0 4 0M12 3v2',
+        'okur:yerimi': 'M7 3h10v18l-5-4-5 4zM10 8h4',
+        'okur:spoiler': 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM4 4l16 16',
+        'okur:panel': 'M3 4h18v16H3zM3 11h10M13 4v16M13 14h8',
+        'okur:devam': 'M5 4h10l4 4v12H5zM15 4v4h4M9 14h6M13 11l3 3-3 3',
+        'okur:bekle': 'M7 3h10M7 21h10M8 3c0 5 8 6 8 9s-8 4-8 9M16 3c0 5-8 6-8 9s8 4 8 9',
+        'okur:agla': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8 9.5h2M14 9.5h2M9 11v5M15 11v5M10.5 16q1.5-1 3 0',
+        'okur:gul': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM8 8.5l2 1.5-2 1.5M16 8.5l-2 1.5 2 1.5M8 14h8q-1 4-4 4q-3 0-4-4z',
+        'okur:teori': 'M9 8a3 3 0 1 1 4 2.8c-.8.4-1 1-1 1.7V14M12 17.5v.5M5 21l2-3M19 21l-2-3',
+        'okur:unlem': 'M8 4v10M8 18v1M16 4v10M16 18v1',
+        'okur:okundu': 'M2 13l4 4 8-9M10 15l2 2 9-10',
+        'okur:kupa': 'M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M9 17h6v4',
+        'manga:ter': 'M14 3c-3 4-5 7-5 10a5 5 0 0 0 10 0c0-3-2-6-5-10zM12 13a2 2 0 0 0 2 2',
+        'manga:damar': 'M9 4q1 4-5 5M15 4q-1 4 5 5M9 20q1-4-5-5M15 20q-1-4 5-5',
+        'manga:balon': 'M4 5h16v11H10l-5 4v-4H4zM8 10h8M8 13h5',
+        'manga:dusunce': 'M7 15a4 4 0 0 1-1-7.8A5 5 0 0 1 15 5a4 4 0 0 1 3 7 3 3 0 0 1-3 3zM8 18a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM4.5 21a.5.5 0 1 0 0 1 .5.5 0 0 0 0-1z',
+        'manga:patlama': 'M12 2l2 6 6-3-3 6 6 2-6 2 3 6-6-3-2 6-2-6-6 3 3-6-6-2 6-2-3-6 6 3z',
+        'manga:parilti': 'M11 4q1 7 8 8-7 1-8 8-1-7-8-8 7-1 8-8zM19 2v4M17 4h4',
+        'manga:hiz': 'M3 6h12M6 10h15M3 14h10M8 18h13',
+        'manga:ruh': 'M6 20v-9a6 6 0 0 1 12 0v9l-2-2-2 2-2-2-2 2-2-2zM10 10v1.5M14 10v1.5',
+        'manga:kizar': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM6 14l1.5-1.5M8 14l1.5-1.5M14.5 14l1.5-1.5M16.5 14l1.5-1.5M9 9v1.5M15 9v1.5M11 16.5h2',
+        'manga:kalpgoz': 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM7 9.5a1.3 1.3 0 0 1 2.3-.8 1.3 1.3 0 0 1 2.3.8c0 1.2-2.3 2.5-2.3 2.5S7 10.7 7 9.5zM12.4 9.5a1.3 1.3 0 0 1 2.3-.8 1.3 1.3 0 0 1 2.3.8c0 1.2-2.3 2.5-2.3 2.5s-2.3-1.3-2.3-2.5zM9 15q3 2.5 6 0',
+        'manga:sok': 'M12 6a7 7 0 1 0 0 14 7 7 0 0 0 0-14zM12 1v3M5 3l2 2.5M19 3l-2 2.5M9.5 11v1.5M14.5 11v1.5M12 15.5a1 1.2 0 1 0 0 .01',
+        'manga:sessiz': 'M5 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM12 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2zM19 11a1 1 0 1 0 0 2 1 1 0 0 0 0-2z',
+        'kage:sapka': 'M2 15L12 5l10 10zM5 15q7 4 14 0M10 11h4',
+        'kage:kunai': 'M12 2l3 7-3 7-3-7zM12 16v3M12 19a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3z',
+        'kage:parsomen': 'M6 4h11a2 2 0 0 1 0 4H6M6 4a2 2 0 0 0 0 4v10a2 2 0 0 0 2 2h10a2 2 0 0 0 0-4H8M10 11h5M10 14h3',
+        'kage:muhur': 'M8 3h8v6H8zM6 9h12v4H6zM5 13h14v3H5zM8 19h8M10 5h4',
+        'kage:torii': 'M3 6q9-2 18 0M5 9h14M7 6v15M17 6v15M12 6v3',
+        'kage:katana': 'M4 20l2-2M5 17l2 2M6 18L20 4q-2 6-8 9l-4 3',
+        'kage:oni': 'M5 3l2 5M19 3l-2 5M6 8h12v6a6 6 0 0 1-12 0zM9 11l1.5 1M15 11l-1.5 1M9 16l1-1 1 1 1-1 1 1 1-1 1 1',
+        'kage:yildirim': 'M13 2L5 13h6l-1 9 8-11h-6z',
+        'kage:ruzgar': 'M3 8h11a3 3 0 1 0-3-3M3 12h15a3 3 0 1 1-3 3M3 16h7',
+        'kage:kale': 'M4 21V11h16v10M2 11l10-6 10 6M7 7l5-3 5 3M10 21v-5h4v5',
+        'kage:goz': 'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 11.5v1',
+        'kage:amblem': 'M12 2l8 3v6c0 5-3.5 9-8 11-4.5-2-8-6-8-11V5zM8 9h3v6H8M8 12h3M13 9h3v3h-3M16 12v3h-3'
     };
 
     var STIL = [
@@ -124,6 +166,8 @@
         '.ks-giris{padding-left:16px}',
         '.ks-sayfa .ks-liste{border-radius:12px}',
         '.ks-sabit{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:8px 12px;margin:8px 0 4px;border-left:3px solid var(--vurgu-parlak,#e0343c);background:color-mix(in srgb,var(--vurgu-rengi,#8e0e15) 18%,var(--bg-kart,#141111));border-radius:4px;font-size:.875rem}',
+        '.ks-sabit[hidden]{display:none}',
+        '.ks-liste{padding-top:8px}',
         '.ks-sabit-baslik{font-weight:700;color:var(--vurgu-parlak,#e0343c);margin-right:6px;font-size:.75rem;text-transform:uppercase;letter-spacing:.04em}',
         '.ks-etiket{color:var(--vurgu-parlak,#e0343c);font-weight:600;text-decoration:none}',
         '.ks-etiket:hover{text-decoration:underline}',
@@ -405,9 +449,14 @@
         var ad = el('a', 'ks-ad', m.kullaniciAdi);
         ad.href = '#/kullanici/' + encodeURIComponent(m.kullaniciAdi || '');
         if (st.adRengiHex) ad.style.color = st.adRengiHex;
-        if (st.parlak) ad.classList.add('ks-parlak');
-        if (st.parlak && st.animasyon) ad.classList.add('ks-anim');
-        if (st.rozet) ad.classList.add('ks-rozet');
+        var AS = window.Kage95AdStili;
+        if (AS) {
+            AS.sinif(st).split(' ').forEach(function (c) { if (c) ad.classList.add(c); });
+        } else {
+            if (st.parlak) ad.classList.add('ks-parlak');
+            if (st.parlak && st.animasyon) ad.classList.add('ks-anim');
+            if (st.rozet) ad.classList.add('ks-rozet');
+        }
         ust.appendChild(ad);
         var sev = el('span', 'ks-sev', 'Lv.' + m.seviye);
         sev.title = m.rutbe || '';
@@ -444,7 +493,8 @@
         if (m.metin) {
             var t = el('span', 'ks-metin');
             metinDoldur(t, m.metin);
-            if (st.mesajFontu && FONTLAR[st.mesajFontu]) t.style.fontFamily = FONTLAR[st.mesajFontu];
+            var fnt = window.Kage95AdStili ? window.Kage95AdStili.font(st) : FONTLAR[st.mesajFontu];
+            if (st.mesajFontu && fnt) t.style.fontFamily = fnt;
             balon.appendChild(t);
         }
         if (m.stickerId) {

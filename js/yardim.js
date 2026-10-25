@@ -526,6 +526,8 @@
         '@media (hover:hover){.k95y-btn:hover{border-color:var(--vurgu-parlak,#e0343c);color:var(--vurgu-parlak,#e0343c)}}',
         '.k95y-btn[aria-expanded="true"]{border-color:var(--vurgu-parlak,#e0343c);color:var(--vurgu-parlak,#e0343c)}',
         '.k95y-btn svg{width:18px;height:18px;flex:none}',
+        // Sabit buton alt bilgideki bağlantıların üstüne binmesin
+        '@media (min-width:769px){:root .site-footer{padding-bottom:calc(var(--bosluk-4,32px) + 56px)}}',
         // Panel her zaman flex; kapalıyken görünmez + hafif aşağıda. visibility gecikmeli kapanır ki çıkış animasyonu görünsün.
         '.k95y-panel{position:fixed;right:16px;bottom:72px;z-index:95;display:flex;flex-direction:column;box-sizing:border-box;width:380px;max-width:calc(100vw - 32px);',
         'height:560px;height:min(560px,calc(100vh - 96px));height:min(560px,calc(var(--k95y-vh,100dvh) - 96px));',
@@ -573,7 +575,8 @@
         '@media (min-width:769px) and (max-height:620px){.k95y-panel{bottom:8px;height:calc(100vh - 16px);height:calc(var(--k95y-vh,100dvh) - 16px)}.k95y-btn[aria-expanded="true"]{visibility:hidden}}',
         // Telefon: görünür alanın (klavye açıkken klavyenin üstü) tamamını kaplayan sayfa. Konum ve yükseklik JS'ten gelir.
         '@media (max-width:768px){',
-        '.k95y-btn{bottom:calc(var(--alt-gezinme-yuksekligi,0px) + 16px + env(safe-area-inset-bottom,0px))}',
+        '.k95y-btn{bottom:calc(var(--alt-gezinme-yuksekligi,0px) + 16px + env(safe-area-inset-bottom,0px));width:44px;padding:0;justify-content:center;border-radius:50%}',
+        '.k95y-btn-yazi{display:none}',
         '.k95y-btn[aria-expanded="true"]{visibility:hidden}',
         '.k95y-panel{z-index:1000;left:0;right:0;top:var(--k95y-top,0px);bottom:auto;width:100%;max-width:none;height:100vh;height:100dvh;height:var(--k95y-vh,100dvh);',
         'border:0;border-radius:0;box-shadow:none;transform:translateY(24px);transform-origin:50% 100%}',
@@ -615,7 +618,8 @@
         ikonYol.setAttribute('d', 'M3 4.5h14v9H8.5L5 16.5v-3H3z');
         ikonSvg.appendChild(ikonYol);
         btn.appendChild(ikonSvg);
-        btn.appendChild(el('span', '', 'Yardım'));
+        btn.appendChild(el('span', 'k95y-btn-yazi', 'Yardım'));
+        btn.setAttribute('aria-label', 'Yardım');
 
         var panel = el('div', 'k95y-panel');
         panel.id = 'k95yPanel';

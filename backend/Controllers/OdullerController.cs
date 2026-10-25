@@ -12,8 +12,13 @@ namespace Kage95.Backend.Controllers
         public IActionResult Getir() => Ok(new
         {
             seviyeler = OdulKatalogu.Seviyeler.Select(s => new { seviye = s.Seviye, ad = s.Ad, aciklama = s.Aciklama, odul = s.Odul }),
-            renkler = OdulKatalogu.Renkler.Select(r => new { id = r.Id, ad = r.Ad, hex = r.Hex, seviye = r.Seviye }),
-            fontlar = OdulKatalogu.Fontlar.Select(f => new { id = f.Id, ad = f.Ad, yigin = f.Yigin, seviye = f.Seviye }),
+            renkler = OdulKatalogu.Renkler.Select(r => new { id = r.Id, ad = r.Ad, hex = r.Hex, seviye = r.Seviye, kategori = r.Kategori }),
+            fontlar = OdulKatalogu.Fontlar.Select(f => new { id = f.Id, ad = f.Ad, yigin = f.Yigin, seviye = f.Seviye, kategori = f.Kategori }),
+            efektler = OdulKatalogu.Efektler.Select(e => new { id = e.Id, ad = e.Ad, aciklama = e.Aciklama, seviye = e.Seviye }),
+            unvanlar = OdulKatalogu.Unvanlar.Select(u => new { ad = u.Ad, kategori = u.Kategori, seviye = u.Seviye }),
+            ozelRenkSeviye = OdulKatalogu.OzelRenkSeviye,
+            rozetSeviye = OdulKatalogu.RozetSeviye,
+            ozelUnvanSeviye = OdulKatalogu.UnvanSeviye,
             stickerPaketleri = OdulKatalogu.StickerPaketleri.Select(p => new
             {
                 id = p.Id, ad = p.Ad, seviye = p.Seviye,

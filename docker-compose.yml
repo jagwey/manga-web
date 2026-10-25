@@ -52,7 +52,9 @@ services:
       - ./read.html:/usr/share/nginx/html/read.html:ro
       - ./login.html:/usr/share/nginx/html/login.html:ro
       - ./admin.html:/usr/share/nginx/html/admin.html:ro
-      - ./favicon.svg:/usr/share/nginx/html/favicon.svg:ro
+      - ./assets:/usr/share/nginx/html/assets:ro
+      - ./manifest.webmanifest:/usr/share/nginx/html/manifest.webmanifest:ro
+      - ./sw.js:/usr/share/nginx/html/sw.js:ro
       - ./css:/usr/share/nginx/html/css:ro
       - ./js:/usr/share/nginx/html/js:ro
       # Yüklenen görseller

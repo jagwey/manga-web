@@ -6,8 +6,7 @@ namespace Kage95.Backend.Models
         public string? AdRengi { get; set; }
         public string? AdRengiHex { get; set; }
         public string? MesajFontu { get; set; }
-        public bool? Parlak { get; set; }
-        public bool? Animasyon { get; set; }
+        public string? AdEfekti { get; set; }
         public bool? Rozet { get; set; }
         public string? Unvan { get; set; }
     }
@@ -16,8 +15,7 @@ namespace Kage95.Backend.Models
     {
         public string? AdRengi { get; set; }
         public string? MesajFontu { get; set; }
-        public bool? Parlak { get; set; }
-        public bool? Animasyon { get; set; }
+        public string? AdEfekti { get; set; }
         public bool? Rozet { get; set; }
         public string? Unvan { get; set; }
     }

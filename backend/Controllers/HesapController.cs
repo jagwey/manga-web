@@ -129,8 +129,9 @@ namespace Kage95.Backend.Controllers
                     renkler = OdulKatalogu.Renkler.Where(r => r.Seviye <= seviye).Select(r => r.Id).ToList(),
                     fontlar = OdulKatalogu.Fontlar.Where(f => f.Seviye <= seviye).Select(f => f.Id).ToList(),
                     stickerPaketleri = OdulKatalogu.StickerPaketleri.Where(p => p.Seviye <= seviye).Select(p => p.Id).ToList(),
-                    parlak = seviye >= OdulKatalogu.ParlakSeviye,
-                    animasyon = seviye >= OdulKatalogu.AnimasyonSeviye,
+                    efektler = OdulKatalogu.Efektler.Where(e => e.Seviye <= seviye).Select(e => e.Id).ToList(),
+                    unvanlar = OdulKatalogu.Unvanlar.Where(u => u.Seviye <= seviye).Select(u => u.Ad).ToList(),
+                    ozelRenk = seviye >= OdulKatalogu.OzelRenkSeviye,
                     rozet = seviye >= OdulKatalogu.RozetSeviye,
                     unvan = seviye >= OdulKatalogu.UnvanSeviye
                 }
@@ -160,8 +161,17 @@ namespace Kage95.Backend.Controllers
             if (adRengi != null)
             {
                 var r = OdulKatalogu.Renk(adRengi);
-                if (r == null) return BadRequest(new { message = "Bilinmeyen ad rengi." });
-                if (seviye < r.Seviye) return BadRequest(new { message = $"Bu ad rengi için seviye {r.Seviye} gerekir." });
+                if (r != null)
+                {
+                    if (seviye < r.Seviye) return BadRequest(new { message = $"Bu ad rengi için seviye {r.Seviye} gerekir." });
+                }
+                else if (adRengi.StartsWith('#'))
+                {
+                    if (seviye < OdulKatalogu.OzelRenkSeviye) return BadRequest(new { message = $"Kendi rengini seçmek için seviye {OdulKatalogu.OzelRenkSeviye} gerekir." });
+                    adRengi = OdulKatalogu.OzelRenk(adRengi);
+                    if (adRengi == null) return BadRequest(new { message = "Bu renk çok koyu ya da çok açık, adın okunmaz. Biraz daha canlı bir ton seç." });
+                }
+                else return BadRequest(new { message = "Bilinmeyen ad rengi." });
             }
             string? font = string.IsNullOrWhiteSpace(istek.MesajFontu) ? null : istek.MesajFontu.Trim();
             if (font != null)
@@ -170,26 +180,36 @@ namespace Kage95.Backend.Controllers
                 if (f == null) return BadRequest(new { message = "Bilinmeyen yazı tipi." });
                 if (seviye < f.Seviye) return BadRequest(new { message = $"Bu yazı tipi için seviye {f.Seviye} gerekir." });
             }
-            var parlak = istek.Parlak == true;
-            var animasyon = istek.Animasyon == true;
+            string? efekt = string.IsNullOrWhiteSpace(istek.AdEfekti) ? null : istek.AdEfekti.Trim();
+            if (efekt != null)
+            {
+                var ef = OdulKatalogu.Efekt(efekt);
+                if (ef == null) return BadRequest(new { message = "Bilinmeyen ad efekti." });
+                if (seviye < ef.Seviye) return BadRequest(new { message = $"Bu ad efekti için seviye {ef.Seviye} gerekir." });
+            }
             var rozet = istek.Rozet == true;
-            if (parlak && seviye < OdulKatalogu.ParlakSeviye) return BadRequest(new { message = $"Parlak kullanıcı adı için seviye {OdulKatalogu.ParlakSeviye} gerekir." });
-            if (animasyon && seviye < OdulKatalogu.AnimasyonSeviye) return BadRequest(new { message = $"Animasyonlu parlama için seviye {OdulKatalogu.AnimasyonSeviye} gerekir." });
-            if (rozet && seviye < OdulKatalogu.RozetSeviye) return BadRequest(new { message = $"Rozet çerçevesi için seviye {OdulKatalogu.RozetSeviye} gerekir." });
+            if (rozet && seviye < OdulKatalogu.RozetSeviye) return BadRequest(new { message = $"Mühür çerçevesi için seviye {OdulKatalogu.RozetSeviye} gerekir." });
 
             string? unvan = null;
-            if (istek.Unvan != null && istek.Unvan.Length > 0)
+            if (!string.IsNullOrWhiteSpace(istek.Unvan))
             {
-                if (seviye < OdulKatalogu.UnvanSeviye) return BadRequest(new { message = $"Özel unvan için seviye {OdulKatalogu.UnvanSeviye} gerekir." });
-                var hata = OdulKatalogu.UnvanHatasi(istek.Unvan);
-                if (hata != null) return BadRequest(new { message = hata });
+                var hazir = OdulKatalogu.HazirUnvan(istek.Unvan);
+                var gereken = OdulKatalogu.UnvanGerekenSeviye(istek.Unvan);
+                if (seviye < gereken)
+                    return BadRequest(new { message = hazir != null ? $"Bu unvan için seviye {gereken} gerekir." : $"Özel unvan için seviye {gereken} gerekir." });
+                if (hazir == null)
+                {
+                    var hata = OdulKatalogu.UnvanHatasi(istek.Unvan);
+                    if (hata != null) return BadRequest(new { message = hata });
+                }
                 unvan = istek.Unvan.Trim();
             }
 
             var kayit = await _context.KullaniciTercihleri.FirstOrDefaultAsync(t => t.KullaniciId == k.Id);
             if (kayit == null) { kayit = new KullaniciTercihi { KullaniciId = k.Id }; _context.KullaniciTercihleri.Add(kayit); }
-            kayit.AdRengi = adRengi; kayit.MesajFontu = font; kayit.Parlak = parlak;
-            kayit.Animasyon = animasyon; kayit.Rozet = rozet; kayit.Unvan = unvan;
+            // Eski Parlak/Animasyon alanlari artik AdEfekti ile tutulur
+            kayit.AdRengi = adRengi; kayit.MesajFontu = font; kayit.AdEfekti = efekt;
+            kayit.Parlak = false; kayit.Animasyon = false; kayit.Rozet = rozet; kayit.Unvan = unvan;
             try { await _context.SaveChangesAsync(); }
             catch (DbUpdateException) { return Conflict(new { message = "Tercihler kaydedilemedi, lütfen tekrar deneyin." }); }
             _tercihler.Unut(k.Id);

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Kage 95 - Modern Manga Arşivi ve Kütüphanesi</title>
-    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#e60000">
     <link rel="manifest" href="manifest.webmanifest">
-    <link rel="apple-touch-icon" href="icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
     <link rel="stylesheet" href="css/vurgu.css">
@@ -302,7 +302,7 @@
         .arama-filtre-cip span { color: var(--vurgu-parlak); font-weight: 700; }
         .ust-arama-kutu { margin-top: 0; width: clamp(200px, 24vw, 300px); }
         .ust-arama-kutu input { height: 40px; }
-        .ust-arama-kutu .arama-oneri { left: auto; width: min(400px, calc(100vw - 24px)); }
+        .ust-arama-kutu .arama-oneri { left: 0; right: 0; width: auto; min-width: 100%; }
 
         /* --- TÜR SEKMELERİ (altı çizgili metin) --- */
         .tur-bolum {
@@ -957,7 +957,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="js/adstili.js"></script>
     <script src="js/yorum.js"></script>
-    <script src="js/sohbet.js?v=20261025"></script>
+    <script src="js/sohbet.js?v=20261025b"></script>
     <script type="text/babel">
         const VARSAYILAN_RENK = '#8e0e15';
         const API_URL = (window.KAGE95_API_URL || '').replace(/\/$/, '');
@@ -1045,10 +1045,12 @@
                 catch (e) { return { sayfa: 'kullanici', ad: ku[1] }; }
             }
             if (/^#\/kutuphane/.test(h)) return { sayfa: 'kutuphane' };
-            if (/^#\/profil/.test(h)) return { sayfa: 'profil' };
+            if (/^#\/(profil|hesabim)/.test(h)) return { sayfa: 'profil' };
             if (/^#\/liderlik/.test(h)) return { sayfa: 'liderlik' };
             if (/^#\/sohbet/.test(h)) return { sayfa: 'sohbet' };
             if (/^#\/iletisim/.test(h)) return { sayfa: 'iletisim' };
+            // Bilinmeyen #/yol: sessizce ana sayfaya düşmek yerine bulunamadı göster
+            if (/^#\/[^?#]/.test(h) && !/^#\/(seriler|ana)\b/.test(h)) return { sayfa: 'bulunamadi' };
             return { sayfa: 'ana' };
         };
 
@@ -1172,7 +1174,7 @@
                     </div>
                     <h3 className="manga-baslik">{m.mangaAdi}</h3>
                     <div className="manga-meta">
-                        {m.bolumSayisi || 0} Bölüm{ilkKategori ? ` · ${ilkKategori}` : ''}
+                        {m.bolumSayisi > 0 ? `${m.bolumSayisi} Bölüm` : 'Yakında'}{ilkKategori ? ` · ${ilkKategori}` : ''}
                         {kartPuan != null && (
                             <span className="manga-puan" aria-label={`Puan ${kartPuan.toFixed(1)}`}>
                                 <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2 6.3 20.3l1.2-6.4L2.8 9.5l6.4-.8z" /></svg>
@@ -1670,7 +1672,47 @@
         };
 
         // Hesabım > "Seviye ve ödüller" (mod 'odul') ve "Görünüm" (mod 'gorunum'): ödül listesi ve önizlemeli tercih seçici.
-        const TERCIH_BOS = { adRengi: '', mesajFontu: '', parlak: false, animasyon: false, rozet: false, unvan: '' };
+        const TERCIH_BOS = { adRengi: '', mesajFontu: '', adEfekti: '', rozet: false, unvan: '' };
+        const GORUNUM_SEKMELERI = [
+            { id: 'unvan', ad: 'Unvan' },
+            { id: 'renk', ad: 'Ad rengi' },
+            { id: 'efekt', ad: 'Ad efekti' },
+            { id: 'font', ad: 'Yazı tipi' }
+        ];
+        const FONT_ORNEK = "Kage 95'te bugün ne okudun?";
+        const HEX_RENK = /^#[0-9a-f]{6}$/i;
+        const hslHex = (h, s, l) => {
+            s /= 100; l /= 100;
+            const k = n => (n + h / 30) % 12, a = s * Math.min(l, 1 - l);
+            const c = n => Math.round(255 * (l - a * Math.max(-1, Math.min(k(n) - 3, 9 - k(n), 1)))).toString(16).padStart(2, '0');
+            return `#${c(0)}${c(8)}${c(4)}`;
+        };
+        const hexHsl = (hex) => {
+            const v = parseInt(hex.slice(1), 16), r = (v >> 16 & 255) / 255, g = (v >> 8 & 255) / 255, b = (v & 255) / 255;
+            const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn;
+            let h = 0;
+            if (d) h = mx === r ? ((g - b) / d) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4;
+            return { h: Math.round((h * 60 + 360) % 360), s: d ? Math.round(d / (1 - Math.abs(2 * l - 1)) * 100) : 0, l: Math.round(l * 100) };
+        };
+        // Sunucudaki OdulKatalogu.OzelRenk ile aynı okunabilirlik sınırı.
+        const renkOkunur = (hex) => {
+            if (!HEX_RENK.test(hex)) return false;
+            const v = parseInt(hex.slice(1), 16);
+            const k = c => { const s = c / 255; return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4); };
+            const p = 0.2126 * k(v >> 16 & 255) + 0.7152 * k(v >> 8 & 255) + 0.0722 * k(v & 255);
+            return p >= 0.06 && p <= 0.75;
+        };
+        // Katalog öğelerini kategoriye göre sırayı bozmadan gruplar (eski sunucuda kategori yoksa tek grup).
+        const kategoriyeGore = (liste) => {
+            const gruplar = [];
+            (liste || []).forEach(o => {
+                const k = o.kategori || 'Seçenekler';
+                let g = gruplar.find(x => x.ad === k);
+                if (!g) { g = { ad: k, ogeler: [] }; gruplar.push(g); }
+                g.ogeler.push(o);
+            });
+            return gruplar;
+        };
         const SeviyeBolumu = ({ puan, mod, yenile }) => {
             const AS = window.Kage95AdStili;
             const [durum, setDurum] = React.useState('yukleniyor'); // yukleniyor | hazir | hata | oturum
@@ -1680,12 +1722,19 @@
             const [f, setF] = React.useState(TERCIH_BOS);
             const [mesgul, setMesgul] = React.useState(false);
             const [not, setNot] = React.useState(null); // { tur: 'basari' | 'hata', metin }
+            const [sekme, setSekme] = React.useState('unvan');
             const kullanici = kullaniciAl();
 
+            // Eski kayıt: parlak -> aura, parlak + animasyon -> nabiz
             const tercihYaz = (t) => setF({
-                adRengi: (t && t.adRengi) || '', mesajFontu: (t && t.mesajFontu) || '', parlak: !!(t && t.parlak),
-                animasyon: !!(t && t.animasyon), rozet: !!(t && t.rozet), unvan: (t && t.unvan) || ''
+                adRengi: (t && t.adRengi) || '', mesajFontu: (t && t.mesajFontu) || '',
+                adEfekti: (t && (t.adEfekti || (t.parlak ? (t.animasyon ? 'nabiz' : 'aura') : ''))) || '',
+                rozet: !!(t && t.rozet), unvan: (t && t.unvan) || ''
             });
+
+            React.useEffect(() => {
+                if (sekme === 'font' && katalog && AS) katalog.fontlar.forEach(x => AS.fontYukle(x.id));
+            }, [sekme, katalog]);
 
             React.useEffect(() => {
                 let iptal = false;
@@ -1707,11 +1756,20 @@
             const sv = puan ? puan.seviye : 1;
             const sonrakiVar = puan && puan.sonrakiSeviyeIcinKalan > 0;
             const yuzde = seviyeYuzdesi(puan);
-            const renkHex = (id) => { const r = katalog && katalog.renkler.find(x => x.id === id); return r ? r.hex : null; };
+            const renkHex = (id) => { if (HEX_RENK.test(id)) return id; const r = katalog && katalog.renkler.find(x => x.id === id); return r ? r.hex : null; };
+            const ozelRenkMi = HEX_RENK.test(f.adRengi);
+            const skala = hexHsl(ozelRenkMi ? f.adRengi : '#e0343c');
+            const skalaYaz = (d) => { const y = { ...skala, ...d }; set('adRengi')(hslHex(y.h, y.s, y.l)); };
+            const ozelRenkSv = (katalog && katalog.ozelRenkSeviye) || 15;
             const onizleme = {
-                adRengiHex: renkHex(f.adRengi), parlak: f.parlak, animasyon: f.animasyon, rozet: f.rozet,
+                adRengiHex: renkHex(f.adRengi), adEfekti: f.adEfekti, rozet: f.rozet,
                 unvan: f.unvan.trim(), mesajFontu: f.mesajFontu
             };
+            const hazirUnvanlar = (katalog && katalog.unvanlar) || [];
+            const ozelUnvanMi = !!f.unvan.trim() && !hazirUnvanlar.some(u => u.ad === f.unvan.trim());
+            const ozelSv = (katalog && katalog.ozelUnvanSeviye) || 30;
+            const rozetSv = (katalog && katalog.rozetSeviye) || 20;
+            const kilitEtiket = (s) => <span className="gr-kilit">Lv.{s}</span>;
             const set = (alan) => (v) => { setF(o => ({ ...o, [alan]: v })); setNot(null); };
 
             const kaydet = async (e) => {
@@ -1722,8 +1780,8 @@
                         method: 'PUT',
                         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenAl()}` },
                         body: JSON.stringify({
-                            adRengi: f.adRengi || null, mesajFontu: f.mesajFontu || null, parlak: f.parlak,
-                            animasyon: f.animasyon, rozet: f.rozet, unvan: f.unvan.trim()
+                            adRengi: f.adRengi || null, mesajFontu: f.mesajFontu || null,
+                            adEfekti: f.adEfekti || null, rozet: f.rozet, unvan: f.unvan.trim()
                         })
                     });
                     const g = await r.json().catch(() => ({}));
@@ -1780,65 +1838,182 @@
                     )}
                     {durum === 'hazir' && puan && katalog && acik && !odulMod && (
                         <>
-                            <form className="tercih-form" onSubmit={kaydet}>
-                                <div className="tercih-onizleme" aria-live="polite">
-                                    <span className={`yorum-yazar ${AS.sinif(onizleme)}`} style={AS.stil(onizleme)}>{kullanici ? kullanici.kullaniciAdi : 'Kullanıcı'}</span>
-                                    {onizleme.unvan && <span className="as-unvan">{onizleme.unvan}</span>}
-                                    <span style={{ marginLeft: 10, fontFamily: AS.font(onizleme) }}>Merhaba, sohbet önizlemesi!</span>
-                                </div>
-
-                                <div className="tercih-grup">
-                                    <span className="tercih-baslik" id="tr-renk">Ad rengi</span>
-                                    <div className="renk-secenekleri" role="radiogroup" aria-labelledby="tr-renk">
-                                        <button type="button" role="radio" aria-checked={f.adRengi === ''} className="renk-btn varsayilan" title="Varsayılan" aria-label="Varsayılan renk" onClick={() => set('adRengi')('')}>Yok</button>
-                                        {katalog.renkler.map(r => {
-                                            const kilit = !acik.renkler.includes(r.id);
-                                            return (
-                                                <button key={r.id} type="button" role="radio" aria-checked={f.adRengi === r.id} disabled={kilit}
-                                                    className="renk-btn" style={{ background: r.hex }}
-                                                    title={kilit ? `${r.ad}: seviye ${r.seviye} gerekir` : r.ad}
-                                                    aria-label={kilit ? `${r.ad} (seviye ${r.seviye} gerekir)` : r.ad}
-                                                    onClick={() => set('adRengi')(r.id)}></button>
-                                            );
-                                        })}
+                            <form className="gr" onSubmit={kaydet}>
+                                <div className="gr-onizleme" aria-live="polite">
+                                    <span className="gr-onizleme-baslik">Sohbette böyle görünürsün</span>
+                                    <div className="gr-mesaj">
+                                        <span className="gr-av" aria-hidden="true">{((kullanici && kullanici.kullaniciAdi) || 'K').charAt(0).toUpperCase()}</span>
+                                        <div className="gr-govde">
+                                            <div className="gr-ust">
+                                                <span className={`gr-ad ${AS.sinif(onizleme)}`} style={AS.stil(onizleme)}>{kullanici ? kullanici.kullaniciAdi : 'Kullanıcı'}</span>
+                                                <span className="gr-sv">Lv.{sv}</span>
+                                                {onizleme.unvan && <span className="as-unvan">{onizleme.unvan}</span>}
+                                            </div>
+                                            <span className="gr-balon" style={{ fontFamily: AS.font(onizleme) }}>{FONT_ORNEK}</span>
+                                        </div>
                                     </div>
                                 </div>
 
-                                <div className="tercih-grup">
-                                    <label htmlFor="tr-font">Sohbet yazı tipi</label>
-                                    <select id="tr-font" className="tercih-alan" value={f.mesajFontu} onChange={(e) => set('mesajFontu')(e.target.value)}>
-                                        <option value="">Varsayılan</option>
-                                        {katalog.fontlar.filter(x => x.id !== 'varsayilan').map(x => (
-                                            <option key={x.id} value={x.id} disabled={!acik.fontlar.includes(x.id)}>{x.ad}{acik.fontlar.includes(x.id) ? '' : ` (seviye ${x.seviye})`}</option>
+                                <div className="gr-sekmeler" role="tablist" aria-label="Görünüm seçenekleri">
+                                    {GORUNUM_SEKMELERI.map(s => (
+                                        <button key={s.id} type="button" role="tab" aria-selected={sekme === s.id}
+                                            className={`gr-sekme ${sekme === s.id ? 'aktif' : ''}`} onClick={() => setSekme(s.id)}>{s.ad}</button>
+                                    ))}
+                                </div>
+
+                                {sekme === 'unvan' && (
+                                    <div className="gr-panel" role="tabpanel">
+                                        <p className="gr-ipucu">Unvan adının yanında görünür. Okudukça ve sohbete katıldıkça yenileri açılır.</p>
+                                        <div className="gr-kategori">
+                                            <div className="gr-cipler">
+                                                <button type="button" className={`gr-cip ${!f.unvan.trim() ? 'secili' : ''}`} aria-pressed={!f.unvan.trim()} onClick={() => set('unvan')('')}>Unvan yok</button>
+                                            </div>
+                                        </div>
+                                        {kategoriyeGore(hazirUnvanlar).map(g => (
+                                            <div className="gr-kategori" key={g.ad}>
+                                                <h3 className="gr-kat-ad">{g.ad}</h3>
+                                                <div className="gr-cipler">
+                                                    {g.ogeler.map(u => {
+                                                        const kilit = !(acik.unvanlar || []).includes(u.ad);
+                                                        return (
+                                                            <button key={u.ad} type="button" disabled={kilit} aria-pressed={f.unvan.trim() === u.ad}
+                                                                className={`gr-cip ${f.unvan.trim() === u.ad ? 'secili' : ''}`}
+                                                                title={kilit ? `Seviye ${u.seviye} gerekir` : u.ad}
+                                                                onClick={() => set('unvan')(u.ad)}>{u.ad}{kilit && kilitEtiket(u.seviye)}</button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
                                         ))}
-                                    </select>
-                                </div>
+                                        <div className="gr-kategori">
+                                            <h3 className="gr-kat-ad">Özel {!acik.unvan && kilitEtiket(ozelSv)}</h3>
+                                            <input id="tr-unvan" className="tercih-alan" type="text" maxLength={24} aria-label="Kendi unvanın"
+                                                value={ozelUnvanMi ? f.unvan : ''} disabled={!acik.unvan}
+                                                placeholder={acik.unvan ? 'Kendi unvanını yaz (en fazla 24 karakter)' : `Seviye ${ozelSv}'da kendi unvanını yazabilirsin`}
+                                                onChange={(e) => set('unvan')(e.target.value)} />
+                                        </div>
+                                    </div>
+                                )}
 
-                                <div className="tercih-grup">
-                                    <span className="tercih-baslik">Efektler</span>
-                                    <label className={`tercih-satir ${acik.parlak ? '' : 'kilitli'}`}>
-                                        <input type="checkbox" checked={f.parlak} disabled={!acik.parlak} onChange={(e) => set('parlak')(e.target.checked)} />
-                                        Parlak kullanıcı adı{acik.parlak ? '' : ' (seviye 10)'}
-                                    </label>
-                                    <label className={`tercih-satir ${acik.animasyon ? '' : 'kilitli'}`}>
-                                        <input type="checkbox" checked={f.animasyon} disabled={!acik.animasyon} onChange={(e) => set('animasyon')(e.target.checked)} />
-                                        Animasyonlu parlama{acik.animasyon ? '' : ' (seviye 20)'}
-                                    </label>
-                                    <label className={`tercih-satir ${acik.rozet ? '' : 'kilitli'}`}>
-                                        <input type="checkbox" checked={f.rozet} disabled={!acik.rozet} onChange={(e) => set('rozet')(e.target.checked)} />
-                                        Rozet çerçevesi{acik.rozet ? '' : ' (seviye 20)'}
-                                    </label>
-                                </div>
+                                {sekme === 'renk' && (
+                                    <div className="gr-panel" role="tabpanel">
+                                        <p className="gr-ipucu">Adının rengi sohbette, yorumlarda ve liderlik tablosunda görünür.</p>
+                                        <div className="gr-kategori">
+                                            <div className="renk-secenekleri" role="radiogroup" aria-label="Varsayılan">
+                                                <button type="button" role="radio" aria-checked={f.adRengi === ''} className="renk-btn varsayilan" title="Varsayılan" aria-label="Varsayılan renk" onClick={() => set('adRengi')('')}>Yok</button>
+                                            </div>
+                                        </div>
+                                        {kategoriyeGore(katalog.renkler).map(g => (
+                                            <div className="gr-kategori" key={g.ad}>
+                                                <h3 className="gr-kat-ad">{g.ad}</h3>
+                                                <div className="renk-secenekleri" role="radiogroup" aria-label={g.ad}>
+                                                    {g.ogeler.map(r => {
+                                                        const kilit = !acik.renkler.includes(r.id);
+                                                        return (
+                                                            <span key={r.id} className={`gr-renk ${kilit ? 'kilitli' : ''}`}>
+                                                                <button type="button" role="radio" aria-checked={f.adRengi === r.id} disabled={kilit}
+                                                                    className="renk-btn" style={{ background: r.hex }}
+                                                                    title={kilit ? `${r.ad}: seviye ${r.seviye} gerekir` : r.ad}
+                                                                    aria-label={kilit ? `${r.ad} (seviye ${r.seviye} gerekir)` : r.ad}
+                                                                    onClick={() => set('adRengi')(r.id)}></button>
+                                                                <small>{kilit ? `Lv.${r.seviye}` : r.ad}</small>
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {katalog.ozelRenkSeviye && (
+                                            <div className={`gr-kategori gr-skala ${acik.ozelRenk ? '' : 'kilitli'}`}>
+                                                <h3 className="gr-kat-ad">Kendi rengin {!acik.ozelRenk && kilitEtiket(ozelRenkSv)}</h3>
+                                                <label className="gr-kaydirici">
+                                                    <span>Ton</span>
+                                                    <input type="range" min="0" max="359" value={skala.h} disabled={!acik.ozelRenk} className="gr-ton"
+                                                        onChange={(e) => skalaYaz({ h: +e.target.value })} />
+                                                </label>
+                                                <label className="gr-kaydirici">
+                                                    <span>Canlılık</span>
+                                                    <input type="range" min="20" max="100" value={skala.s} disabled={!acik.ozelRenk}
+                                                        style={{ background: `linear-gradient(90deg, ${hslHex(skala.h, 20, skala.l)}, ${hslHex(skala.h, 100, skala.l)})` }}
+                                                        onChange={(e) => skalaYaz({ s: +e.target.value })} />
+                                                </label>
+                                                <label className="gr-kaydirici">
+                                                    <span>Açıklık</span>
+                                                    <input type="range" min="25" max="85" value={skala.l} disabled={!acik.ozelRenk}
+                                                        style={{ background: `linear-gradient(90deg, ${hslHex(skala.h, skala.s, 25)}, ${hslHex(skala.h, skala.s, 55)}, ${hslHex(skala.h, skala.s, 85)})` }}
+                                                        onChange={(e) => skalaYaz({ l: +e.target.value })} />
+                                                </label>
+                                                <div className="gr-skala-alt">
+                                                    <input type="color" aria-label="Renk seçici" disabled={!acik.ozelRenk} value={ozelRenkMi ? f.adRengi : '#e0343c'}
+                                                        onChange={(e) => set('adRengi')(e.target.value)} />
+                                                    <code>{ozelRenkMi ? f.adRengi.toUpperCase() : 'Henüz seçilmedi'}</code>
+                                                    {ozelRenkMi && !renkOkunur(f.adRengi) && <span className="gr-uyari">Bu renk çok koyu ya da çok açık, adın okunmaz.</span>}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
 
-                                <div className="tercih-grup">
-                                    <label htmlFor="tr-unvan">Özel unvan{acik.unvan ? '' : ' (seviye 30)'}</label>
-                                    <input id="tr-unvan" className="tercih-alan" type="text" maxLength={24} value={f.unvan} disabled={!acik.unvan}
-                                        placeholder="En fazla 24 karakter" onChange={(e) => set('unvan')(e.target.value)} />
-                                </div>
+                                {sekme === 'efekt' && (
+                                    <div className="gr-panel" role="tabpanel">
+                                        <p className="gr-ipucu">Adına manga havası katan bir efekt seç. Aynı anda tek efekt kullanılır.</p>
+                                        <div className="gr-kartlar">
+                                            <button type="button" aria-pressed={!f.adEfekti} className={`gr-kart ${!f.adEfekti ? 'secili' : ''}`} onClick={() => set('adEfekti')('')}>
+                                                <span className="gr-kart-ornek" style={AS.stil(onizleme)}>{kullanici ? kullanici.kullaniciAdi : 'Kullanıcı'}</span>
+                                                <strong>Sade</strong>
+                                                <span className="gr-kart-acik">Efekt yok.</span>
+                                            </button>
+                                            {(katalog.efektler || []).map(e => {
+                                                const kilit = !(acik.efektler || []).includes(e.id);
+                                                return (
+                                                    <button key={e.id} type="button" disabled={kilit} aria-pressed={f.adEfekti === e.id}
+                                                        className={`gr-kart ${f.adEfekti === e.id ? 'secili' : ''}`} onClick={() => set('adEfekti')(e.id)}>
+                                                        <span className={`gr-kart-ornek as-ef as-ef-${e.id}`} style={AS.stil(onizleme)}>{kullanici ? kullanici.kullaniciAdi : 'Kullanıcı'}</span>
+                                                        <strong>{e.ad}{kilit && kilitEtiket(e.seviye)}</strong>
+                                                        <span className="gr-kart-acik">{e.aciklama}</span>
+                                                    </button>
+                                                );
+                                            })}
+                                        </div>
+                                        {!katalog.efektler && <p className="gr-ipucu">Efektler sunucu güncellemesinden sonra açılacak.</p>}
+                                        <div className="gr-kategori">
+                                            <h3 className="gr-kat-ad">Çerçeve</h3>
+                                            <label className={`gr-anahtar ${acik.rozet ? '' : 'kilitli'}`}>
+                                                <input type="checkbox" checked={f.rozet} disabled={!acik.rozet} onChange={(e) => set('rozet')(e.target.checked)} />
+                                                <span><span className="as-rozet">Mühür</span> çerçevesi: adın hanko mühür gibi kutulanır.</span>
+                                                {!acik.rozet && kilitEtiket(rozetSv)}
+                                            </label>
+                                        </div>
+                                    </div>
+                                )}
 
-                                <div>
-                                    <button type="submit" className="btn-ana" disabled={mesgul}>{mesgul ? 'Kaydediliyor…' : 'Tercihleri kaydet'}</button>
-                                    {not && <p className={`hesap-not ${not.tur === 'hata' ? 'hata' : ''}`} role={not.tur === 'hata' ? 'alert' : 'status'} style={{ marginTop: 8 }}>{not.metin}</p>}
+                                {sekme === 'font' && (
+                                    <div className="gr-panel" role="tabpanel">
+                                        <p className="gr-ipucu">Sohbet mesajların bu yazı tipiyle görünür. Her kart kendi yazı tipiyle örnek gösterir.</p>
+                                        {kategoriyeGore(katalog.fontlar).map(g => (
+                                            <div className="gr-kategori" key={g.ad}>
+                                                <h3 className="gr-kat-ad">{g.ad}</h3>
+                                                <div className="gr-kartlar gr-fontlar">
+                                                    {g.ogeler.map(x => {
+                                                        const v = x.id === 'varsayilan' ? '' : x.id;
+                                                        const kilit = v !== '' && !acik.fontlar.includes(x.id);
+                                                        return (
+                                                            <button key={x.id} type="button" disabled={kilit} aria-pressed={f.mesajFontu === v}
+                                                                className={`gr-kart ${f.mesajFontu === v ? 'secili' : ''}`} onClick={() => set('mesajFontu')(v)}>
+                                                                <span className="gr-font-ornek" style={{ fontFamily: v ? AS.fontlar[v] : undefined }}>{FONT_ORNEK}</span>
+                                                                <strong>{x.ad}{kilit && kilitEtiket(x.seviye)}</strong>
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+
+                                <div className="gr-kaydet">
+                                    <button type="submit" className="btn-ana" disabled={mesgul || (ozelRenkMi && !renkOkunur(f.adRengi))}>{mesgul ? 'Kaydediliyor…' : 'Görünümü kaydet'}</button>
+                                    {not && <p className={`hesap-not ${not.tur === 'hata' ? 'hata' : ''}`} role={not.tur === 'hata' ? 'alert' : 'status'}>{not.metin}</p>}
                                 </div>
                             </form>
                         </>
@@ -2331,7 +2506,7 @@
                                     </span>
                                 </a>
                                 <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
-                                {m.bolumSayisi != null && <span className="manga-meta">{m.bolumSayisi} Bölüm</span>}
+                                {m.bolumSayisi != null && <span className="manga-meta">{m.bolumSayisi > 0 ? `${m.bolumSayisi} Bölüm` : 'Yakında'}</span>}
                             </li>
                         ))}
                     </ol>
@@ -2388,7 +2563,7 @@
                                             <span>Bölüm {Number(m.sonBolumNo)}</span>
                                             {m.sonBolumTarihi && <span className="manga-meta">{kacOnce(m.sonBolumTarihi)}</span>}
                                         </a>
-                                        : <span className="manga-meta">{(m.kategoriler && m.kategoriler[0]) || 'Manga'} · {m.bolumSayisi} Bölüm</span>}
+                                        : <span className="manga-meta">{(m.kategoriler && m.kategoriler[0]) || 'Manga'} · {m.bolumSayisi > 0 ? `${m.bolumSayisi} Bölüm` : 'Yakında'}</span>}
                                 </li>
                             );
                         })}
@@ -2864,7 +3039,7 @@
                                 {ilkBolum ? (
                                     <a className="btn-ana" href={`read.html?chapter=${ilkBolum.id}`} onClick={() => okunduIsaretle(id, ilkBolum.id)}>İlk bölümü oku</a>
                                 ) : (
-                                    <span className="btn-ana pasif" aria-disabled="true">Henüz bölüm yok</span>
+                                    <span className="btn-ikincil pasif" aria-disabled="true">Henüz bölüm yok</span>
                                 )}
                                 {devamBolum && (
                                     <a className="btn-ikincil" href={`read.html?chapter=${devamBolum.id}`} onClick={() => okunduIsaretle(id, devamBolum.id)}>Bölüm {bolumNoYaz(devamBolum.bolumNo)}'ten devam et</a>
@@ -2902,8 +3077,10 @@
                             )}
                         </div>
                         {bolumler.length === 0 ? (
-                            <DurumKutu ikon="kitap" baslik="Henüz bölüm eklenmemiş" metin="Bu seriye yeni bölümler eklendiğinde burada görünecek.">
-                                <a className="btn-ikincil" href="#/">Ana sayfaya dön</a>
+                            <DurumKutu ikon="kitap" baslik="Henüz bölüm eklenmemiş" metin={kayitli ? 'Favorilerinde. Yeni bölüm eklenince kütüphanende görünecek.' : 'Favorilere ekle, yeni bölüm eklenince kütüphanende gör.'}>
+                                {kayitli
+                                    ? <a className="btn-ikincil" href="#/">Diğer serilere göz at</a>
+                                    : <button type="button" className="btn-ikincil" onClick={kutuphaneDegistir} disabled={kutuphaneBusy}>Favorilere ekle</button>}
                             </DurumKutu>
                         ) : (
                             <ul className="bolum-listesi">
@@ -3295,7 +3472,7 @@
             }, []);
             // Sayfa başlığı rotaya göre güncellenir (seri adı MangaDetay yüklenince yazılır)
             React.useEffect(() => {
-                const BASLIKLAR = { ana: 'Ana Sayfa', kutuphane: 'Kütüphane', profil: 'Hesabım', liderlik: 'Liderlik', sohbet: 'Sohbet', iletisim: 'İletişim' };
+                const BASLIKLAR = { ana: 'Ana Sayfa', kutuphane: 'Kütüphane', profil: 'Hesabım', liderlik: 'Liderlik', sohbet: 'Sohbet', iletisim: 'İletişim', bulunamadi: 'Bulunamadı' };
                 const baslik = rota.sayfa === 'manga' ? 'Seri' : (rota.sayfa === 'kullanici' ? (rota.ad || 'Kullanıcı') : (BASLIKLAR[rota.sayfa] || 'Ana Sayfa'));
                 document.title = baslik + ' | Kage 95';
             }, [rota]);
@@ -3410,7 +3587,7 @@
                     <header className="site-header" role="banner">
                         <div className="header-ic">
                             <a href="#/" className="site-logo" aria-label="Kage 95 Ana Sayfa">
-                                <span className="logo-muhur" aria-hidden="true"><img src="logo.svg" alt="" width="38" height="38" /></span>
+                                <span className="logo-muhur" aria-hidden="true"><img src="assets/logo.svg" alt="" width="38" height="38" /></span>
                                 KAGE <span className="logo-95">95</span>
                             </a>
 
@@ -3522,6 +3699,13 @@
                             : rota.sayfa === 'liderlik' ? <LiderlikSayfasi />
                             : rota.sayfa === 'sohbet' ? <SohbetSayfasi />
                             : rota.sayfa === 'iletisim' ? <IletisimSayfasi />
+                            : rota.sayfa === 'bulunamadi' ? (
+                                <div className="ana-icerik">
+                                    <DurumKutu ikon="bos" baslik="Sayfa bulunamadı" metin="Aradığın sayfa taşınmış ya da hiç var olmamış olabilir.">
+                                        <a className="btn-ikincil" href="#/">Ana sayfaya dön</a>
+                                    </DurumKutu>
+                                </div>
+                            )
                             : <AnaSayfa aramaMetni={aramaMetni} setAramaMetni={setAramaMetni} aramaAciklama={aramaAciklama} setAramaAciklama={setAramaAciklama} kayitAcik={ayarlar.kayitAcik !== false} />}
                     </main>
 
@@ -3569,6 +3753,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
-    <script src="js/yardim.js?v=20261025d" defer></script>
+    <script src="js/yardim.js?v=20261025e" defer></script>
 </body>
 </html>
