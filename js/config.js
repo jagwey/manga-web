@@ -17,7 +17,7 @@
 
 // Sosyal bağlantılar: boş bırakılan görünmez. Gerçek davet/profil adreslerinizi buraya yazın.
 window.KAGE95_SOSYAL = {
-    discord: 'https://discord.gg/Fyr4K8XWbk',
+    discord: 'https://discord.gg/yxZZ7m2x8a',
     instagram: 'https://www.instagram.com/kage95.dev/',
     instagramAd: 'kage95.dev',
     eposta: 'jagweyy@gmail.com'
