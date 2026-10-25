@@ -3,7 +3,7 @@
 const SURUM = 'kage95-v14';
 const KABUK = [
     './', 'index.html', 'read.html', 'login.html', 'admin.html',
-    'assets/logo.svg', 'assets/favicon.svg', 'manifest.webmanifest', 'assets/icon-192.png', 'assets/icon-512.png'
+    'logo.svg', 'favicon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'
 ];
 
 self.addEventListener('install', function (e) {

@@ -16,6 +16,7 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - (Bitti, 24.10) PWA: manifest.webmanifest, sw.js (kabuk önbelleği, /api ve /hub hiç önbelleğe alınmaz), js/pwa.js kayıt, icon-192/512.png; 4 HTML sayfasına manifest+apple-touch-icon+pwa.js eklendi.
 
 ## Devam edenler
+- (25.10) Forum "Gölge Meclisi": backend/Controllers/ForumController.cs + 3 tablo (ForumKonulari/Yanitlari/Begenileri, Program.cs idempotent SQL). Ön yüz js/forum.js + css/forum.css, #/forum rotası, menü + alt gezinme, manga detayda "Forumda konuş" kutusu. Konu seri/bölüme bağlanır, o bölümü okumayana spoiler bulanık. Ön yüz canlıda; API için TAM backend deploy gerekli (şu an /api/forum 404). Commit yok.
 - Yok. Backend v2 BİTTİ (geçici DB'de 162 kontrol geçti, gerçek DB'ye yalnızca yeni tablo/nullable kolon, yedek C:\Temp\Kage95DB_oncesi_yorumv2_sohbet_*.bak). Ön yüz ikinci turu sürüyor: madde 2 (sohbet ön yüzü) ve madde 5 (yorum aracı) bitti, sıradaki madde 3.
 
 ## Backend v2 sözleşmesi (ön yüz için)
