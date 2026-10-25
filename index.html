@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
-    <link rel="stylesheet" href="css/vurgu.css?v=20261025e">
+    <link rel="stylesheet" href="css/vurgu.css?v=20261025f">
     <link rel="stylesheet" href="css/forum.css?v=20261025a">
 
     <!-- Tipografi: Noto Serif (başlık), Noto Serif JP (kanji), Noto Sans (metin) -->
@@ -2451,10 +2451,7 @@
         const OneCikanlar = () => {
             const [liste, setListe] = React.useState([]);
             const [i, setI] = React.useState(0);
-            const [durdur, setDurdur] = React.useState(false);   // fare/odak
-            const [elle, setElle] = React.useState(false);       // kullanıcı duraklattı
             const [gorunur, setGorunur] = React.useState(() => document.visibilityState !== 'hidden');
-            const [azalt] = React.useState(() => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches));
             const dokun = React.useRef(null);
 
             React.useEffect(() => {
@@ -2478,7 +2475,8 @@
 
             const n = liste.length;
             const git = React.useCallback((k) => { if (n) setI(((k % n) + n) % n); }, [n]);
-            const otomatik = n > 1 && !azalt && !durdur && !elle && gorunur;
+            // Kaydırma hiç durmaz; yalnızca sekme gizliyken bekler
+            const otomatik = n > 1 && gorunur;
             React.useEffect(() => {
                 if (!otomatik) return;
                 const t = setTimeout(() => setI(x => (x + 1) % n), OC_SURE);
@@ -2515,7 +2513,6 @@
                 : (bolumler.length ? bolumler.reduce((a, b) => (Number(b.bolumNo) < Number(a.bolumNo) ? b : a)).id : null);
             const bolumSayisi = s.bolumSayisi > 0 ? s.bolumSayisi : bolumler.length;
             const ozet = (typeof s.ozet === 'string' && s.ozet.trim()) || (typeof d.aciklama === 'string' ? d.aciklama.trim() : '');
-            const iki = (x) => String(x).padStart(2, '0');
             const dokunBasla = (e) => { const t = e.touches[0]; dokun.current = { x: t.clientX, y: t.clientY }; };
             const dokunBitir = (e) => {
                 const b = dokun.current; dokun.current = null;
@@ -2530,11 +2527,9 @@
             const oynat = <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="5 3 19 12 5 21 5 3" /></svg>;
             return (
                 <section className="oc" aria-roledescription="carousel" aria-label="Öne çıkanlar"
-                    onMouseEnter={() => setDurdur(true)} onMouseLeave={() => setDurdur(false)}
-                    onFocus={() => setDurdur(true)} onBlur={(e) => { if (!e.currentTarget.contains(e.relatedTarget)) setDurdur(false); }}
                     onTouchStart={dokunBasla} onTouchEnd={dokunBitir} onKeyDown={tus}>
                     <div className="oc-kutu">
-                        <div className="oc-slayt" key={s.id != null ? s.id : i} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${n}`} aria-live={otomatik ? 'off' : 'polite'}>
+                        <div className="oc-slayt" key={s.id != null ? s.id : i} role="group" aria-roledescription="slide" aria-label={`${i + 1} / ${n}`} aria-live="off">
                             <div className={`oc-gorsel ${gorsel ? '' : 'oc-gorsel-yok'} ${bulanik ? 'oc-bulanik' : ''}`}>
                                 {gorsel && <img src={gorsel} alt="" decoding="async" onError={(e) => { e.currentTarget.style.display = 'none'; }} />}
                             </div>
@@ -2559,17 +2554,17 @@
                                         {mId && <a className="oc-btn-ikincil" href={bag}>Detaylar</a>}
                                     </div>}
                                 </div>
-                                {afis && <div className="oc-vitrin" aria-hidden="true">
-                                    <div className="oc-afis"><img src={afis} alt="" decoding="async" onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} /></div>
+                                {afis && <div className="oc-vitrin">
+                                    {bag
+                                        ? <a className="oc-afis" href={bag} {...disBag} aria-label={`${s.baslik} sayfasına git`}><img src={afis} alt="" decoding="async" onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} /></a>
+                                        : <div className="oc-afis" aria-hidden="true"><img src={afis} alt="" decoding="async" onError={(e) => { e.currentTarget.parentElement.style.display = 'none'; }} /></div>}
                                 </div>}
                             </div>
                         </div>
-                        {n > 1 && <div className="oc-kontrol">
-                            <span className="oc-sayac" aria-hidden="true"><strong>{iki(i + 1)}</strong> / {iki(n)}</span>
-                            <button type="button" className="oc-ok" aria-label="Önceki slayt" onClick={() => git(i - 1)}><span aria-hidden="true">‹</span></button>
-                            <button type="button" className="oc-ok" aria-label="Sonraki slayt" onClick={() => git(i + 1)}><span aria-hidden="true">›</span></button>
-                            {!azalt && <button type="button" className="oc-dur" aria-pressed={elle} aria-label={elle ? 'Otomatik kaydırmayı başlat' : 'Otomatik kaydırmayı durdur'} onClick={() => setElle(v => !v)}><span aria-hidden="true">{elle ? '▶' : '❚❚'}</span></button>}
-                        </div>}
+                        {n > 1 && <>
+                            <button type="button" className="oc-ok oc-ok-sol" aria-label="Önceki slayt" onClick={() => git(i - 1)}><span aria-hidden="true">‹</span></button>
+                            <button type="button" className="oc-ok oc-ok-sag" aria-label="Sonraki slayt" onClick={() => git(i + 1)}><span aria-hidden="true">›</span></button>
+                        </>}
                     </div>
                 </section>
             );
