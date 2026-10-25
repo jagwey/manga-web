@@ -11,6 +11,9 @@ backend/bin_run/
 bin_tmp_check/
 publish/
 deploy/yayin.Local.json
+*.local.json
+.claude/worktrees/
+.claude/*.local.json
 .playwright-mcp/
 node_modules/
 dist/
