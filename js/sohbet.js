@@ -159,7 +159,7 @@
         '.ks-balon-st{background:none;border:0;padding:0}',
         '.ks-st svg,.ks-serit .ks-st svg{width:56px;height:56px}',
         '.ks-serit{position:relative;overflow:hidden;border-radius:16px;padding:14px 16px;background:linear-gradient(160deg,color-mix(in srgb,var(--vurgu-rengi,#8e0e15) 22%,var(--bg-kart,#141111)),var(--bg-kart,#141111) 55%);box-shadow:0 10px 30px -14px var(--vurgu-rengi,#8e0e15)}',
-        '.ks-serit .ks-liste{max-height:320px;overflow-y:auto;overscroll-behavior:contain;margin:10px 0;gap:4px;scrollbar-width:thin}',
+        '.ks-serit .ks-liste{max-height:none;overflow:hidden;margin:10px 0;gap:4px}',
         '.ks-kapi{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--text-ana,#ede7e2) 7%,transparent);font-size:.9rem}',
         '.ks-kapi a{color:var(--vurgu-parlak,#e0343c);font-weight:600;text-underline-offset:3px}',
         '.ks-btn,.ks-giris{border-radius:999px}',
@@ -571,7 +571,8 @@
             sabitKutusu.hidden = !durum.sabitMesaj;
             sabitMetinEl.textContent = durum.sabitMesaj || '';
             liste.textContent = '';
-            var son = durum.mesajlar.slice(-30);
+            // Şerit ana sayfanın üstünde durduğu için kompakt: yalnızca son 3 mesaj, tamamı sohbet sayfasında.
+            var son = durum.mesajlar.slice(-3);
             if (!son.length) {
                 liste.appendChild(el('li', 'ks-bos', durum.hazir ? (durum.acik ? 'Henüz mesaj yok. İlk mesajı sen yaz.' : 'Sohbet şu an kapalı.') : 'Yükleniyor…'));
             } else {

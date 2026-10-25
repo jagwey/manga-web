@@ -61,7 +61,7 @@
     --k95-isik: linear-gradient(160deg, color-mix(in srgb, var(--vurgu-rengi) 22%, var(--bg-kart)), var(--bg-kart) 55%);
     --k95-golge: 0 10px 30px -14px var(--vurgu-rengi);
 }
-:root:root .sohbet-alt { padding-top: var(--bosluk-4); }
+:root:root .sohbet-ust { padding-top: var(--bosluk-1); padding-bottom: var(--bosluk-3); }
 
 /* Paneller ve kutular */
 :root:root :is(.durum-kutu, .ayar-kutu, .yorum-giris, .puanim, .lider-satir, .tema-kart, .duyuru-bandi, .seri-yorumlar .yorum-form, .hp-kahraman, .hp-kutu, .hp-stat) {

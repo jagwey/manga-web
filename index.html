@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
-    <link rel="stylesheet" href="css/vurgu.css">
+    <link rel="stylesheet" href="css/vurgu.css?v=20261025c">
     <link rel="stylesheet" href="css/forum.css?v=20261025a">
 
     <!-- Tipografi: Noto Serif (başlık), Noto Serif JP (kanji), Noto Sans (metin) -->
@@ -1019,14 +1019,14 @@
 <body class="sayfa-index">
     <div id="root"></div>
 
-    <script src="js/config.js?v=2"></script>
+    <script src="js/config.js?v=20261025"></script>
     <script src="js/liderlik.js"></script>
     <script src="js/puan.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="js/adstili.js"></script>
     <script src="js/yorum.js"></script>
     <script src="js/forum.js?v=20261025b"></script>
-    <script src="js/sohbet.js?v=20261025b"></script>
+    <script src="js/sohbet.js?v=20261025c"></script>
     <script type="text/babel">
         const VARSAYILAN_RENK = '#8e0e15';
         const API_URL = (window.KAGE95_API_URL || '').replace(/\/$/, '');
@@ -2876,6 +2876,7 @@
                     <h1 className="sr-only">Kage 95 · Türkçe manga arşivi</h1>
 
                     <DuyuruSeridi />
+                    <div className="ana-icerik sohbet-ust"><SohbetKap mod="serit" /></div>
 
                     <SeriSeridi baslik="Son güncellenenler" sirala="guncel" />
                     <PopulerSeriler />
@@ -2976,7 +2977,6 @@
                         )}
                     </section>
 
-                    <div className="ana-icerik sohbet-alt"><SohbetKap mod="serit" /></div>
                 </>
             );
         };
