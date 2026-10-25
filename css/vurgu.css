@@ -263,11 +263,11 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 }
 /* Sağda açılı afiş vitrini */
 .oc-vitrin { display: flex; justify-content: center; align-items: center; min-width: 0; }
-.oc-afis { width: clamp(240px, 24vw, 360px); aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: #080606;
-    border: 2px solid color-mix(in srgb, var(--oc-parlak) 45%, transparent);
-    box-shadow: 0 24px 60px rgba(0,0,0,.9), 0 0 40px color-mix(in srgb, var(--oc-parlak) 35%, transparent);
+.oc-afis { width: clamp(200px, 20vw, 320px); aspect-ratio: 1 / 1.48; border-radius: 12px; overflow: hidden; background: #141111;
+    border: 1px solid color-mix(in srgb, var(--oc-parlak) 35%, transparent);
+    box-shadow: 0 24px 60px rgba(0,0,0,.85), 0 0 35px color-mix(in srgb, var(--oc-parlak) 30%, transparent);
     transform: perspective(1000px) rotateY(-8deg) rotateX(2deg); transition: transform .4s ease, box-shadow .4s ease; }
-.oc-afis img { width: 100%; height: 100%; object-fit: contain; background: #080606; display: block; }
+.oc-afis img { width: 100%; height: 100%; object-fit: cover; display: block; }
 @media (hover: hover) { .oc-afis:hover { transform: perspective(1000px) rotateY(-2deg) scale(1.03); box-shadow: 0 30px 70px rgba(0,0,0,.95), 0 0 50px color-mix(in srgb, var(--oc-parlak) 50%, transparent); } }
 /* Sağ altta sayaç + oklar */
 .oc-kontrol { position: absolute; right: clamp(16px, 3vw, 56px); bottom: 24px; display: flex; align-items: center; gap: 4px; padding: 4px 6px 4px 16px; border-radius: 999px; background: rgba(10,8,8,.7); border: 1px solid rgba(255,255,255,.14); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
