@@ -1026,7 +1026,7 @@
     <script src="js/adstili.js"></script>
     <script src="js/yorum.js"></script>
     <script src="js/forum.js?v=20261025b"></script>
-    <script src="js/sohbet.js?v=20261025c"></script>
+    <script src="js/sohbet.js?v=20261025d"></script>
     <script type="text/babel">
         const VARSAYILAN_RENK = '#8e0e15';
         const API_URL = (window.KAGE95_API_URL || '').replace(/\/$/, '');
@@ -1483,6 +1483,12 @@
                     });
                 }
             };
+            // Masaüstünde mailto çoğu zaman tanımlı bir posta uygulaması bulamayıp sessizce boşa düşer; orada Gmail yazma penceresi açılır. Mobilde mailto posta uygulamasını açar.
+            const epostaGonder = (e) => {
+                if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) return;
+                e.preventDefault();
+                window.open(`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(SOSYAL.eposta)}&su=${encodeURIComponent('Kage 95')}`, '_blank', 'noopener');
+            };
             return (
                 <div className="ana-icerik" style={{ paddingTop: 'var(--bosluk-3)', maxWidth: 760, margin: '0 auto' }}>
                     <div className="bolum-baslik" style={{ marginBottom: 'var(--bosluk-3)' }}>
@@ -1539,8 +1545,9 @@
                                     <strong style={{ fontSize: '0.95rem' }}>E-Posta</strong>
                                 </div>
                                 <p style={{ fontSize: '0.85rem', color: 'var(--text-ikincil)', margin: 0 }}>Resmi yazışmalar ve geri bildirim</p>
+                                <a href={`mailto:${SOSYAL.eposta}`} style={{ fontSize: '.9rem', fontWeight: 600, color: 'var(--text-ana)', overflowWrap: 'anywhere' }}>{SOSYAL.eposta}</a>
                                 <div style={{ display: 'flex', gap: 8, marginTop: 'auto' }}>
-                                    <a href={`mailto:${SOSYAL.eposta}`} className="btn-ana" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', minHeight: 40, fontSize: '.85rem' }}>
+                                    <a href={`mailto:${SOSYAL.eposta}?subject=${encodeURIComponent('Kage 95')}`} onClick={epostaGonder} className="btn-ana" style={{ flex: 1, textAlign: 'center', textDecoration: 'none', minHeight: 40, fontSize: '.85rem' }}>
                                         E-posta Gönder
                                     </a>
                                     <button type="button" onClick={epostaKopyala} className="btn-ikincil" style={{ minHeight: 40, padding: '0 12px', fontSize: '.85rem' }} title="Adresi kopyala">
@@ -2436,16 +2443,30 @@
             const [azalt] = React.useState(() => !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches));
             const dokun = React.useRef(null);
 
+            const KAGE95_OZEL_SLAYT = {
+                id: 'kage95',
+                baslik: 'KAGE 95',
+                etiket: 'Orijinal Evren',
+                ozet: "Karanlığın kalbinde sessizce süzülen bir gölgenin hikayesi. Jagwey'in resmi orijinal manga serisi ve yakında çıkacak cyberpunk-samuray oyunu.",
+                gorselUrl: 'kage95-afis.png',
+                kapakUrl: 'kage95-afis.png',
+                baglanti: 'https://discord.gg/yFYhFVGtpW',
+                kategoriler: ['Aksiyon', 'Cyberpunk', 'Gölge Yolu', 'Oyun'],
+                genis: true
+            };
+
             React.useEffect(() => {
                 let iptal = false;
                 fetch(`${API_URL}/one-cikanlar`)
                     .then(r => { if (!r.ok) throw new Error(); return r.json(); })
                     .then(v => {
                         if (iptal) return;
-                        const l = (Array.isArray(v) ? v : []).filter(x => x && typeof x.baslik === 'string' && x.baslik.trim()).slice(0, 12);
-                        setListe(l);
+                        const digerleri = (Array.isArray(v) ? v : [])
+                            .filter(x => x && typeof x.baslik === 'string' && x.baslik.trim() && !/bleach|m8/i.test(x.baglanti || '') && !/bleach/i.test(x.baslik || ''))
+                            .slice(0, 11);
+                        setListe([KAGE95_OZEL_SLAYT, ...digerleri]);
                     })
-                    .catch(() => { if (!iptal) setListe([]); });
+                    .catch(() => { if (!iptal) setListe([KAGE95_OZEL_SLAYT]); });
                 return () => { iptal = true; };
             }, []);
 
@@ -2532,10 +2553,18 @@
                                     </ul>}
                                     {ozet && <p className="oc-ozet">{ozet}</p>}
                                     {bag && <div className="oc-eylem">
-                                        {mId
-                                            ? <a className="oc-btn" href={ilk ? `read.html?chapter=${ilk}` : bag}>{oynat} Okumaya Başla</a>
-                                            : <a className="oc-btn" href={bag} {...disBag}>{oynat} Şimdi Oku</a>}
-                                        {mId && <a className="oc-btn-ikincil" href={bag}>Detaylar</a>}
+                                        {s.id === 'kage95'
+                                            ? <>
+                                                <a className="oc-btn" href={bag} {...disBag}>
+                                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{marginRight: '8px'}}><path d="M20.317 4.37a19.79 19.79 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.74 19.74 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994a.076.076 0 0 0-.041-.106 13.1 13.1 0 0 1-1.872-.892.077.077 0 0 1-.008-.128c.126-.094.252-.192.372-.291a.074.074 0 0 1 .078-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .079.009c.12.099.246.198.373.292a.077.077 0 0 1-.006.127 12.3 12.3 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.84 19.84 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z" /></svg>
+                                                    Topluluğa Katıl
+                                                </a>
+                                                <a className="oc-btn-ikincil" href="#/forum">Gölge Meclisi</a>
+                                              </>
+                                            : mId
+                                                ? <a className="oc-btn" href={ilk ? `read.html?chapter=${ilk}` : bag}>{oynat} Okumaya Başla</a>
+                                                : <a className="oc-btn" href={bag} {...disBag}>{oynat} Şimdi Oku</a>}
+                                        {mId && s.id !== 'kage95' && <a className="oc-btn-ikincil" href={bag}>Detaylar</a>}
                                     </div>}
                                 </div>
                                 {afis && <div className="oc-vitrin" aria-hidden="true">
@@ -2869,6 +2898,15 @@
             const dahaVar = mangalar.length < toplam;
             const ilkYukleme = yukleniyor && mangalar.length === 0;
             const tumKategoriler = ['', ...kategoriler];
+            // Mobilde öne çıkan seri ekranı dolduruyor; sohbet ilk manga şeritlerinin altına iner ki mangalar önce görünsün.
+            const [mobil, setMobil] = React.useState(() => window.matchMedia('(max-width: 600px)').matches);
+            React.useEffect(() => {
+                const mq = window.matchMedia('(max-width: 600px)');
+                const degis = () => setMobil(mq.matches);
+                mq.addEventListener('change', degis);
+                return () => mq.removeEventListener('change', degis);
+            }, []);
+            const sohbetSeridi = <div className="ana-icerik sohbet-ust"><SohbetKap mod="serit" /></div>;
 
             return (
                 <>
@@ -2876,10 +2914,11 @@
                     <h1 className="sr-only">Kage 95 · Türkçe manga arşivi</h1>
 
                     <DuyuruSeridi />
-                    <div className="ana-icerik sohbet-ust"><SohbetKap mod="serit" /></div>
+                    {!mobil && sohbetSeridi}
 
                     <SeriSeridi baslik="Son güncellenenler" sirala="guncel" />
                     <PopulerSeriler />
+                    {mobil && sohbetSeridi}
                     <SeriSeridi baslik="Yeni eklenen seriler" sirala="yeni" />
 
                     <section id="turler" className="tur-bolum" aria-label="Türlere göre filtrele">

@@ -159,7 +159,15 @@
         '.ks-balon-st{background:none;border:0;padding:0}',
         '.ks-st svg,.ks-serit .ks-st svg{width:56px;height:56px}',
         '.ks-serit{position:relative;overflow:hidden;border-radius:16px;padding:14px 16px;background:linear-gradient(160deg,color-mix(in srgb,var(--vurgu-rengi,#8e0e15) 22%,var(--bg-kart,#141111)),var(--bg-kart,#141111) 55%);box-shadow:0 10px 30px -14px var(--vurgu-rengi,#8e0e15)}',
-        '.ks-serit .ks-liste{max-height:none;overflow:hidden;margin:10px 0;gap:4px}',
+        '.ks-serit .ks-liste{max-height:320px;overflow-y:auto;overscroll-behavior:contain;margin:10px 0;gap:4px;scrollbar-width:thin}',
+        '.ks-serit:not(.ks-genis){padding:10px 14px}',
+        '.ks-serit:not(.ks-genis) .ks-liste{max-height:none;overflow:hidden;margin:6px 0 0}',
+        '.ks-serit:not(.ks-genis) .ks-st svg{width:28px;height:28px}',
+        '.ks-serit:not(.ks-genis) .ks-kapi,.ks-serit:not(.ks-genis) .ks-sabit{display:none}',
+        '.ks-serit-dugmeler{display:flex;align-items:center;gap:10px;margin-left:auto}',
+        '.ks-buyut{min-height:32px;padding:0 12px;border-radius:999px;border:1px solid var(--border-renk,#2a2323);background:transparent;color:var(--text-ana,#ede7e2);font:inherit;font-size:.82rem;font-weight:600;cursor:pointer}',
+        '.ks-buyut:hover{border-color:var(--vurgu-parlak,#e0343c)}',
+        '.ks-serit-ac{color:var(--vurgu-parlak,#e0343c);font-weight:600;font-size:.85rem;text-underline-offset:3px}',
         '.ks-kapi{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 14px;border-radius:10px;background:color-mix(in srgb,var(--text-ana,#ede7e2) 7%,transparent);font-size:.9rem}',
         '.ks-kapi a{color:var(--vurgu-parlak,#e0343c);font-weight:600;text-underline-offset:3px}',
         '.ks-btn,.ks-giris{border-radius:999px}',
@@ -536,6 +544,30 @@
         cev.appendChild(cevYazi);
         ust.appendChild(bas);
         ust.appendChild(cev);
+        // Ana sayfada mangaları itmemek için şerit küçük açılır (tek mesaj); tercih tarayıcıda hatırlanır.
+        var genis = false;
+        try { genis = localStorage.getItem('ks-serit-genis') === '1'; } catch (e) { /* depolama kapalı */ }
+        var dugmeler = el('div', 'ks-serit-dugmeler');
+        var buyut = el('button', 'ks-buyut');
+        buyut.type = 'button';
+        var hizliAc = el('a', 'ks-serit-ac', 'Sohbeti aç');
+        hizliAc.setAttribute('href', secenek.sohbetAdresi || '#/sohbet');
+        dugmeler.appendChild(buyut);
+        dugmeler.appendChild(hizliAc);
+        ust.appendChild(dugmeler);
+        function genislikUygula() {
+            kok.classList.toggle('ks-genis', genis);
+            buyut.textContent = genis ? 'Küçült' : 'Büyüt';
+            buyut.setAttribute('aria-expanded', genis ? 'true' : 'false');
+            hizliAc.hidden = genis;
+        }
+        buyut.addEventListener('click', function () {
+            genis = !genis;
+            try { localStorage.setItem('ks-serit-genis', genis ? '1' : '0'); } catch (e) { /* depolama kapalı */ }
+            genislikUygula();
+            ciz();
+            liste.scrollTop = liste.scrollHeight;
+        });
         var sabitKutusu = el('div', 'ks-sabit');
         sabitKutusu.hidden = true;
         var sabitSol = el('div');
@@ -571,8 +603,8 @@
             sabitKutusu.hidden = !durum.sabitMesaj;
             sabitMetinEl.textContent = durum.sabitMesaj || '';
             liste.textContent = '';
-            // Şerit ana sayfanın üstünde durduğu için kompakt: yalnızca son 3 mesaj, tamamı sohbet sayfasında.
-            var son = durum.mesajlar.slice(-3);
+            // Küçükken yalnızca son mesaj, büyütülünce son 30 mesaj kaydırmalı listede.
+            var son = durum.mesajlar.slice(genis ? -30 : -1);
             if (!son.length) {
                 liste.appendChild(el('li', 'ks-bos', durum.hazir ? (durum.acik ? 'Henüz mesaj yok. İlk mesajı sen yaz.' : 'Sohbet şu an kapalı.') : 'Yükleniyor…'));
             } else {
@@ -581,6 +613,7 @@
             if (altta) liste.scrollTop = liste.scrollHeight;
             durumYazisi(kok, cevYazi);
         }
+        genislikUygula();
         ciz();
         liste.scrollTop = liste.scrollHeight;
         var birak = dinle(function () { ciz(); });
