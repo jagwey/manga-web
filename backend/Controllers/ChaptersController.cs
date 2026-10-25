@@ -45,7 +45,7 @@ namespace Kage95.Backend.Controllers
         [HttpGet("{chapterId}/pages")]
         public async Task<ActionResult<ChapterPagesResponse>> GetChapterPages(int chapterId)
         {
-            var bolum = await _context.Bolumler
+            var bolum = await _context.Bolumler.AsNoTracking()
                 .Include(b => b.Manga)
                 .Include(b => b.Sayfalar)
                 .FirstOrDefaultAsync(b => b.Id == chapterId);
@@ -56,7 +56,7 @@ namespace Kage95.Backend.Controllers
             }
 
             // Önceki ve sonraki bölümü bul
-            var digerBolumler = await _context.Bolumler
+            var digerBolumler = await _context.Bolumler.AsNoTracking()
                 .Where(b => b.MangaId == bolum.MangaId)
                 .OrderBy(b => b.BolumNo)
                 .Select(b => new { b.Id, b.BolumNo })

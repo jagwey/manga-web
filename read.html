@@ -59,7 +59,7 @@
         body {
             background-color: var(--bg-okuyucu);
             color: var(--text-ana);
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100dvh;
             line-height: 1.5;
             font-weight: 400;
             user-select: none; /* Yanlışlıkla seçim olmaması için okuyucuda */
@@ -115,7 +115,7 @@
         .btn-aksiyon:disabled { opacity: 0.35; cursor: not-allowed; }
         .btn-aksiyon.aktif { color: var(--vurgu-parlak); }
         .btn-aksiyon svg { width: 16px; height: 16px; }
-        .btn-geri:focus-visible, .btn-aksiyon:focus-visible, .nav-btn:focus-visible, .mod-btn:focus-visible,
+        .btn-geri:focus-visible, .btn-aksiyon:focus-visible, .nav-btn:focus-visible,
         .bolum-secici:focus-visible, .yorum-gonder-btn:focus-visible {
             outline: 2px solid var(--vurgu-parlak);
             outline-offset: 2px;
@@ -147,54 +147,113 @@
         }
         .bolum-secici:focus { border-color: var(--vurgu-parlak); }
 
-        /* --- MOD SEKMELERİ (metin sekmeleri) --- */
-        .mod-secici-grup { display: flex; gap: var(--s1); }
-        .mod-btn {
-            background: transparent;
-            border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--text-ikincil);
-            padding: 0 var(--s1);
-            border-radius: 0;
-            font-size: 0.9rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.15s ease, border-color 0.15s ease;
-            min-height: 40px;
-        }
-        @media (hover:hover) { .mod-btn:hover { color: var(--text-ana); } }
-        .mod-btn.aktif { color: var(--text-ana); border-bottom-color: var(--vurgu-parlak); }
-
-        /* --- PARLAKLIK AYARI --- */
-        .parlaklik-sarmal { position: relative; }
-        .parlaklik-panel {
-            position: absolute;
-            top: calc(100% + var(--s1));
-            right: 0;
-            width: 220px;
-            max-width: calc(100vw - 32px);
-            background: var(--bg-kutu);
-            border: 1px solid var(--border-renk);
-            border-radius: 2px;
+        /* --- OKUMA AYARLARI PENCERESİ --- */
+        .ayar-perde {
+            position: fixed;
+            inset: 0;
+            z-index: 300;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: var(--s2);
-            z-index: 130;
+            animation: perdeAc 0.15s ease;
+        }
+        .ayar-modal {
+            width: 100%;
+            max-width: 480px;
+            max-height: calc(100dvh - 32px);
             display: flex;
             flex-direction: column;
-            gap: var(--s1);
+            background: var(--bg-kutu);
+            color: var(--text-ana);
+            border: 1px solid var(--border-renk);
+            border-radius: 4px;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+            user-select: none;
         }
-        .parlaklik-panel label {
+        .ayar-modal-ust {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: var(--s2);
+            padding: var(--s1) var(--s1) var(--s1) var(--s3);
+            border-bottom: 1px solid var(--border-renk);
+        }
+        .ayar-modal-ust h2 { font-size: 1rem; font-weight: 500; margin: 0; }
+        .ayar-modal-govde {
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            padding: var(--s2) var(--s3) var(--s3);
+            display: flex;
+            flex-direction: column;
+            gap: var(--s3);
+        }
+        .ayar-bolum { display: flex; flex-direction: column; gap: var(--s1); }
+        .ayar-grup-etiket {
             display: flex;
             justify-content: space-between;
-            font-size: 0.875rem;
+            font-size: 0.8rem;
+            letter-spacing: 0.02em;
             color: var(--text-ikincil);
         }
-        .parlaklik-panel label b { color: var(--text-ana); font-weight: 400; }
-        .parlaklik-panel input[type=range] {
+        .ayar-grup-etiket b { color: var(--text-ana); font-weight: 500; }
+        .ayar-buton-satir { display: flex; gap: 6px; flex-wrap: wrap; }
+        .ayar-kucuk-btn {
+            flex: 1 1 auto;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            min-height: 40px;
+            padding: 0 12px;
+            background: transparent;
+            border: 1px solid var(--border-renk);
+            border-radius: 2px;
+            color: var(--text-ikincil);
+            font: inherit;
+            font-size: 0.875rem;
+            cursor: pointer;
+            transition: color 0.15s ease, border-color 0.15s ease;
+        }
+        @media (hover:hover) { .ayar-kucuk-btn:hover { color: var(--text-ana); } }
+        .ayar-kucuk-btn.aktif { border-color: var(--vurgu-parlak); color: var(--text-ana); }
+        .ayar-kucuk-btn:focus-visible, .ayar-sifirla:focus-visible, .ayar-kaydirici:focus-visible {
+            outline: 2px solid var(--vurgu-parlak);
+            outline-offset: 2px;
+        }
+        .tema-nokta {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 2px solid;
+            flex: none;
+        }
+        .ayar-kaydirici {
             width: 100%;
-            min-height: 32px;
+            min-height: 36px;
             accent-color: var(--vurgu-parlak);
             cursor: pointer;
         }
+        .ayar-sifirla {
+            align-self: flex-start;
+            background: none;
+            border: 0;
+            padding: 8px 0;
+            min-height: 40px;
+            color: var(--text-ikincil);
+            font: inherit;
+            font-size: 0.875rem;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        @keyframes perdeAc { from { opacity: 0; } to { opacity: 1; } }
+
+        /* --- SAYFA GEÇİŞ EFEKTLERİ (klasik / çift) --- */
+        .gecis-solma .sayfa-gorsel-kapsayici .manga-sayfasi { animation: sayfaSolma 0.25s ease; }
+        .gecis-kayma .sayfa-gorsel-kapsayici .manga-sayfasi { animation: sayfaKayma 0.25s ease-out; }
+        @keyframes sayfaSolma { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes sayfaKayma { from { opacity: 0; transform: translateX(24px); } to { opacity: 1; transform: none; } }
 
         /* --- OKUYUCU GÖVDE ALANI --- */
         .reader-alani {
@@ -228,15 +287,6 @@
             .cift-sayfa-satir { flex-direction: column; align-items: center; }
             .cift-sayfa-satir .manga-sayfasi { width: 100%; max-width: 100%; }
         }
-        .ayar-grup-etiket { font-size: 0.8rem; color: var(--text-ikincil); margin-top: 4px; }
-        .ayar-buton-satir { display: flex; gap: 4px; flex-wrap: wrap; }
-        .ayar-kucuk-btn {
-            flex: 1 1 auto; min-height: 32px; padding: 0 8px; background: transparent;
-            border: 1px solid var(--border-renk); border-radius: 2px; color: var(--text-ikincil);
-            font: inherit; font-size: 0.8rem; cursor: pointer;
-        }
-        .ayar-kucuk-btn.aktif { border-color: var(--vurgu-parlak); color: var(--text-ana); }
-
         /* Görsellere parlaklık filtresi */
         .manga-sayfasi, .webtoon-sayfasi { filter: brightness(var(--parlaklik, 1)); }
 
@@ -429,8 +479,9 @@
         .bolum-puan { margin: 0 0 var(--s3); padding-bottom: var(--s2); border-bottom: 1px solid var(--border-renk); }
 
         @media (prefers-reduced-motion: reduce) {
-            .reader-header, .okuma-ilerleme > span, .btn-geri, .btn-aksiyon, .nav-btn, .mod-btn,
+            .reader-header, .okuma-ilerleme > span, .btn-geri, .btn-aksiyon, .nav-btn, .ayar-kucuk-btn,
             .bolum-secici { transition: none; }
+            .ayar-perde, .sayfa-gorsel-kapsayici .manga-sayfasi { animation: none !important; }
             .spinner { animation-duration: 2.4s; }
         }
 
@@ -443,7 +494,7 @@
 
         /* Dokunmatik (tablet dahil): hedefler en az 44px */
         @media (pointer: coarse) {
-            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .ayar-kucuk-btn { min-height: 44px; min-width: 44px; }
             .yorum-uyari a { display: inline-block; padding: 14px 4px; margin: -14px 0; }
         }
 
@@ -453,7 +504,7 @@
             .manga-baslik-alani { flex: 1 1 200px; }
             .manga-sayfasi { max-height: none; }
             .reader-alani { padding-top: var(--s1); }
-            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .ayar-kucuk-btn { min-height: 44px; min-width: 44px; }
         }
 
         /* Mobil: üst çubuk statik kalır (sayfayla birlikte kayar) */
@@ -468,22 +519,19 @@
                 align-items: stretch;
                 gap: 0;
             }
-            .parlaklik-sarmal { position: static; flex: none; }
-            .parlaklik-panel { top: calc(100% + var(--s1)); right: max(var(--s2), env(safe-area-inset-right)); left: max(var(--s2), env(safe-area-inset-left)); width: auto; max-width: none; }
-            .parlaklik-panel input[type=range] { min-height: 44px; }
-            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .mod-btn { min-height: 44px; min-width: 44px; }
+            .ayar-perde { align-items: flex-end; padding: 0; }
+            .ayar-modal { max-width: none; max-height: 88dvh; border-radius: 12px 12px 0 0; border-bottom: 0; padding-bottom: env(safe-area-inset-bottom); }
+            .ayar-modal-govde { padding-left: max(var(--s2), env(safe-area-inset-left)); padding-right: max(var(--s2), env(safe-area-inset-right)); }
+            .ayar-kaydirici { min-height: 44px; }
+            .btn-geri, .btn-aksiyon, .nav-btn, .yorum-gonder-btn, .bolum-secici, .ayar-kucuk-btn { min-height: 44px; min-width: 44px; }
             .header-sol, .header-sag { width: 100%; gap: 0; }
             .header-sol { flex-wrap: nowrap; }
             .header-sol .btn-geri { padding: 0 var(--s1) 0 0; white-space: nowrap; }
             .header-sol .btn-aksiyon { padding: 0 var(--s1); flex: none; }
             .header-sol .bolum-secici { flex: 1 1 0; min-width: 72px; margin: 0 var(--s1); text-overflow: ellipsis; }
-            .header-sag { flex-wrap: nowrap; overflow-x: auto; justify-content: space-between; scrollbar-width: none; gap: 4px; }
-            .header-sag::-webkit-scrollbar { display: none; }
-            .header-sag > * { flex: none; }
-            .header-sag .btn-aksiyon { padding: 0 6px; white-space: nowrap; font-size: 0.85rem; }
-            .mod-secici-grup { gap: 0; }
-            .mod-secici-grup .mod-btn:nth-child(2) { display: none; }
-            .mod-btn { padding: 0 8px; font-size: 0.85rem; white-space: nowrap; }
+            .header-sag { flex-wrap: nowrap; justify-content: flex-end; gap: 4px; }
+            .header-sag .btn-aksiyon { padding: 0 var(--s1); white-space: nowrap; font-size: 0.85rem; }
+            .header-sag .btn-ayar { flex: 1 1 auto; border-color: var(--border-renk); }
             .manga-baslik-alani { order: -1; text-align: left; flex: none; padding: 2px 0 0; }
             .manga-baslik-alani h1 { font-size: 1.05rem; }
             .reader-alani { padding-top: var(--s2); padding-left: max(var(--s1), env(safe-area-inset-left)); padding-right: max(var(--s1), env(safe-area-inset-right)); }
@@ -507,6 +555,11 @@
         ::-webkit-scrollbar-track { background: var(--bg-okuyucu); }
         ::-webkit-scrollbar-thumb { background: var(--kaydirma, #3a3232); border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: var(--vurgu-rengi); }
+    
+        /* iOS zoom önlemi: mobilde form alanları en az 16px */
+        @media (max-width: 768px) {
+            input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
+        }
     </style>
 
 </head>
@@ -554,6 +607,11 @@
         };
 
         // Kendi ürettiğimiz yer tutucu sayfa (SVG data-URI)
+        // Bölüm adı zaten "Bölüm N: ..." ile başlıyorsa tekrarlanmasın.
+        const temizAd = (ad, no) => {
+            if (!ad) return '';
+            return String(ad).replace(new RegExp('^\\s*Bölüm\\s*' + String(no).replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?!\\d)\\s*[:\\-–.]?\\s*', 'i'), '').trim();
+        };
         const yerTutucu = (n, toplam) => {
             const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="1200" viewBox="0 0 800 1200">
 <rect width="800" height="1200" fill="#171313"/><rect x="30" y="30" width="740" height="1140" fill="none" stroke="#3a3232" stroke-width="2"/>
@@ -597,7 +655,6 @@
             const [okumaModu, setOkumaModu] = React.useState(() =>
                 lsGet('kage95_okumaModu') ||
                 (window.matchMedia && window.matchMedia('(max-width: 640px)').matches ? 'webtoon' : 'klasik'));
-            const [favorideMi, setFavorideMi] = React.useState(false);
 
             const sayfalar = durum === 'hazir' && veri ? veri.sayfalar
                 : (durum === 'demo' || durum === 'bos') ? ORNEK_SAYFALAR : [];
@@ -655,21 +712,6 @@
                 return () => { iptal = true; };
             }, [veri && veri.mangaId]);
 
-            // Favori (yerel)
-            React.useEffect(() => {
-                if (mangaId == null) return;
-                try { setFavorideMi(JSON.parse(lsGet('kage95_favoriler') || '[]').includes(mangaId)); } catch (e) {}
-            }, [mangaId]);
-
-            const toggleFavori = () => {
-                if (mangaId == null) return;
-                let favlar = [];
-                try { favlar = JSON.parse(lsGet('kage95_favoriler') || '[]'); } catch (e) {}
-                favlar = favorideMi ? favlar.filter((i) => i !== mangaId) : [...favlar, mangaId];
-                lsSet('kage95_favoriler', JSON.stringify(favlar));
-                setFavorideMi(!favorideMi);
-            };
-
             const modDegistir = (m) => { setOkumaModu(m); lsSet('kage95_okumaModu', m); if (m !== 'webtoon') setOtoKaydir(false); };
 
             // --- Sayfa genişliği ve otomatik kaydırma ---
@@ -709,25 +751,58 @@
                 const v = parseInt(lsGet('kage95_parlaklik') || '100', 10);
                 return Number.isFinite(v) ? Math.min(100, Math.max(40, v)) : 100;
             });
-            const [parlaklikAcik, setParlaklikAcik] = React.useState(false);
-            const parlaklikRef = React.useRef(null);
             React.useEffect(() => {
                 document.documentElement.style.setProperty('--parlaklik', String(parlaklik / 100));
                 lsSet('kage95_parlaklik', String(parlaklik));
             }, [parlaklik]);
+
+            // --- Okuma Ayarları penceresi ---
+            const [ayarAcik, setAyarAcik] = React.useState(false);
+            const ayarDugmeRef = React.useRef(null);
             React.useEffect(() => {
-                if (!parlaklikAcik) return;
-                const disTik = (e) => { if (parlaklikRef.current && !parlaklikRef.current.contains(e.target)) setParlaklikAcik(false); };
-                const tus = (e) => { if (e.key === 'Escape') setParlaklikAcik(false); };
-                document.addEventListener('mousedown', disTik);
-                document.addEventListener('touchstart', disTik, { passive: true });
-                document.addEventListener('keydown', tus);
-                return () => {
-                    document.removeEventListener('mousedown', disTik);
-                    document.removeEventListener('touchstart', disTik);
-                    document.removeEventListener('keydown', tus);
+                if (!ayarAcik) return;
+                const tus = (e) => {
+                    if (e.key === 'Escape') { setAyarAcik(false); return; }
+                    if (e.key !== 'Tab') return;
+                    // Odak pencerenin içinde kalır
+                    const odaklar = document.querySelectorAll('.ayar-modal button, .ayar-modal input');
+                    if (!odaklar.length) return;
+                    const ilk = odaklar[0], son = odaklar[odaklar.length - 1];
+                    const modal = document.querySelector('.ayar-modal');
+                    if (modal && !modal.contains(document.activeElement)) { e.preventDefault(); ilk.focus(); }
+                    else if (e.shiftKey && document.activeElement === ilk) { e.preventDefault(); son.focus(); }
+                    else if (!e.shiftKey && document.activeElement === son) { e.preventDefault(); ilk.focus(); }
                 };
-            }, [parlaklikAcik]);
+                document.addEventListener('keydown', tus);
+                const eskiTasma = document.body.style.overflow;
+                document.body.style.overflow = 'hidden';
+                return () => {
+                    document.removeEventListener('keydown', tus);
+                    document.body.style.overflow = eskiTasma;
+                    if (ayarDugmeRef.current) ayarDugmeRef.current.focus();
+                };
+            }, [ayarAcik]);
+
+            // Tema (js/tema.js ortak sistemi)
+            const temaListe = (window.Kage95Tema && window.Kage95Tema.liste) || [];
+            const [tema, setTema] = React.useState(() => (window.Kage95Tema ? window.Kage95Tema.al() : 'kage'));
+            React.useEffect(() => {
+                const dinle = () => { if (window.Kage95Tema) setTema(window.Kage95Tema.al()); };
+                window.addEventListener('kage95-tema', dinle);
+                return () => window.removeEventListener('kage95-tema', dinle);
+            }, []);
+            const temaSec = (id) => { if (window.Kage95Tema) window.Kage95Tema.sec(id); setTema(id); };
+
+            // Sayfa geçiş efekti (klasik / çift)
+            const [gecis, setGecis] = React.useState(() => {
+                const g = lsGet('kage95_gecis');
+                return ['yok', 'solma', 'kayma'].includes(g) ? g : 'solma';
+            });
+            React.useEffect(() => { lsSet('kage95_gecis', gecis); }, [gecis]);
+
+            const ayarlariSifirla = () => {
+                setGenislik('normal'); setParlaklik(100); setGecis('solma'); setOtoHiz(2);
+            };
 
             // --- Üst çubuğu gizle/göster + webtoon kaydırma yüzdesi ---
             const [ustGizli, setUstGizli] = React.useState(false);
@@ -757,6 +832,11 @@
                     document.removeEventListener('load', kaydir, true);
                 };
             }, [okumaModu, durum]);
+
+            // Mobilde sayfaya dokununca üst çubuk açılıp kapanır (immersive okuma)
+            const dokunCubuk = () => {
+                if (window.matchMedia('(max-width: 768px)').matches) setUstGizli(g => !g);
+            };
 
             // --- Bölüm geçişi ---
             const bolumeGit = (id) => {
@@ -797,6 +877,7 @@
                 const k = (e) => {
                     const t = e.target.tagName;
                     if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
+                    if (document.querySelector('.ayar-perde')) return; // Okuma Ayarları açıkken sayfa çevirme
                     if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') sonrakiSayfa();
                     else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') oncekiSayfa();
                 };
@@ -928,7 +1009,7 @@
             };
             const baslik = veri ? veri.mangaAdi : (yerTutucuMu ? 'Örnek Seri (yer tutucu)' : 'Okuma Ekranı');
             const altBaslik = veri
-                ? `Bölüm ${veri.bolumNo}${veri.bolumAdi ? ' - ' + veri.bolumAdi : ''} · Sayfa ${sayfalar.length ? sayfaIndex + 1 : 0} / ${sayfalar.length}`
+                ? `Bölüm ${veri.bolumNo}${temizAd(veri.bolumAdi, veri.bolumNo) ? ' - ' + temizAd(veri.bolumAdi, veri.bolumNo) : ''} · Sayfa ${sayfalar.length ? sayfaIndex + 1 : 0} / ${sayfalar.length}`
                 : (yerTutucuMu ? `Sayfa ${sayfaIndex + 1} / ${sayfalar.length}` : '');
 
             const ilerlemeOrani = okumaModu === 'webtoon'
@@ -946,7 +1027,7 @@
                     {!bolumler.length && <option value="">{veri ? `Bölüm ${veri.bolumNo}` : 'Bölüm'}</option>}
                     {bolumler.map((b) => (
                         <option key={b.id} value={b.id}>
-                            Bölüm {b.bolumNo}{b.bolumAdi ? ': ' + b.bolumAdi : ''}
+                            Bölüm {b.bolumNo}{temizAd(b.bolumAdi, b.bolumNo) ? ': ' + temizAd(b.bolumAdi, b.bolumNo) : ''}
                         </option>
                     ))}
                 </select>
@@ -966,6 +1047,7 @@
                 const k = (e) => {
                     const t = e.target.tagName;
                     if (t === 'TEXTAREA' || t === 'INPUT' || t === 'SELECT') return;
+                    if (document.querySelector('.ayar-perde')) return;
                     if (e.key === '?') { e.preventDefault(); setKisayolAcik((a) => !a); }
                     else if ((e.key === 'o' || e.key === 'O') && okumaModu === 'webtoon') { e.preventDefault(); setOtoKaydir((a) => !a); }
                     else if (e.key === 'Escape') { setKisayolAcik(false); setOtoKaydir(false); }
@@ -1007,7 +1089,7 @@
                 <div>
                     <a href="#ana-icerik" className="atla-link" onClick={(e) => { e.preventDefault(); const m = document.getElementById('ana-icerik'); if (m) m.focus(); }}>Ana içeriğe atla</a>
 
-                    <header className={'reader-header' + (ustGizli && !parlaklikAcik ? ' gizli' : '')} role="banner">
+                    <header className={'reader-header' + (ustGizli && !ayarAcik ? ' gizli' : '')} role="banner">
                         <div className="header-sol">
                             <a href="index.html" className="btn-geri" aria-label="Ana Sayfaya Geri Dön">Ana sayfa</a>
                             {bolumSecici}
@@ -1021,78 +1103,104 @@
                         </div>
 
                         <div className="header-sag">
-                            <div className="mod-secici-grup" role="group" aria-label="Okuma Modu Seçimi">
-                                <button className={`mod-btn ${okumaModu === 'klasik' ? 'aktif' : ''}`} onClick={() => modDegistir('klasik')} aria-pressed={okumaModu === 'klasik'}>Klasik</button>
-                                <button className={`mod-btn ${okumaModu === 'cift' ? 'aktif' : ''}`} onClick={() => modDegistir('cift')} aria-pressed={okumaModu === 'cift'}>Çift</button>
-                                <button className={`mod-btn ${okumaModu === 'webtoon' ? 'aktif' : ''}`} onClick={() => modDegistir('webtoon')} aria-pressed={okumaModu === 'webtoon'}>Webtoon</button>
-                            </div>
-                            {okumaModu === 'webtoon' && (
-                                <button
-                                    type="button"
-                                    className={`btn-aksiyon ${otoKaydir ? 'aktif' : ''}`}
-                                    onClick={() => setOtoKaydir((a) => !a)}
-                                    aria-pressed={otoKaydir}
-                                    title="Otomatik kaydırma (O)"
-                                >
-                                    {otoKaydir ? `Oto (${otoHiz}x)` : 'Oto kaydır'}
-                                </button>
-                            )}
-                            <button
-                                className={`btn-aksiyon ${favorideMi ? 'aktif' : ''}`}
-                                onClick={toggleFavori}
-                                disabled={mangaId == null}
-                                aria-label={favorideMi ? 'Favorilerden Çıkar' : 'Okunacaklara Ekle'}
-                            >
-                                {favorideMi ? 'Favoride' : 'Favori'}
-                            </button>
                             {tamEkranVar && (
                                 <button className="btn-aksiyon" onClick={toggleTamEkran} title="Tam Ekran" aria-label="Tam Ekran Aç/Kapat">Tam ekran</button>
                             )}
-                            <div className="parlaklik-sarmal" ref={parlaklikRef}>
-                                <button
-                                    className={`btn-aksiyon ${parlaklikAcik || parlaklik < 100 || genislik !== 'normal' ? 'aktif' : ''}`}
-                                    onClick={() => setParlaklikAcik((a) => !a)}
-                                    title="Okuma ve görünüm ayarları"
-                                    aria-label="Okuma ayarları"
-                                    aria-expanded={parlaklikAcik}
-                                    aria-controls="parlaklik-paneli"
-                                >Ayarlar</button>
-                                {parlaklikAcik && (
-                                    <div className="parlaklik-panel" id="parlaklik-paneli" role="group" aria-label="Okuma ayarları">
-                                        <label htmlFor="parlaklik-kaydirici">Parlaklık <b>%{parlaklik}</b></label>
+                            <button
+                                ref={ayarDugmeRef}
+                                type="button"
+                                className={`btn-aksiyon btn-ayar ${ayarAcik ? 'aktif' : ''}`}
+                                onClick={() => setAyarAcik(true)}
+                                title="Okuma Ayarları"
+                                aria-label="Okuma Ayarları"
+                                aria-haspopup="dialog"
+                            >Okuma Ayarları</button>
+                        </div>
+                    </header>
+
+                    {ayarAcik && (
+                        <div className="ayar-perde" onMouseDown={(e) => { if (e.target === e.currentTarget) setAyarAcik(false); }}>
+                            <div className="ayar-modal" role="dialog" aria-modal="true" aria-labelledby="ayar-baslik">
+                                <div className="ayar-modal-ust">
+                                    <h2 id="ayar-baslik">Okuma Ayarları</h2>
+                                    <button type="button" className="btn-aksiyon" onClick={() => setAyarAcik(false)} aria-label="Ayarları kapat" autoFocus>Kapat</button>
+                                </div>
+                                <div className="ayar-modal-govde">
+                                    <section className="ayar-bolum">
+                                        <span className="ayar-grup-etiket">Okuma yönü</span>
+                                        <div className="ayar-buton-satir">
+                                            {[['klasik', 'Yatay (tek sayfa)'], ['cift', 'Yatay (çift sayfa)'], ['webtoon', 'Dikey (webtoon)']].map(([k, ad]) => (
+                                                <button key={k} type="button" className={`ayar-kucuk-btn ${okumaModu === k ? 'aktif' : ''}`} aria-pressed={okumaModu === k} onClick={() => modDegistir(k)}>{ad}</button>
+                                            ))}
+                                        </div>
+                                    </section>
+
+                                    {temaListe.length > 0 && (
+                                        <section className="ayar-bolum">
+                                            <span className="ayar-grup-etiket">Tema</span>
+                                            <div className="ayar-buton-satir">
+                                                {temaListe.map((t) => (
+                                                    <button key={t.id} type="button" className={`ayar-kucuk-btn ayar-tema-btn ${tema === t.id ? 'aktif' : ''}`} aria-pressed={tema === t.id} onClick={() => temaSec(t.id)} title={t.not || t.ad}>
+                                                        <i className="tema-nokta" style={{ background: t.zemin || t.renk, borderColor: t.renk }} aria-hidden="true"></i>{t.ad}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+
+                                    {okumaModu !== 'webtoon' && (
+                                        <section className="ayar-bolum">
+                                            <span className="ayar-grup-etiket">Sayfa geçiş efekti</span>
+                                            <div className="ayar-buton-satir">
+                                                {[['yok', 'Yok'], ['solma', 'Solma'], ['kayma', 'Kayma']].map(([k, ad]) => (
+                                                    <button key={k} type="button" className={`ayar-kucuk-btn ${gecis === k ? 'aktif' : ''}`} aria-pressed={gecis === k} onClick={() => setGecis(k)}>{ad}</button>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+
+                                    <section className="ayar-bolum">
+                                        <span className="ayar-grup-etiket">Sayfa genişliği</span>
+                                        <div className="ayar-buton-satir">
+                                            {[['dar', 'Dar'], ['normal', 'Normal'], ['genis', 'Geniş'], ['tam', 'Tam']].map(([k, ad]) => (
+                                                <button key={k} type="button" className={`ayar-kucuk-btn ${genislik === k ? 'aktif' : ''}`} aria-pressed={genislik === k} onClick={() => setGenislik(k)}>{ad}</button>
+                                            ))}
+                                        </div>
+                                    </section>
+
+                                    <section className="ayar-bolum">
+                                        <label className="ayar-grup-etiket" htmlFor="parlaklik-kaydirici">Parlaklık <b>%{parlaklik}</b></label>
                                         <input
                                             id="parlaklik-kaydirici"
+                                            className="ayar-kaydirici"
                                             type="range"
                                             min="40"
                                             max="100"
                                             step="5"
                                             value={parlaklik}
                                             onChange={(e) => setParlaklik(parseInt(e.target.value, 10))}
-                                            autoFocus
                                         />
-                                        <span className="ayar-grup-etiket">Sayfa genişliği</span>
-                                        <div className="ayar-buton-satir">
-                                            {[['dar', 'Dar'], ['normal', 'Normal'], ['genis', 'Geniş'], ['tam', 'Tam']].map(([k, ad]) => (
-                                                <button key={k} type="button" className={`ayar-kucuk-btn ${genislik === k ? 'aktif' : ''}`} onClick={() => setGenislik(k)}>{ad}</button>
-                                            ))}
-                                        </div>
-                                        {okumaModu === 'webtoon' && (
-                                            <>
-                                                <span className="ayar-grup-etiket">Otomatik kaydırma hızı</span>
-                                                <div className="ayar-buton-satir">
-                                                    {[1, 2, 3, 4].map((h) => (
-                                                        <button key={h} type="button" className={`ayar-kucuk-btn ${otoHiz === h ? 'aktif' : ''}`} onClick={() => setOtoHiz(h)}>{h}x</button>
-                                                    ))}
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                )}
+                                    </section>
+
+                                    {okumaModu === 'webtoon' && (
+                                        <section className="ayar-bolum">
+                                            <span className="ayar-grup-etiket">Otomatik kaydırma (kısayol: O)</span>
+                                            <div className="ayar-buton-satir">
+                                                <button type="button" className={`ayar-kucuk-btn ${otoKaydir ? 'aktif' : ''}`} onClick={() => { setOtoKaydir((a) => !a); setAyarAcik(false); }}>{otoKaydir ? 'Durdur' : 'Başlat'}</button>
+                                                {[1, 2, 3, 4].map((h) => (
+                                                    <button key={h} type="button" className={`ayar-kucuk-btn ${otoHiz === h ? 'aktif' : ''}`} aria-pressed={otoHiz === h} onClick={() => setOtoHiz(h)}>{h}x</button>
+                                                ))}
+                                            </div>
+                                        </section>
+                                    )}
+
+                                    <button type="button" className="ayar-sifirla" onClick={ayarlariSifirla}>Varsayılanlara dön</button>
+                                </div>
                             </div>
                         </div>
-                    </header>
+                    )}
 
-                    <main className={`reader-alani ${okumaModu === 'cift' ? 'mod-cift' : ''}`} role="main" id="ana-icerik" tabIndex={-1}>
+                    <main className={`reader-alani ${okumaModu === 'cift' ? 'mod-cift' : ''} gecis-${gecis}`} role="main" id="ana-icerik" tabIndex={-1}>
                         {durum === 'yukleniyor' && (
                             <div className="durum-kutusu" role="status">
                                 <div className="spinner"></div>
@@ -1145,6 +1253,7 @@
                                                         onError={(e) => gorselHata(e, sayfaIndex)}
                                                     />
                                                     <img
+                                                        loading="lazy"
                                                         key={sayfaIndex + 1}
                                                         src={sayfalar[sayfaIndex + 1]}
                                                         alt={`Sayfa ${sayfaIndex + 2}`}
@@ -1183,7 +1292,7 @@
                                     </div>
                                 ) : (
                                     <>
-                                        <div className="webtoon-kapsayici" ref={webtoonRef}>
+                                        <div className="webtoon-kapsayici" ref={webtoonRef} onClick={dokunCubuk}>
                                             {sayfalar.map((sayfa, index) => (
                                                 <img
                                                     key={veri ? veri.bolumId + '-' + index : index}

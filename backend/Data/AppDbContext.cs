@@ -27,7 +27,6 @@ namespace Kage95.Backend.Data
         public DbSet<YorumBegeni> YorumBegenileri => Set<YorumBegeni>();
         public DbSet<YorumSikayeti> YorumSikayetleri => Set<YorumSikayeti>();
         public DbSet<Duyuru> Duyurular => Set<Duyuru>();
-        public DbSet<OneCikan> OneCikanlar => Set<OneCikan>();
         public DbSet<SohbetMesaji> SohbetMesajlari => Set<SohbetMesaji>();
         public DbSet<SohbetSusturma> SohbetSusturmalari => Set<SohbetSusturma>();
         public DbSet<KullaniciTercihi> KullaniciTercihleri => Set<KullaniciTercihi>();
@@ -64,6 +63,7 @@ namespace Kage95.Backend.Data
                 entity.Property(e => e.MangaAdi).HasMaxLength(200).IsRequired();
                 entity.HasIndex(e => e.MangaAdi).IsUnique();
                 entity.Property(e => e.KapakResmiURL).HasMaxLength(500);
+                entity.Property(e => e.OneCikanResimURL).HasMaxLength(500);
                 entity.Property(e => e.Yazar).HasMaxLength(100);
                 entity.Property(e => e.Cizer).HasMaxLength(100);
                 entity.Property(e => e.Durum).HasMaxLength(50).HasDefaultValue("DevamEdiyor");
@@ -72,6 +72,7 @@ namespace Kage95.Backend.Data
                 entity.Property(e => e.GuncellenmeTarihi).HasDefaultValueSql("SYSUTCDATETIME()");
                 entity.Property(e => e.Yayinda).HasDefaultValue(true);
                 entity.Property(e => e.OneCikan).HasDefaultValue(false);
+                entity.HasQueryFilter(e => e.SilinmeTarihi == null);
             });
 
             // Denetim kayıtları
@@ -131,6 +132,7 @@ namespace Kage95.Backend.Data
                 entity.Property(e => e.BolumAdi).HasMaxLength(200);
                 entity.Property(e => e.YayinTarihi).HasDefaultValueSql("SYSDATETIME()");
                 entity.HasIndex(e => new { e.MangaId, e.BolumNo }).IsUnique();
+                entity.HasQueryFilter(e => e.Manga.SilinmeTarihi == null);
 
                 entity.HasOne(e => e.Manga)
                       .WithMany(m => m.Bolumler)
@@ -246,18 +248,6 @@ namespace Kage95.Backend.Data
                 e.ToTable("Duyurular");
                 e.Property(x => x.Baslik).HasMaxLength(150).IsRequired();
                 e.Property(x => x.Etiket).HasMaxLength(10).IsUnicode(false).HasDefaultValue("bilgi");
-                e.Property(x => x.Baglanti).HasMaxLength(300);
-                e.Property(x => x.Aktif).HasDefaultValue(true);
-                e.Property(x => x.Sira).HasDefaultValue(0);
-                e.Property(x => x.Tarih).HasDefaultValueSql("SYSUTCDATETIME()");
-            });
-            modelBuilder.Entity<OneCikan>(e =>
-            {
-                e.ToTable("OneCikanlar");
-                e.Property(x => x.Baslik).HasMaxLength(150).IsRequired();
-                e.Property(x => x.Ozet).HasMaxLength(400);
-                e.Property(x => x.Etiket).HasMaxLength(30).HasDefaultValue("Haber");
-                e.Property(x => x.GorselUrl).HasMaxLength(500);
                 e.Property(x => x.Baglanti).HasMaxLength(300);
                 e.Property(x => x.Aktif).HasDefaultValue(true);
                 e.Property(x => x.Sira).HasDefaultValue(0);

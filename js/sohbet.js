@@ -81,7 +81,7 @@
         '.ks-serit .ks-m:nth-child(even){background:transparent}',
         '.ks-serit .ks-st svg{width:24px;height:24px}',
         '.ks-git{display:inline-flex;align-items:center;min-height:36px;color:var(--vurgu-parlak,#e0343c);text-decoration:underline;text-underline-offset:3px;font-size:.9rem}',
-        '.ks-sayfa .ks-liste{max-height:min(60vh,520px);overflow-y:auto;border:1px solid var(--border-renk,#2a2323);border-radius:2px;padding:6px;margin:12px 0;overscroll-behavior:contain}',
+        '.ks-sayfa .ks-liste{max-height:min(60vh,520px);max-height:min(60dvh,520px);overflow-y:auto;border:1px solid var(--border-renk,#2a2323);border-radius:2px;padding:6px;margin:12px 0;overscroll-behavior:contain}',
         '.ks-eski{display:block;margin:0 auto 6px;background:none;border:1px solid var(--border-renk,#2a2323);color:var(--text-ikincil,#a79d96);padding:0 14px;min-height:36px;border-radius:2px;cursor:pointer;font-size:.875rem}',
         '.ks-form{display:flex;flex-direction:column;gap:8px}',
         '.ks-satir{display:flex;gap:8px;align-items:stretch}',
@@ -262,6 +262,8 @@
     }
 
     function olaylariBagla(b) {
+        // Aynı olaya ikinci dinleyici eklenip mesajın iki kez işlenmesini önler.
+        ['MesajGeldi', 'MesajSilindi', 'Cevrimici', 'SabitDegisti'].forEach(function (o) { b.off(o); });
         b.on('MesajGeldi', function (m) {
             if (birlestir([m])) haber('mesaj', m);
         });

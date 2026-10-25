@@ -130,13 +130,17 @@ namespace Kage95.Backend.Controllers
             var (_, hata) = await PanelAsync();
             if (hata != null) return hata;
 
+            // Panel her açılışta 7 uzak sorgu atmasın: sonuç 30 sn saklanır.
+            if (_ozetOnbellek != null && DateTime.UtcNow - _ozetZamani < TimeSpan.FromSeconds(30))
+                return Ok(_ozetOnbellek);
+
             var sonMangalar = await _context.Mangalar.AsNoTracking()
                 .OrderByDescending(m => m.EklenmeTarihi).ThenByDescending(m => m.Id)
                 .Take(5)
                 .Select(m => new { id = m.Id, mangaAdi = m.MangaAdi, eklenmeTarihi = m.EklenmeTarihi })
                 .ToListAsync();
 
-            return Ok(new
+            var sonuc = new
             {
                 mangaSayisi = await _context.Mangalar.CountAsync(),
                 bolumSayisi = await _context.Bolumler.CountAsync(),
@@ -145,8 +149,14 @@ namespace Kage95.Backend.Controllers
                 yorumSayisi = await _context.Yorumlar.CountAsync(),
                 mangaYorumSayisi = await _context.MangaYorumlari.CountAsync(),
                 sonMangalar
-            });
+            };
+            _ozetOnbellek = sonuc;
+            _ozetZamani = DateTime.UtcNow;
+            return Ok(sonuc);
         }
+
+        private static object? _ozetOnbellek;
+        private static DateTime _ozetZamani;
 
         // ---- Yalnızca Owner: yönetici yönetimi ----
 

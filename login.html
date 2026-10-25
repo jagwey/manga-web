@@ -42,7 +42,7 @@
         body {
             background-color: var(--bg-ana);
             color: var(--text-ana);
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100dvh;
             padding: 32px 20px;
             font-weight: 400;
             line-height: 1.6;
@@ -255,6 +255,11 @@
         ::-webkit-scrollbar-track { background: var(--bg-ana); }
         ::-webkit-scrollbar-thumb { background: var(--kaydirma, #4a1014); border-radius: 5px; border: 2px solid var(--bg-ana); }
         ::-webkit-scrollbar-thumb:hover { background: var(--vurgu-rengi); }
+    
+        /* iOS zoom önlemi: mobilde form alanları en az 16px */
+        @media (max-width: 768px) {
+            input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
+        }
     </style>
 </head>
 <body>
@@ -455,6 +460,6 @@
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<AuthSayfasi />);
     </script>
-    <script src="js/yardim.js" defer></script>
+    <script src="js/yardim.js?v=20261025d" defer></script>
 </body>
 </html>

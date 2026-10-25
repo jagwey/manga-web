@@ -45,7 +45,7 @@
         body {
             background-color: var(--bg-ana);
             color: var(--text-ana);
-            min-height: 100vh;
+            min-height: 100vh; min-height: 100dvh;
             padding: 32px 16px 64px;
             font-weight: 400;
             line-height: 1.6;
@@ -53,7 +53,7 @@
             overflow-wrap: anywhere;
         }
 
-        .admin-konteyner { max-width: 1080px; margin: 0 auto; }
+        .admin-konteyner { max-width: 1080px; margin: 0 auto; padding-bottom: 72px; } /* alttaki içerik yardım düğmesinin altında kalmasın */
 
         .admin-header {
             display: flex;
@@ -237,6 +237,8 @@
             text-align: center;
         }
         .kapak-yan { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
+        .kapak-onizleme.oc-onizleme { width: 240px; height: 90px; padding: 0 8px; }
+        @media (max-width: 768px) { .kapak-onizleme.oc-onizleme { width: 100%; max-width: none; height: auto; aspect-ratio: 8 / 3; } }
 
         /* Sekmeler */
         .tab-secici {
@@ -525,12 +527,18 @@
         ::-webkit-scrollbar-track { background: var(--bg-ana); }
         ::-webkit-scrollbar-thumb { background: var(--kaydirma, #4a1014); border-radius: 5px; border: 2px solid var(--bg-ana); }
         ::-webkit-scrollbar-thumb:hover { background: var(--vurgu-rengi); }
+    
+        /* iOS zoom önlemi: mobilde form alanları en az 16px */
+        @media (max-width: 768px) {
+            input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script src="js/config.js"></script>
+    <script src="js/yardim.js?v=20261025d" defer></script>
     <script type="text/babel">
         const { useState, useEffect, useRef, useCallback } = React;
 
@@ -694,6 +702,49 @@
             </nav>
         ) : null;
 
+        /* ---------- Silinen seriler (1 saat içinde geri alınabilir) ---------- */
+        const SilinenSeriler = ({ tazele, geriAlindi }) => {
+            const [liste, setListe] = useState([]);
+            const [bildirim, setBildirim] = useState(null);
+            const [mesgul, setMesgul] = useState(false);
+            const getir = useCallback(async () => {
+                try { const { veri } = await istek('/mangas/silinenler'); setListe(Array.isArray(veri) ? veri : []); }
+                catch (err) { setBildirim(hataBildirimi(err, getir)); }
+            }, []);
+            useEffect(() => { getir(); }, [getir, tazele]);
+            useEffect(() => { const t = setInterval(getir, 60000); return () => clearInterval(t); }, [getir]);
+            const geriAl = async (m) => {
+                setMesgul(true); setBildirim(null);
+                try {
+                    await istek(`/mangas/${m.id}/geri-al`, { method: 'POST' });
+                    setListe(l => l.filter(x => x.id !== m.id));
+                    geriAlindi(m);
+                } catch (err) { setBildirim(hataBildirimi(err)); getir(); }
+                finally { setMesgul(false); }
+            };
+            if (liste.length === 0 && !bildirim) return null;
+            return (
+                <div className="onay-kutu" style={{ margin: '0 0 16px' }}>
+                    <strong>Silinenler</strong>
+                    <div className="ikincil" style={{ marginBottom: 8 }}>Süresi dolunca bölümleri, sayfaları ve dosyalarıyla kalıcı silinir.</div>
+                    <Bildirim b={bildirim} kapat={() => setBildirim(null)} />
+                    <div className="liste">
+                        {liste.map(m => (
+                            <div key={m.id} className="satir">
+                                <div className="satir-bilgi">
+                                    <div className="satir-ad">{m.mangaAdi}</div>
+                                    <div className="satir-alt">{m.kalanSaniye > 60 ? `${Math.ceil(m.kalanSaniye / 60)} dakika içinde kalıcı silinecek` : 'Birazdan kalıcı silinecek'}</div>
+                                </div>
+                                <div className="eylemler">
+                                    <button className="btn" disabled={mesgul} onClick={() => geriAl(m)}>Geri al</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            );
+        };
+
         /* ---------- Seri listesi ---------- */
         const SeriListesi = ({ git, mesaj, setMesaj, can }) => {
             const [arama, setArama] = useState('');
@@ -703,6 +754,7 @@
             const [silId, setSilId] = useState(null);
             const [silAd, setSilAd] = useState('');
             const [mesgul, setMesgul] = useState(false);
+            const [silTazele, setSilTazele] = useState(0);
 
             useEffect(() => {
                 const t = setTimeout(() => setAranan(arama.trim()), 300);
@@ -714,8 +766,8 @@
                 try {
                     await istek(`/mangas/${m.id}`, { method: 'DELETE' });
                     setSilId(null); setSilAd('');
-                    setMesaj({ tur: 'basarili', mesaj: `"${m.mangaAdi}" serisi silindi.` });
-                    s.yenile();
+                    setMesaj({ tur: 'basarili', mesaj: `"${m.mangaAdi}" serisi silindi. 1 saat içinde Silinenler'den geri alabilirsiniz.` });
+                    s.yenile(); setSilTazele(t => t + 1);
                 } catch (err) {
                     setBildirim(hataBildirimi(err, () => sil(m)));
                 } finally { setMesgul(false); }
@@ -757,6 +809,9 @@
                     <Bildirim b={bildirim} kapat={() => setBildirim(null)} />
                     <Bildirim b={s.bildirim} kapat={() => s.setBildirim(null)} />
 
+                    {can('manga.sil') && <SilinenSeriler tazele={silTazele}
+                        geriAlindi={(m) => { setMesaj({ tur: 'basarili', mesaj: `"${m.mangaAdi}" geri getirildi.` }); s.yenile(); }} />}
+
                     <div className="form-grubu">
                         <label htmlFor="arama">Seri ara</label>
                         <input id="arama" type="search" className="form-input" placeholder="Seri adı, yazar veya açıklama"
@@ -791,12 +846,12 @@
                                 </div>
                                 {can('manga.sil') && silId === m.id && (
                                     <div className="onay-kutu" style={{ margin: '12px 0' }}>
-                                        <p>Bu seri, tüm bölümleri ve sayfalarıyla birlikte kalıcı olarak silinecek. Onaylamak için serinin adını yazın: <strong>{m.mangaAdi}</strong></p>
+                                        <p>Bu seri hemen her yerden kaldırılacak; 1 saat sonra tüm bölümleri, sayfaları ve dosyalarıyla kalıcı silinecek. Bu süre içinde Silinenler'den geri alabilirsiniz. Onaylamak için serinin adını yazın: <strong>{m.mangaAdi}</strong></p>
                                         <input className="form-input" aria-label="Serinin adını yazın" value={silAd}
                                             onChange={(e) => setSilAd(e.target.value)} placeholder={m.mangaAdi} />
                                         <div className="eylemler" style={{ marginTop: 10 }}>
                                             <button className="btn btn-tehlike" disabled={mesgul || silAd.trim() !== m.mangaAdi.trim()}
-                                                onClick={() => sil(m)}>{mesgul ? 'Siliniyor...' : 'Kalıcı olarak sil'}</button>
+                                                onClick={() => sil(m)}>{mesgul ? 'Siliniyor...' : 'Sil'}</button>
                                             <button className="btn" disabled={mesgul} onClick={() => { setSilId(null); setSilAd(''); }}>Vazgeç</button>
                                         </div>
                                     </div>
@@ -832,6 +887,9 @@
             const [kapakHata, setKapakHata] = useState(false);
             const [yayinda, setYayinda] = useState(true);
             const [oneCikan, setOneCikan] = useState(false);
+            const [ocResim, setOcResim] = useState('');
+            const [ocOran, setOcOran] = useState(null);
+            const [ocHata, setOcHata] = useState(false);
 
             const baslangic = useCallback(async () => {
                 setBildirim(null);
@@ -843,7 +901,7 @@
                         setAd(m.mangaAdi || ''); setAciklama(m.aciklama || ''); setYazar(m.yazar || ''); setCizer(m.cizer || '');
                         setDurum(m.durum === 'Tamamlandi' ? 'Tamamlandi' : 'DevamEdiyor');
                         setKapak(m.kapakResmiURL || ''); setSecili(m.kategoriler || []);
-                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan);
+                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan); setOcResim(m.oneCikanResimURL || '');
                         setYuklendi(true);
                     }
                 } catch (err) {
@@ -853,6 +911,7 @@
 
             useEffect(() => { baslangic(); }, [baslangic]);
             useEffect(() => { setKapakHata(false); }, [kapak]);
+            useEffect(() => { setOcHata(false); }, [ocResim]);
 
             const kategoriSec = (k) => setSecili(s => s.includes(k) ? s.filter(x => x !== k) : s.concat(k));
             const kategoriEkle = () => {
@@ -882,13 +941,31 @@
                 }
             };
 
+            const ocYukle = async (e) => {
+                const f = e.target.files && e.target.files[0];
+                e.target.value = '';
+                if (!f) return;
+                const h = dosyaDogrula(f);
+                if (h) { setBildirim({ tur: 'hata', mesaj: h }); return; }
+                setBildirim(null);
+                setMesgul(true); setOcOran(0);
+                try {
+                    await yukle([f], setOcOran, (_, urls) => setOcResim(urls[0]));
+                } catch (err) {
+                    setBildirim(hataBildirimi(err, () => ocYukle({ target: { files: [f], value: '' } })));
+                } finally {
+                    setMesgul(false); setOcOran(null);
+                }
+            };
+
             const kaydet = async (e) => {
                 if (e) e.preventDefault();
                 if (!ad.trim()) { setBildirim({ tur: 'hata', mesaj: 'Seri adı zorunludur.' }); return; }
                 setMesgul(true); setBildirim(null);
                 const govde = {
                     mangaAdi: ad.trim(), aciklama: aciklama.trim() || null, kapakResmiURL: kapak.trim() || null,
-                    yazar: yazar.trim() || null, cizer: cizer.trim() || null, durum, kategoriler: secili, yayinda, oneCikan
+                    yazar: yazar.trim() || null, cizer: cizer.trim() || null, durum, kategoriler: secili, yayinda, oneCikan,
+                    oneCikanResimURL: ocResim.trim()
                 };
                 try {
                     await (id ? istek(`/mangas/${id}`, { method: 'PUT', json: govde }) : istek('/mangas', { method: 'POST', json: govde }));
@@ -972,6 +1049,26 @@
                                     <input className="form-input" aria-label="Kapak görseli adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
                                         value={kapak} onChange={(e) => setKapak(e.target.value)} />
                                     {kapakOran !== null && <Ilerleme oran={kapakOran} etiket="Kapak yükleniyor" />}
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="form-grubu tam">
+                            <span className="etiket">Öne çıkan resmi (isteğe bağlı)</span>
+                            <div className="kapak-alan">
+                                {ocResim && !ocHata
+                                    ? <img className="kapak-onizleme oc-onizleme" src={gorselUrl(ocResim)} alt="Öne çıkan resmi önizlemesi" onError={() => setOcHata(true)} />
+                                    : <div className="kapak-onizleme oc-onizleme">{ocResim ? 'Görsel açılamadı' : 'Yok, kapak kullanılır'}</div>}
+                                <div className="kapak-yan">
+                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                                        <input id="ocDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={ocYukle} disabled={mesgul} />
+                                        <label htmlFor="ocDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>Dosyadan yükle</label>
+                                        {ocResim && <button type="button" className="btn" disabled={mesgul} onClick={() => setOcResim('')}>Kaldır</button>}
+                                    </div>
+                                    <input className="form-input" aria-label="Öne çıkan resmi adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
+                                        value={ocResim} onChange={(e) => setOcResim(e.target.value)} />
+                                    {ocOran !== null && <Ilerleme oran={ocOran} etiket="Öne çıkan resmi yükleniyor" />}
+                                    <div className="not">Ana sayfadaki öne çıkanlar şeridinde kapak yerine gösterilir. Geniş görsel önerilir (örn. 1600×600). Boş bırakılırsa kapak kullanılır.</div>
                                 </div>
                             </div>
                         </div>
@@ -1871,158 +1968,6 @@
                         ))}
                     </div>
                     {liste && liste.length === 0 && <div className="bos">Henüz duyuru yok.</div>}
-                </div>
-            );
-        };
-
-        /* ---------- Öne çıkanlar ---------- */
-        const OC_BOS = { baslik: '', ozet: '', etiket: '', gorselUrl: '', baglanti: '', sira: 0, bitis: '', aktif: true };
-        const ocUrlGecerli = (u) => !u || /^(\/|https?:\/\/)/i.test(u);
-        const OneCikanlar = () => {
-            const [liste, setListe] = useState(null);
-            const [bildirim, setBildirim] = useState(null);
-            const [form, setForm] = useState(OC_BOS);
-            const [duzenId, setDuzenId] = useState(null);
-            const [silId, setSilId] = useState(null);
-            const [mesgul, setMesgul] = useState(false);
-            const [oran, setOran] = useState(null);
-            const [gorselHata, setGorselHata] = useState(false);
-            const getir = useCallback(async () => {
-                try { const { veri } = await istek('/admin/one-cikanlar'); setListe(Array.isArray(veri) ? veri : []); }
-                catch (err) { setListe(l => l || []); setBildirim(hataBildirimi(err, getir)); }
-            }, []);
-            useEffect(() => { getir(); }, [getir]);
-            const calistir = async (is, basari) => {
-                setMesgul(true); setBildirim(null);
-                try { await is(); await getir(); setBildirim({ tur: 'basarili', mesaj: basari }); return true; }
-                catch (err) { setBildirim(hataBildirimi(err)); return false; }
-                finally { setMesgul(false); }
-            };
-            const ayarla = (alan) => (v) => { if (alan === 'gorselUrl') setGorselHata(false); setForm(o => ({ ...o, [alan]: v })); };
-            const baglantiOk = ocUrlGecerli(form.baglanti.trim());
-            const gorselOk = ocUrlGecerli(form.gorselUrl.trim());
-            const govde = () => {
-                const j = { baslik: form.baslik.trim(), ozet: form.ozet.trim(), etiket: form.etiket.trim(), gorselUrl: form.gorselUrl.trim(), baglanti: form.baglanti.trim(), sira: parseInt(form.sira, 10) || 0, aktif: form.aktif };
-                if (form.bitis) j.bitisTarihi = new Date(form.bitis).toISOString();
-                else if (duzenId) j.bitisiKaldir = true;
-                return j;
-            };
-            const kaydet = async (e) => {
-                e.preventDefault();
-                if (!form.baslik.trim() || !baglantiOk || !gorselOk) return;
-                const duz = duzenId;
-                const ok = await calistir(
-                    () => duz ? istek(`/admin/one-cikanlar/${duz}`, { method: 'PUT', json: govde() }) : istek('/admin/one-cikanlar', { method: 'POST', json: govde() }),
-                    duz ? 'Öne çıkan güncellendi.' : 'Öne çıkan eklendi.');
-                if (ok) { setForm(OC_BOS); setDuzenId(null); }
-            };
-            const duzenle = (d) => {
-                setDuzenId(d.id); setSilId(null); setGorselHata(false);
-                setForm({ baslik: d.baslik || '', ozet: d.ozet || '', etiket: d.etiket || '', gorselUrl: d.gorselUrl || '', baglanti: d.baglanti || '', sira: d.sira || 0, bitis: yerelTarih(d.bitisTarihi), aktif: d.aktif });
-                window.scrollTo(0, 0);
-            };
-            const gorselYukle = async (e) => {
-                const f = e.target.files && e.target.files[0];
-                e.target.value = '';
-                if (!f) return;
-                const h = dosyaDogrula(f);
-                if (h) { setBildirim({ tur: 'hata', mesaj: h }); return; }
-                setBildirim(null); setMesgul(true); setOran(0);
-                try { await yukle([f], setOran, (_, urls) => ayarla('gorselUrl')(urls[0])); }
-                catch (err) { setBildirim(hataBildirimi(err)); }
-                finally { setMesgul(false); setOran(null); }
-            };
-            const simdi = Date.now();
-            const bitti = (d) => d.bitisTarihi && duyuruTarihi(d.bitisTarihi).getTime() < simdi;
-            return (
-                <div>
-                    <div className="bolum-baslik"><div><h2>Öne çıkanlar</h2><div className="ikincil">Ana sayfadaki büyük kapak kaydırıcısı</div></div></div>
-                    <Bildirim b={bildirim} kapat={() => setBildirim(null)} />
-                    <form onSubmit={kaydet} style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
-                        <div>
-                            <label htmlFor="ocBaslik">{duzenId ? 'Öne çıkanı düzenle' : 'Yeni öne çıkan'}</label>
-                            <input id="ocBaslik" className="form-input" maxLength={150} placeholder="Başlık" value={form.baslik} onChange={(e) => ayarla('baslik')(e.target.value)} disabled={mesgul} />
-                            <div className="sayac">{form.baslik.length} / 150</div>
-                        </div>
-                        <div>
-                            <label htmlFor="ocOzet">Özet (isteğe bağlı)</label>
-                            <textarea id="ocOzet" className="form-textarea" maxLength={300} style={{ minHeight: 70 }} value={form.ozet} onChange={(e) => ayarla('ozet')(e.target.value)} disabled={mesgul}></textarea>
-                            <div className="sayac">{form.ozet.length} / 300</div>
-                        </div>
-                        <div style={{ display: 'grid', gap: 12, gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))' }}>
-                            <div>
-                                <label htmlFor="ocEtiket">Etiket (isteğe bağlı)</label>
-                                <input id="ocEtiket" className="form-input" maxLength={30} placeholder="Yeni bölüm, Seri…" value={form.etiket} onChange={(e) => ayarla('etiket')(e.target.value)} disabled={mesgul} />
-                            </div>
-                            <div>
-                                <label htmlFor="ocBag">Bağlantı (isteğe bağlı)</label>
-                                <input id="ocBag" className="form-input" maxLength={300} placeholder="https://… ya da /manga/1" value={form.baglanti} onChange={(e) => ayarla('baglanti')(e.target.value)} disabled={mesgul} />
-                                {!baglantiOk && <div className="sayac" role="alert">Yalnız /, http:// veya https:// ile başlayabilir.</div>}
-                            </div>
-                            <div>
-                                <label htmlFor="ocSira">Sıra (küçük önce)</label>
-                                <input id="ocSira" className="form-input" type="number" min="-10000" max="10000" value={form.sira} onChange={(e) => ayarla('sira')(e.target.value)} disabled={mesgul} />
-                            </div>
-                            <div>
-                                <label htmlFor="ocBitis">Bitiş (isteğe bağlı)</label>
-                                <input id="ocBitis" className="form-input" type="datetime-local" value={form.bitis} onChange={(e) => ayarla('bitis')(e.target.value)} disabled={mesgul} />
-                            </div>
-                        </div>
-                        <div>
-                            <span className="etiket">Kapak görseli</span>
-                            <div className="kapak-alan">
-                                {form.gorselUrl && gorselOk && !gorselHata
-                                    ? <img className="kapak-onizleme" src={gorselUrl(form.gorselUrl)} alt="Görsel önizlemesi" onError={() => setGorselHata(true)} />
-                                    : <div className="kapak-onizleme">{form.gorselUrl ? 'Görsel açılamadı' : 'Görsel yok'}</div>}
-                                <div className="kapak-yan">
-                                    <div>
-                                        <input id="ocDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={gorselYukle} disabled={mesgul} />
-                                        <label htmlFor="ocDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>Dosyadan yükle</label>
-                                    </div>
-                                    <input className="form-input" aria-label="Görsel adresi" placeholder="veya görsel adresini yapıştırın (https://...)" value={form.gorselUrl} onChange={(e) => ayarla('gorselUrl')(e.target.value)} disabled={mesgul} />
-                                    {!gorselOk && <div className="sayac" role="alert">Yalnız /, http:// veya https:// ile başlayabilir.</div>}
-                                    {oran !== null && <Ilerleme oran={oran} etiket="Görsel yükleniyor" />}
-                                </div>
-                            </div>
-                        </div>
-                        <Anahtar id="ocAktif" ad="Yayında" aciklama="Kapalıysa ana sayfada görünmez." deger={form.aktif} degis={ayarla('aktif')} kilit={mesgul} />
-                        <div className="eylemler">
-                            <button type="submit" className="btn btn-ana" disabled={mesgul || !form.baslik.trim() || !baglantiOk || !gorselOk}>{duzenId ? 'Kaydet' : 'Ekle'}</button>
-                            {duzenId && <button type="button" className="btn" disabled={mesgul} onClick={() => { setDuzenId(null); setForm(OC_BOS); setGorselHata(false); }}>Vazgeç</button>}
-                        </div>
-                    </form>
-                    {liste === null && <div className="bos">Yükleniyor...</div>}
-                    <div className="liste">
-                        {(liste || []).map(d => (
-                            <div key={d.id}>
-                                <div className="satir">
-                                    <div className="satir-bilgi">
-                                        <div className="satir-ad">{d.baslik}</div>
-                                        <div className="satir-alt">
-                                            {d.etiket && <span className="etiket-kucuk">{d.etiket}</span>}{d.etiket ? ' ' : ''}
-                                            {!d.aktif ? 'Kapalı' : bitti(d) ? 'Süresi doldu' : 'Yayında'} · sıra {d.sira || 0}
-                                            {d.baglanti ? ` · ${d.baglanti}` : ''}
-                                        </div>
-                                    </div>
-                                    <div className="eylemler">
-                                        <button className="btn" disabled={mesgul} onClick={() => calistir(() => istek(`/admin/one-cikanlar/${d.id}`, { method: 'PUT', json: { aktif: !d.aktif } }), d.aktif ? 'Kapatıldı.' : 'Yayına alındı.')}>{d.aktif ? 'Kapat' : 'Yayına al'}</button>
-                                        <button className="btn" disabled={mesgul} onClick={() => duzenle(d)}>Düzenle</button>
-                                        <button className="btn btn-tehlike" disabled={mesgul} onClick={() => setSilId(silId === d.id ? null : d.id)}>Sil</button>
-                                    </div>
-                                </div>
-                                {silId === d.id && (
-                                    <div className="onay-kutu" style={{ margin: '12px 0' }}>
-                                        <p>Bu öne çıkan silinecek. Emin misiniz?</p>
-                                        <div className="eylemler">
-                                            <button className="btn btn-tehlike" disabled={mesgul} onClick={async () => { if (await calistir(() => istek(`/admin/one-cikanlar/${d.id}`, { method: 'DELETE' }), 'Öne çıkan silindi.')) setSilId(null); }}>Evet, sil</button>
-                                            <button className="btn" disabled={mesgul} onClick={() => setSilId(null)}>Vazgeç</button>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                    {liste && liste.length === 0 && <div className="bos">Henüz öne çıkan yok.</div>}
                 </div>
             );
         };
@@ -2934,6 +2879,7 @@
                         <button type="button" className="btn" disabled={!arama && !eylem} onClick={() => { setArama(''); setEylem(''); }}>Süzgeçleri temizle</button>
                     </div>
                     {s.liste.length > 0 && (
+                        <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                         <table className="tablo">
                             <thead><tr><th scope="col">Tarih</th><th scope="col">Kim</th><th scope="col">Eylem</th><th scope="col">Hedef</th><th scope="col">Detay</th></tr></thead>
                             <tbody>
@@ -2948,6 +2894,7 @@
                                 ))}
                             </tbody>
                         </table>
+                        </div>
                     )}
                     {s.yukleniyor && <div className="bos">Yükleniyor...</div>}
                     {!s.yukleniyor && s.liste.length === 0 && !s.bildirim && <div className="bos">{aranan || eylemSuz ? 'Süzgeçle eşleşen kayıt yok.' : 'Henüz kayıt yok.'}</div>}
@@ -3064,9 +3011,12 @@
             const [ben, setBen] = useState(null);
             const [durum, setDurum] = useState(tokenAl() ? 'yukleniyor' : 'girissiz'); // yukleniyor | hazir | girissiz | oturum | yetkisiz | ag
             const [gorunum, setGorunum] = useState({ ekran: 'liste' });
-            const [bolum, setBolum] = useState('ozet');
+            // Bölüm adres çubuğunda tutulur (admin.html#kullanicilar); asistanın bağlantıları doğrudan ilgili bölümü açar.
+            const hashBolum = () => { try { return decodeURIComponent(window.location.hash.replace(/^#\/?/, '')); } catch (e) { return ''; } };
+            const [bolumSecili, setBolum] = useState(() => hashBolum() || 'ozet');
             const [mesaj, setMesaj] = useState(null);
             const kirliRef = useRef(false);
+            const secRef = useRef(null);
             const kullanici = kullaniciAl();
 
             const yukle_ = useCallback(async () => {
@@ -3089,6 +3039,12 @@
                 const f = (e) => { if (e.detail === '401') setDurum('oturum'); };
                 window.addEventListener('kage95-yetki', f);
                 return () => window.removeEventListener('kage95-yetki', f);
+            }, []);
+
+            useEffect(() => {
+                const f = () => { const h = hashBolum(); if (h && secRef.current) secRef.current(h); };
+                window.addEventListener('hashchange', f);
+                return () => window.removeEventListener('hashchange', f);
             }, []);
 
             if (durum === 'girissiz') return <Kilit giris baslik="Bu sayfa yalnızca yöneticilere açıktır" metin="Yönetici hesabıyla giriş yapmanız gerekiyor." />;
@@ -3115,16 +3071,20 @@
                 { id: 'kullanicilar', ad: 'Kullanıcılar', goster: can('kullanici.gor') },
                 { id: 'yoneticiler', ad: 'Yöneticiler', goster: sahip },
                 { id: 'duyurular', ad: 'Duyurular', goster: can('duyuru.yonet') },
-                { id: 'onecikanlar', ad: 'Öne çıkanlar', goster: can('duyuru.yonet') },
                 { id: 'kayitlar', ad: 'Kayıtlar', goster: can('kayit.gor') },
                 { id: 'ayarlar', ad: 'Ayarlar', goster: can('ayar.yonet') }
             ].filter(b => b.goster);
+            const izinli = (id) => bolumler.some(b => b.id === id);
+            const bolum = izinli(bolumSecili) ? bolumSecili : 'ozet'; // yetkisi olmayan bölüm adresi özete düşer
 
             const kirliOnay = () => !kirliRef.current || window.confirm('Kaydedilmemiş değişiklikleriniz var. Yine de ayrılmak istiyor musunuz?');
             const sec = (id) => {
-                if (id !== bolum && !kirliOnay()) return;
+                if (!izinli(id)) return;
+                if (id !== bolum && !kirliOnay()) { window.history.replaceState(null, '', '#' + bolum); return; }
                 setBolum(id); setGorunum({ ekran: 'liste' }); setMesaj(null); window.scrollTo(0, 0);
+                if (hashBolum() !== id) window.history.replaceState(null, '', '#' + id);
             };
+            secRef.current = sec;
             const git = (g) => { setGorunum(g); window.scrollTo(0, 0); };
             const ad = ben.kullaniciAdi || (kullanici && kullanici.kullaniciAdi) || '';
 
@@ -3157,7 +3117,6 @@
                             {bolum === 'kullanicilar' && <Kullanicilar ben={ben} can={can} />}
                             {bolum === 'yoneticiler' && sahip && <Yoneticiler />}
                             {bolum === 'duyurular' && <Duyurular />}
-                            {bolum === 'onecikanlar' && <OneCikanlar />}
                             {bolum === 'kayitlar' && <Kayitlar />}
                             {bolum === 'ayarlar' && <Ayarlar kirliBildir={(v) => { kirliRef.current = v; }} />}
                         </main>

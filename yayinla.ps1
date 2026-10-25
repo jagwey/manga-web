@@ -36,9 +36,23 @@ if (-not $SadeceOnyuz) {
     Write-Host "[1/2] Sadece on yuz (HTML/CSS/JS) guncelleniyor..."
 }
 
-Write-Host "[3/4] On yuz dosyalari (wwwroot) yukleniyor..."
-$kokDosyalar = @("index.html", "read.html", "admin.html", "login.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
-foreach ($f in $kokDosyalar) {
+Write-Host "[3/4] On yuz dosyalari derleniyor ve yukleniyor..."
+$derleScript = Join-Path $kokDizin "deploy\araclar\derle.mjs"
+if (Test-Path $derleScript) {
+    Write-Host "  -> derle.mjs calistiriliyor (dist uretiliyor)..."
+    node $derleScript
+}
+
+$htmlDosyalar = @("index.html", "read.html", "admin.html", "login.html")
+foreach ($f in $htmlDosyalar) {
+    $distYol = Join-Path $kokDizin "dist\$f"
+    $tamYol = if (Test-Path $distYol) { $distYol } else { Join-Path $kokDizin $f }
+    Write-Host "  -> wwwroot/$f ($tamYol)"
+    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
+}
+
+$digerKokDosyalar = @("logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
+foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
         Write-Host "  -> wwwroot/$f"
@@ -56,8 +70,16 @@ Get-ChildItem (Join-Path $kokDizin "js") -File | ForEach-Object {
     curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
 }
 
+$distJs = Join-Path $kokDizin "dist\js"
+if (Test-Path $distJs) {
+    Get-ChildItem $distJs -File | ForEach-Object {
+        Write-Host "  -> wwwroot/js/$($_.Name) [dist]"
+        curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
+    }
+}
+
 if (-not $SadeceOnyuz) {
-    curl.exe -s -S --ssl-reqd -k -u $kimlik "$ftpKok/" -Q "DELE $($j.ftpKlasor)/app_offline.htm" | Out-Null
+    curl.exe -s -S --ssl-reqd -k -u $kimlik "$ftpKok/" -Q "-DELE app_offline.htm" | Out-Null
 }
 
 Write-Host "[4/4] Canli site kontrol ediliyor ($($j.siteAdresi))..."

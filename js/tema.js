@@ -27,48 +27,17 @@
             '--bg-ana': '#0b0f14', '--bg-kart': '#10161d', '--bg-yuzey': '#151d26', '--bg-kaplama': 'rgba(11,15,20,.78)',
             '--border-renk': '#1f2a36', '--border-belirgin': '#2f3f50',
             '--text-ana': '#e6edf3', '--text-ikincil': '#8b9aab',
-            '--bg-okuyucu': '#080b0f', '--bg-kutu': '#10161d', '--kaydirma': '#2f3f50' } },
-        { id: 'pop', ad: 'Pop', not: 'Krem zemin, kalın çerçeve', renk: '#ff3b2a', zemin: '#f1ede2', vars: {
-            'color-scheme': 'light',
-            '--vurgu-rengi': '#ff3b2a', '--vurgu-parlak': '#c81e10',
-            '--bg-ana': '#f1ede2', '--bg-kart': '#ffffff', '--bg-yuzey': '#e6e0d0', '--bg-kaplama': 'rgba(241,237,226,.9)',
-            '--border-renk': '#0d0d0d', '--border-belirgin': '#0d0d0d',
-            '--text-ana': '#0d0d0d', '--text-ikincil': '#4a443a',
-            '--bg-okuyucu': '#f1ede2', '--bg-kutu': '#ffffff', '--kaydirma': '#0d0d0d',
-            '--font-baslik': "'Anton', 'Bebas Neue', Impact, 'Arial Narrow', sans-serif",
-            '--pop-golge': '4px 4px 0 #0d0d0d' } }
+            '--bg-okuyucu': '#080b0f', '--bg-kutu': '#10161d', '--kaydirma': '#2f3f50' } }
     ];
-
-    // Pop temasının yazı tipi ve stil dosyaları yalnızca tema 'pop' iken sayfada bulunur.
-    var POP_LINKLER = [
-        { id: 'kage95-pop-font', href: 'https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&display=swap' },
-        { id: 'kage95-pop-css', href: 'css/tema-pop.css' },
-        { id: 'kage95-pop-sayfalar', href: 'css/tema-pop-sayfalar.css' }
-    ];
-
-    function popLinkleri(ac) {
-        POP_LINKLER.forEach(function (l) {
-            var mevcut = document.getElementById(l.id);
-            if (!ac) { if (mevcut && mevcut.parentNode) mevcut.parentNode.removeChild(mevcut); return; }
-            if (mevcut) return;
-            if (document.readyState === 'loading') {
-                // Ayrıştırma sırasında eşzamanlı eklenir: sayfa ilk boyamada pop stilleriyle gelir (flash olmaz).
-                document.write('<link rel="stylesheet" id="' + l.id + '" href="' + l.href + '">');
-            } else {
-                var el = document.createElement('link');
-                el.rel = 'stylesheet'; el.id = l.id; el.href = l.href;
-                document.head.appendChild(el);
-            }
-        });
-    }
-
-    function oku() {
-        try { return localStorage.getItem(ANAHTAR) || 'kage'; } catch (e) { return 'kage'; }
-    }
 
     function bul(id) {
         for (var i = 0; i < TEMALAR.length; i++) if (TEMALAR[i].id === id) return TEMALAR[i];
         return TEMALAR[0];
+    }
+
+    // Kaldırılmış bir tema (ör. eski 'pop') kayıtlıysa varsayılana düşer
+    function oku() {
+        try { return bul(localStorage.getItem(ANAHTAR) || 'kage').id; } catch (e) { return 'kage'; }
     }
 
     var stil = document.createElement('style');
@@ -90,7 +59,6 @@
         id = cozumle(id);
         var t = bul(id);
         document.documentElement.setAttribute('data-tema', t.id);
-        popLinkleri(t.id === 'pop');
         var meta = document.querySelector('meta[name="theme-color"]');
         if (meta) meta.setAttribute('content', t.zemin);
         return t.id;

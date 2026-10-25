@@ -22,6 +22,7 @@ namespace Kage95.Backend.Services
         public const string GunlukGiris = "gunluk_giris";
         public const string Seri = "seri";
         public const string ProfilResmi = "profil_resmi";
+        public const string YoneticiBonus = "yonetici_bonus"; // elle verilen puan; günlük tavana sayılmaz
 
         // ---- Puanlar ----
         public const int BolumOkuPuan = 10;
@@ -183,7 +184,7 @@ namespace Kage95.Backend.Services
             }
 
             var bugunToplam = await db.PuanKayitlari.AsNoTracking()
-                .Where(p => p.KullaniciId == kullaniciId && p.Tarih >= bas && p.Puan > 0)
+                .Where(p => p.KullaniciId == kullaniciId && p.Tarih >= bas && p.Puan > 0 && p.Eylem != YoneticiBonus)
                 .SumAsync(p => (int?)p.Puan) ?? 0;
             var puan = Math.Min(kural.Puan, GunlukTavan - bugunToplam);
             if (puan <= 0) return 0;
@@ -286,6 +287,7 @@ namespace Kage95.Backend.Services
             GunlukGiris => "Günlük giriş",
             Seri => "7 günlük seri bonusu",
             ProfilResmi => "Profil resmi yükledin",
+            YoneticiBonus => "Yönetici bonusu",
             _ => eylem
         };
 

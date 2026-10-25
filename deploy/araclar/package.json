@@ -1,0 +1,1 @@
+{ "name": "kage95-derle", "private": true, "type": "module", "dependencies": { "@babel/core": "7.26.0", "@babel/preset-react": "7.26.3", "esbuild": "0.24.0" } }

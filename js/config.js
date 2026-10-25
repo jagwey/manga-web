@@ -18,6 +18,8 @@
 // Sosyal bağlantılar: boş bırakılan görünmez. Gerçek davet/profil adreslerinizi buraya yazın.
 window.KAGE95_SOSYAL = {
     discord: 'https://discord.com/',
-    instagram: 'https://www.instagram.com/'
+    instagram: 'https://www.instagram.com/kage95.dev/',
+    instagramAd: 'kage95.dev',
+    eposta: 'jagweyy@gmail.com'
 };
 })();

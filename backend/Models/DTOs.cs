@@ -59,6 +59,8 @@ namespace Kage95.Backend.Models
         public bool OneCikan { get; set; }
         public int? IlkBolumId { get; set; }
         public int? SonBolumId { get; set; }
+        public decimal? SonBolumNo { get; set; }
+        public DateTime? SonBolumTarihi { get; set; }
         // Yalnızca /api/mangas/populer yanıtında dolar
         public int? Okunma { get; set; }
     }
@@ -81,6 +83,7 @@ namespace Kage95.Backend.Models
         public List<BolumSummaryDto> Bolumler { get; set; } = new();
         public bool Yayinda { get; set; } = true;
         public bool OneCikan { get; set; }
+        public string? OneCikanResimURL { get; set; }
     }
 
     public class BolumSummaryDto
@@ -103,6 +106,7 @@ namespace Kage95.Backend.Models
         public List<string> Kategoriler { get; set; } = new();
         public bool? Yayinda { get; set; }
         public bool? OneCikan { get; set; }
+        public string? OneCikanResimURL { get; set; }
     }
 
     public class UpdateMangaRequest
@@ -118,6 +122,8 @@ namespace Kage95.Backend.Models
         // null ise değiştirilmez
         public bool? Yayinda { get; set; }
         public bool? OneCikan { get; set; }
+        // null ise değiştirilmez, boş metin görseli kaldırır
+        public string? OneCikanResimURL { get; set; }
     }
 
     // Chapter & Pages DTOs

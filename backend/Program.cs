@@ -33,6 +33,7 @@ builder.Services.AddScoped<TercihServisi>();
 builder.Services.AddScoped<YorumServisi>();
 builder.Services.AddSingleton<IslemSinirlayici>();
 builder.Services.AddHostedService<SohbetTemizlikServisi>();
+builder.Services.AddHostedService<MangaCopTemizlikServisi>();
 builder.Services.AddSignalR(o => o.EnableDetailedErrors = builder.Environment.IsDevelopment())
     .AddJsonProtocol(o =>
     {
@@ -144,6 +145,23 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// Şema eki: öne çıkan görsel kolonu yoksa eklenir (idempotent; migration kullanılmıyor)
+using (var kapsam = app.Services.CreateScope())
+{
+    try
+    {
+        kapsam.ServiceProvider.GetRequiredService<AppDbContext>().Database.ExecuteSqlRaw(
+            "IF COL_LENGTH(N'dbo.Mangalar', N'OneCikanResimURL') IS NULL ALTER TABLE dbo.Mangalar ADD OneCikanResimURL NVARCHAR(500) NULL;" +
+            "IF COL_LENGTH(N'dbo.Mangalar', N'SilinmeTarihi') IS NULL ALTER TABLE dbo.Mangalar ADD SilinmeTarihi DATETIME2 NULL;" +
+            // Eski ayrı öne çıkanlar tablosu kaldırıldı; öne çıkanlar artık mangadaki OneCikan bayrağından gelir.
+            "IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NOT NULL DROP TABLE dbo.OneCikanlar;");
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "OneCikanResimURL kolonu eklenemedi");
+    }
+}
+
 // 7. Middleware Boru Hattı
 var fho = new ForwardedHeadersOptions
 {
@@ -219,7 +237,21 @@ using (var scope = app.Services.CreateScope())
 app.UseCors("Site");
 app.UseRateLimiter();
 app.UseDefaultFiles();
-app.UseStaticFiles();
+app.UseStaticFiles(new StaticFileOptions
+{
+    // Sürümlü (?v=) dosyalar uzun süre, diğer statikler kısa süre önbelleğe alınır; html/sw hep doğrulanır.
+    OnPrepareResponse = ctx =>
+    {
+        var yol = ctx.File.Name.ToLowerInvariant();
+        var h = ctx.Context.Response.Headers;
+        if (yol.EndsWith(".html") || yol == "sw.js" || yol.EndsWith(".webmanifest"))
+            h.CacheControl = "no-cache";
+        else if (ctx.Context.Request.Query.ContainsKey("v"))
+            h.CacheControl = "public, max-age=31536000, immutable";
+        else
+            h.CacheControl = "public, max-age=3600";
+    }
+});
 
 app.UseAuthentication();
 app.UseAuthorization();

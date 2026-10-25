@@ -9,7 +9,7 @@ Mobil uyumlu, minimal kırmızı-siyah tasarımlı Türkçe manga okuma ve arşi
 - **Yorum Sistemi (v2):** Seri ve bölüm yorumları, yanıtlama, düzenleme/silme, beğeni, şikayet bildirme, `||gizli||` spoiler bulanıklaştırma ve biçimlendirme araç çubuğu (`**kalın**`, `*eğik*`, renk etiketleri).
 - **Canlı Sohbet:** SignalR tabanlı gerçek zamanlı sohbet şeridi ve tam sayfa sohbet ekranı (`#/sohbet`), özel SVG çıkartma (sticker) paketleri, çevrimiçi sayacı ve hız sınırı.
 - **Puan, Seviye ve Liderlik:** Bölüm okuma, yorum yazma, puan verme ve günlük girişlerle puan kazanma; seviye ve rütbe sistemi (`Çırak` -> `Efsane`); seviyeye göre açılan ad renkleri, yazı tipleri, parıltı efektleri, rozetler ve özel unvanlar; haftalık/aylık/tüm zamanlar liderlik tablosu (`#/liderlik`).
-- **Tema Sistemi:** 5 hazır tema (`Kage`, `Kağıt`, `Mono`, `Gece`, `Pop`) + cihaz tercihini izleyen `Sistem` modu.
+- **Tema Sistemi:** 4 hazır tema (`Kage`, `Kağıt`, `Mono`, `Gece`) + cihaz tercihini izleyen `Sistem` modu.
 - **Yönetim Paneli (`admin.html`):** Rol ve granüler izin sistemi (`Owner`, `Admin`, `User`), seri/bölüm/kategori yönetimi, sürükle-bırak ve sıra numaralı sayfa yöneticisi, toplu görsel yükleme, öne çıkanlar ve duyuru yönetimi, yorum şikayetleri, sohbet moderasyonu (mesaj silme / kullanıcı susturma), denetim kayıtları ve site ayarları.
 
 ## Teknoloji Yığını
@@ -30,13 +30,12 @@ Mobil uyumlu, minimal kırmızı-siyah tasarımlı Türkçe manga okuma ve arşi
 │   ├── Models/               # Varlıklar (Entities) ve DTO'lar
 │   ├── Security/             # [Yetki] izin filtresi, hesap durumu kontrolleri
 │   └── Services/             # Puan, ödül, yorum, denetim, dosya yükleme servisleri
-├── css/                      # Vurgu ve tema stilleri (vurgu.css, tema-pop*.css)
+├── css/                      # Ortak vurgu stilleri (vurgu.css)
 ├── js/                       # Ortak ön yüz modülleri (config, tema, yorum, sohbet, liderlik, puan, adstili, yardim)
 ├── index.html                # Ana sayfa, seri detay, kütüphane, profil, liderlik, sohbet
 ├── read.html                 # Manga okuyucu (klasik + webtoon)
 ├── login.html                # Giriş ve kayıt sayfası
-├── admin.html                # Yönetim paneli
-└── Veritabani_Kurulumu.sql   # SQL Server veritabanı kurulum ve şema betiği
+└── admin.html                # Yönetim paneli
 ```
 
 ## Kurulum ve Çalıştırma
@@ -49,10 +48,10 @@ Mobil uyumlu, minimal kırmızı-siyah tasarımlı Türkçe manga okuma ve arşi
 
 ### 1. Veritabanını Hazırlama
 
-SQL Server Management Studio (SSMS) veya `sqlcmd` ile `Veritabani_Kurulumu.sql` betiğini çalıştırarak `Kage95DB` veritabanını ve tabloları oluşturun:
+SQL Server Management Studio (SSMS) veya `sqlcmd` ile `backend/Veritabani_Kurulumu.sql` betiğini çalıştırarak `Kage95DB` veritabanını ve tabloları oluşturun:
 
 ```powershell
-sqlcmd -S .\SQLEXPRESS -E -i Veritabani_Kurulumu.sql
+sqlcmd -S .\SQLEXPRESS -E -i backend/Veritabani_Kurulumu.sql
 ```
 
 ### 2. Backend Yapılandırması

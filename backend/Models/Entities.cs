@@ -35,6 +35,8 @@ namespace Kage95.Backend.Models
         public string MangaAdi { get; set; } = string.Empty;
         public string? Aciklama { get; set; }
         public string? KapakResmiURL { get; set; }
+        // İsteğe bağlı geniş görsel; ana sayfadaki öne çıkanlar şeridinde kapak yerine kullanılır
+        public string? OneCikanResimURL { get; set; }
         public string? Yazar { get; set; }
         public string? Cizer { get; set; }
         public string Durum { get; set; } = "DevamEdiyor"; // "DevamEdiyor" / "Tamamlandi"
@@ -45,6 +47,8 @@ namespace Kage95.Backend.Models
         // Yayında değilse herkese açık listelerde ve detayda görünmez (yalnızca yönetim görür).
         public bool Yayinda { get; set; } = true;
         public bool OneCikan { get; set; } = false;
+        // Doluysa manga silinmiş sayılır ve her yerden gizlenir; bekleme süresi dolunca kalıcı silinir.
+        public DateTime? SilinmeTarihi { get; set; }
 
         public ICollection<MangaKategori> MangaKategorileri { get; set; } = new List<MangaKategori>();
         public ICollection<Bolum> Bolumler { get; set; } = new List<Bolum>();
@@ -233,20 +237,6 @@ namespace Kage95.Backend.Models
         public int Id { get; set; }
         public string Baslik { get; set; } = string.Empty;
         public string Etiket { get; set; } = "bilgi"; // bilgi | etkinlik | yeni | uyari
-        public string? Baglanti { get; set; }
-        public bool Aktif { get; set; } = true;
-        public int Sira { get; set; }
-        public DateTime Tarih { get; set; } = DateTime.UtcNow;
-        public DateTime? BitisTarihi { get; set; }
-    }
-
-    public class OneCikan
-    {
-        public int Id { get; set; }
-        public string Baslik { get; set; } = string.Empty;
-        public string? Ozet { get; set; }
-        public string Etiket { get; set; } = "Haber";
-        public string? GorselUrl { get; set; }
         public string? Baglanti { get; set; }
         public bool Aktif { get; set; } = true;
         public int Sira { get; set; }

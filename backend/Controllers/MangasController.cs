@@ -36,6 +36,7 @@ namespace Kage95.Backend.Controllers
             [FromQuery] bool onecikan = false,
             [FromQuery] string? sirala = null,
             [FromQuery] string? durum = null,
+            [FromQuery] bool aciklama = true,
             [FromQuery] int page = 1,
             [FromQuery] int pageSize = 20)
         {
@@ -60,11 +61,11 @@ namespace Kage95.Backend.Controllers
                 query = query.Where(m => m.OneCikan);
             }
 
-            if (!string.IsNullOrWhiteSpace(search))
+            var term = string.IsNullOrWhiteSpace(search) ? null : search.Trim().ToLower();
+            if (term != null)
             {
-                var term = search.Trim().ToLower();
                 query = query.Where(m => m.MangaAdi.ToLower().Contains(term) ||
-                                         (m.Aciklama != null && m.Aciklama.ToLower().Contains(term)) ||
+                                         (aciklama && m.Aciklama != null && m.Aciklama.ToLower().Contains(term)) ||
                                          (m.Yazar != null && m.Yazar.ToLower().Contains(term)));
             }
 
@@ -87,11 +88,15 @@ namespace Kage95.Backend.Controllers
 
             var totalCount = await query.CountAsync();
 
-            // sirala: yeni (varsayılan), puan, ad. Eşitlikte sıra sabit kalsın diye Id ile bağlanır.
-            IOrderedQueryable<Manga> sirali = (sirala ?? "").Trim().ToLowerInvariant() switch
+            // sirala: yeni (varsayılan), guncel (son bölüm tarihi), puan, ad. Eşitlikte sıra sabit kalsın diye Id ile bağlanır.
+            // Arama varken ve sıralama seçilmemişse en alakalı sonuç en üste gelir.
+            var siralaAnahtar = (sirala ?? "").Trim().ToLowerInvariant();
+            IOrderedQueryable<Manga> sirali = siralaAnahtar switch
             {
                 "puan" => query.OrderByDescending(m => _context.MangaPuanlari.Where(p => p.MangaId == m.Id).Average(p => (decimal?)p.Deger)).ThenByDescending(m => m.Id),
                 "ad" => query.OrderBy(m => m.MangaAdi).ThenBy(m => m.Id),
+                "guncel" => query.OrderByDescending(m => m.Bolumler.Max(b => (DateTime?)b.YayinTarihi)).ThenByDescending(m => m.Id),
+                _ when term != null => AlakayaGoreSirala(query, term).ThenByDescending(m => m.EklenmeTarihi).ThenByDescending(m => m.Id),
                 _ => query.OrderByDescending(m => m.EklenmeTarihi).ThenByDescending(m => m.Id)
             };
 
@@ -116,7 +121,9 @@ namespace Kage95.Backend.Controllers
                     Yayinda = m.Yayinda,
                     OneCikan = m.OneCikan,
                     IlkBolumId = m.Bolumler.OrderBy(b => b.BolumNo).Select(b => (int?)b.Id).FirstOrDefault(),
-                    SonBolumId = m.Bolumler.OrderByDescending(b => b.BolumNo).Select(b => (int?)b.Id).FirstOrDefault()
+                    SonBolumId = m.Bolumler.OrderByDescending(b => b.BolumNo).Select(b => (int?)b.Id).FirstOrDefault(),
+                    SonBolumNo = m.Bolumler.OrderByDescending(b => b.BolumNo).Select(b => (decimal?)b.BolumNo).FirstOrDefault(),
+                    SonBolumTarihi = m.Bolumler.Max(b => (DateTime?)b.YayinTarihi)
                 })
                 .ToListAsync();
 
@@ -125,6 +132,63 @@ namespace Kage95.Backend.Controllers
             Response.Headers.Append("X-Total-Count", totalCount.ToString());
 
             return Ok(mangas);
+        }
+
+        /// <summary>
+        /// Alaka sırası: ad tam eşleşme, ad ile başlama, addaki bir kelimenin başı, adda geçme, yazar, açıklama.
+        /// Eşitlikte çok okunan öne çıkar.
+        /// </summary>
+        private static IOrderedQueryable<Manga> AlakayaGoreSirala(IQueryable<Manga> query, string term)
+        {
+            var kelimeBasi = " " + term;
+            return query
+                .OrderBy(m => m.MangaAdi.ToLower() == term ? 0
+                    : m.MangaAdi.ToLower().StartsWith(term) ? 1
+                    : m.MangaAdi.ToLower().Contains(kelimeBasi) ? 2
+                    : m.MangaAdi.ToLower().Contains(term) ? 3
+                    : (m.Yazar != null && m.Yazar.ToLower().Contains(term)) ? 4
+                    : 5)
+                .ThenByDescending(m => m.OkunmaSayisi);
+        }
+
+        /// <summary>
+        /// Arama kutusu için anlık öneriler (en fazla 8). Ad ve yazarda arar; aciklama=true ise açıklamada da.
+        /// Toplam eşleşme sayısını da döner ki "tüm sonuçlar" bağlantısı gösterilebilsin.
+        /// </summary>
+        [HttpGet("oneri")]
+        public async Task<IActionResult> Oneri([FromQuery] string? q = null, [FromQuery] bool aciklama = false)
+        {
+            var term = (q ?? "").Trim().ToLower();
+            if (term.Length == 0) return Ok(new { toplam = 0, sonuclar = Array.Empty<object>() });
+            if (term.Length > 100) term = term[..100];
+
+            var query = _context.Mangalar.AsNoTracking().AsQueryable();
+            if (!await IcerikErisimi.GizliGorebilirMiAsync(HttpContext, _context))
+                query = query.Where(m => m.Yayinda);
+
+            query = query.Where(m => m.MangaAdi.ToLower().Contains(term) ||
+                                     (m.Yazar != null && m.Yazar.ToLower().Contains(term)) ||
+                                     (aciklama && m.Aciklama != null && m.Aciklama.ToLower().Contains(term)));
+
+            var toplam = await query.CountAsync();
+            var sonuclar = await AlakayaGoreSirala(query, term)
+                .ThenBy(m => m.MangaAdi)
+                .Take(8)
+                .Select(m => new
+                {
+                    id = m.Id,
+                    mangaAdi = m.MangaAdi,
+                    kapakResmiURL = m.KapakResmiURL,
+                    yazar = m.Yazar,
+                    durum = m.Durum,
+                    bolumSayisi = m.Bolumler.Count,
+                    eslesme = m.MangaAdi.ToLower().Contains(term) ? "ad"
+                        : (m.Yazar != null && m.Yazar.ToLower().Contains(term)) ? "yazar"
+                        : "aciklama"
+                })
+                .ToListAsync();
+
+            return Ok(new { toplam, sonuclar });
         }
 
         /// <summary>Yayındaki serilerden rastgele birini döner.</summary>
@@ -217,6 +281,7 @@ namespace Kage95.Backend.Controllers
                     Kategoriler = m.MangaKategorileri.Select(mk => mk.Kategori.KategoriAdi).ToList(),
                     Yayinda = m.Yayinda,
                     OneCikan = m.OneCikan,
+                    OneCikanResimURL = m.OneCikanResimURL,
                     Bolumler = m.Bolumler
                         .OrderBy(b => b.BolumNo)
                         .Select(b => new BolumSummaryDto
@@ -279,13 +344,18 @@ namespace Kage95.Backend.Controllers
                 var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.KapakResmiURL, "Kapak görseli adresi");
                 if (urlHata != null) return BadRequest(new { message = urlHata });
             }
+            if (!string.IsNullOrWhiteSpace(request.OneCikanResimURL))
+            {
+                var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.OneCikanResimURL.Trim(), "Öne çıkan resmi adresi");
+                if (urlHata != null) return BadRequest(new { message = urlHata });
+            }
 
-            var existing = await _context.Mangalar
+            var existing = await _context.Mangalar.IgnoreQueryFilters()
                 .AnyAsync(m => m.MangaAdi.ToLower() == request.MangaAdi.Trim().ToLower());
 
             if (existing)
             {
-                return BadRequest(new { message = "Bu isimde bir manga zaten mevcut." });
+                return BadRequest(new { message = "Bu isimde bir manga zaten mevcut (silinenler listesinde olabilir)." });
             }
 
             var yeniManga = new Manga
@@ -300,7 +370,8 @@ namespace Kage95.Backend.Controllers
                 Puan = 9.0m,          // veritabanı kolonları NOT NULL (varsayılanlar SQL scriptiyle aynı)
                 OkunmaSayisi = "0",
                 Yayinda = request.Yayinda ?? true,
-                OneCikan = request.OneCikan ?? false
+                OneCikan = request.OneCikan ?? false,
+                OneCikanResimURL = string.IsNullOrWhiteSpace(request.OneCikanResimURL) ? null : request.OneCikanResimURL.Trim()
             };
 
             _context.Mangalar.Add(yeniManga);
@@ -344,6 +415,7 @@ namespace Kage95.Backend.Controllers
                 Kategoriler = request.Kategoriler ?? new List<string>(),
                 Yayinda = yeniManga.Yayinda,
                 OneCikan = yeniManga.OneCikan,
+                OneCikanResimURL = yeniManga.OneCikanResimURL,
                 Bolumler = new List<BolumSummaryDto>()
             });
         }
@@ -372,6 +444,11 @@ namespace Kage95.Backend.Controllers
                 var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.KapakResmiURL, "Kapak görseli adresi");
                 if (urlHata != null) return BadRequest(new { message = urlHata });
             }
+            if (!string.IsNullOrWhiteSpace(request.OneCikanResimURL))
+            {
+                var urlHata = UploadDosyaServisi.GorselUrlHatasi(request.OneCikanResimURL.Trim(), "Öne çıkan resmi adresi");
+                if (urlHata != null) return BadRequest(new { message = urlHata });
+            }
 
             var manga = await _context.Mangalar
                 .Include(m => m.MangaKategorileri)
@@ -383,17 +460,20 @@ namespace Kage95.Backend.Controllers
             }
 
             var yeniAd = request.MangaAdi.Trim();
-            var adCakisiyor = await _context.Mangalar
+            var adCakisiyor = await _context.Mangalar.IgnoreQueryFilters()
                 .AnyAsync(m => m.Id != id && m.MangaAdi.ToLower() == yeniAd.ToLower());
             if (adCakisiyor)
             {
-                return BadRequest(new { message = "Bu isimde bir manga zaten mevcut." });
+                return BadRequest(new { message = "Bu isimde bir manga zaten mevcut (silinenler listesinde olabilir)." });
             }
 
             var eskiKapak = manga.KapakResmiURL;
+            var eskiOneCikanResim = manga.OneCikanResimURL;
             manga.MangaAdi = yeniAd;
             manga.Aciklama = request.Aciklama;
             manga.KapakResmiURL = request.KapakResmiURL;
+            if (request.OneCikanResimURL != null)
+                manga.OneCikanResimURL = string.IsNullOrWhiteSpace(request.OneCikanResimURL) ? null : request.OneCikanResimURL.Trim();
             if (request.Yayinda.HasValue) manga.Yayinda = request.Yayinda.Value;
             if (request.OneCikan.HasValue) manga.OneCikan = request.OneCikan.Value;
             manga.Yazar = request.Yazar;
@@ -429,6 +509,8 @@ namespace Kage95.Backend.Controllers
 
             if (!string.Equals(eskiKapak, manga.KapakResmiURL, StringComparison.Ordinal))
                 await UploadDosyaServisi.TemizleAsync(_context, _env, new[] { eskiKapak });
+            if (!string.Equals(eskiOneCikanResim, manga.OneCikanResimURL, StringComparison.Ordinal))
+                await UploadDosyaServisi.TemizleAsync(_context, _env, new[] { eskiOneCikanResim });
 
             await _denetim.KaydetAsync(User, "manga.guncelle", $"Manga #{manga.Id} {manga.MangaAdi}");
 
@@ -436,40 +518,59 @@ namespace Kage95.Backend.Controllers
         }
 
         /// <summary>
-        /// Manga silme (Admin yetkisi gerektirir). Bölüm, sayfa, yorum, favori ve okuma geçmişi kayıtları da silinir.
+        /// Manga silme (Admin yetkisi gerektirir). Manga hemen her yerden gizlenir; bekleme süresi içinde geri alınabilir,
+        /// süre dolunca bölüm, sayfa, yorum, okuma geçmişi kayıtları ve dosyalarıyla kalıcı silinir (MangaCopTemizlikServisi).
         /// </summary>
         [Yetki("manga.sil")]
         [HttpDelete("{id}")]
         public async Task<ActionResult> DeleteManga(int id)
         {
-            var silinecek = await _context.Mangalar.AsNoTracking()
-                .Where(m => m.Id == id)
-                .Select(m => new { m.MangaAdi, m.KapakResmiURL })
-                .FirstOrDefaultAsync();
-            if (silinecek == null)
+            var manga = await _context.Mangalar.FirstOrDefaultAsync(m => m.Id == id);
+            if (manga == null)
             {
                 return NotFound(new { message = $"ID {id} ile eşleşen manga bulunamadı." });
             }
 
-            var dosyaUrlleri = await _context.Sayfalar.AsNoTracking()
-                .Where(s => s.Bolum.MangaId == id).Select(s => s.ResimURL).ToListAsync();
-            dosyaUrlleri.Add(silinecek.KapakResmiURL ?? string.Empty);
+            manga.SilinmeTarihi = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+            await _denetim.KaydetAsync(User, "manga.sil", $"Manga #{id} {manga.MangaAdi}");
 
-            // OkumaGecmisi -> Mangalar/Bolumler FK'leri veritabanında cascade olmayabilir; önce elle temizle.
-            var silinenYorumlar = await _context.Yorumlar.AsNoTracking().Where(y => y.Bolum.MangaId == id).Select(y => "yorum:" + y.Id).ToListAsync();
-            silinenYorumlar.AddRange(await _context.MangaYorumlari.AsNoTracking().Where(y => y.MangaId == id).Select(y => "mangayorum:" + y.Id).ToListAsync());
-            await using var tx = await _context.Database.BeginTransactionAsync();
-            await _context.OkumaGecmisi
-                .Where(o => o.MangaId == id || o.SonOkunanBolum.MangaId == id)
-                .ExecuteDeleteAsync();
-            await _context.Mangalar.Where(m => m.Id == id).ExecuteDeleteAsync();
-            await tx.CommitAsync();
-            await PuanServisi.YorumPuaniniSilAsync(_context, silinenYorumlar);
+            return Ok(new { message = $"Manga silindi. {(int)MangaSilmeServisi.BeklemeSuresi.TotalMinutes} dakika içinde geri alınabilir." });
+        }
 
-            await UploadDosyaServisi.TemizleAsync(_context, _env, dosyaUrlleri);
-            await _denetim.KaydetAsync(User, "manga.sil", $"Manga #{id} {silinecek.MangaAdi}");
+        /// <summary>Bekleme süresindeki silinmiş mangalar (kalıcı silinmeye kalan saniye ile).</summary>
+        [Yetki("manga.sil")]
+        [HttpGet("silinenler")]
+        public async Task<ActionResult> Silinenler()
+        {
+            var liste = await _context.Mangalar.IgnoreQueryFilters().AsNoTracking()
+                .Where(m => m.SilinmeTarihi != null)
+                .OrderByDescending(m => m.SilinmeTarihi)
+                .Select(m => new { m.Id, m.MangaAdi, m.KapakResmiURL, SilinmeTarihi = m.SilinmeTarihi!.Value })
+                .ToListAsync();
+            var simdi = DateTime.UtcNow;
+            return Ok(liste.Select(m => new
+            {
+                id = m.Id, mangaAdi = m.MangaAdi, kapakResmiURL = m.KapakResmiURL,
+                kalanSaniye = Math.Max(0, (int)(m.SilinmeTarihi + MangaSilmeServisi.BeklemeSuresi - simdi).TotalSeconds)
+            }));
+        }
 
-            return Ok(new { message = "Manga ve bağlı tüm kayıtları silindi." });
+        [Yetki("manga.sil")]
+        [HttpPost("{id}/geri-al")]
+        public async Task<ActionResult> GeriAl(int id)
+        {
+            var manga = await _context.Mangalar.IgnoreQueryFilters().FirstOrDefaultAsync(m => m.Id == id && m.SilinmeTarihi != null);
+            if (manga == null)
+            {
+                return NotFound(new { message = "Geri alınacak manga bulunamadı (kalıcı silinmiş olabilir)." });
+            }
+
+            manga.SilinmeTarihi = null;
+            await _context.SaveChangesAsync();
+            await _denetim.KaydetAsync(User, "manga.geri_al", $"Manga #{id} {manga.MangaAdi}");
+
+            return Ok(new { message = "Manga geri getirildi." });
         }
     }
 }

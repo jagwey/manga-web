@@ -432,6 +432,9 @@ GO
 IF COL_LENGTH(N'dbo.Mangalar', N'OneCikan') IS NULL
     ALTER TABLE dbo.Mangalar ADD OneCikan BIT NOT NULL CONSTRAINT DF_Mangalar_OneCikan DEFAULT (0);
 GO
+IF COL_LENGTH(N'dbo.Mangalar', N'OneCikanResimURL') IS NULL
+    ALTER TABLE dbo.Mangalar ADD OneCikanResimURL NVARCHAR(500) NULL;
+GO
 
 IF OBJECT_ID(N'dbo.DenetimKayitlari', N'U') IS NULL
 BEGIN
@@ -742,31 +745,6 @@ BEGIN
         CONSTRAINT FK_KullaniciTercihleri_Kullanicilar FOREIGN KEY (KullaniciId) REFERENCES dbo.Kullanicilar(Id) ON DELETE CASCADE
     );
 END
-GO
-
-/* ---------------------------------------------------------
-   One cikanlar (ana sayfa buyuk kayan carousel)
-   --------------------------------------------------------- */
-IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NULL
-BEGIN
-    CREATE TABLE dbo.OneCikanlar
-    (
-        Id          INT IDENTITY(1,1) NOT NULL,
-        Baslik      NVARCHAR(150)     NOT NULL,
-        Ozet        NVARCHAR(400)     NULL,
-        Etiket      NVARCHAR(30)      NOT NULL CONSTRAINT DF_OneCikanlar_Etiket DEFAULT (N'Haber'),
-        GorselUrl   NVARCHAR(500)     NULL,
-        Baglanti    NVARCHAR(300)     NULL,
-        Aktif       BIT               NOT NULL CONSTRAINT DF_OneCikanlar_Aktif DEFAULT (1),
-        Sira        INT               NOT NULL CONSTRAINT DF_OneCikanlar_Sira DEFAULT (0),
-        Tarih       DATETIME2         NOT NULL CONSTRAINT DF_OneCikanlar_Tarih DEFAULT (SYSUTCDATETIME()),
-        BitisTarihi DATETIME2         NULL,
-        CONSTRAINT PK_OneCikanlar PRIMARY KEY (Id)
-    );
-END
-GO
-IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_OneCikanlar_Aktif_Sira' AND object_id = OBJECT_ID(N'dbo.OneCikanlar'))
-    CREATE NONCLUSTERED INDEX IX_OneCikanlar_Aktif_Sira ON dbo.OneCikanlar(Aktif, Sira, Tarih DESC);
 GO
 
 /* ---------------------------------------------------------

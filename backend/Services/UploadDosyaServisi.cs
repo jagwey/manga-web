@@ -78,8 +78,7 @@ namespace Kage95.Backend.Services
                 {
                     // Çifte güvence: kayıttan sonra hâlâ kullanılıyorsa silme
                     var kullaniliyor = await db.Sayfalar.AsNoTracking().AnyAsync(s => s.ResimURL.Contains(ad))
-                        || await db.Mangalar.AsNoTracking().AnyAsync(m => m.KapakResmiURL != null && m.KapakResmiURL.Contains(ad))
-                        || await db.OneCikanlar.AsNoTracking().AnyAsync(o => o.GorselUrl != null && o.GorselUrl.Contains(ad));
+                        || await db.Mangalar.IgnoreQueryFilters().AsNoTracking().AnyAsync(m => (m.KapakResmiURL != null && m.KapakResmiURL.Contains(ad) || m.OneCikanResimURL != null && m.OneCikanResimURL.Contains(ad)));
                     if (kullaniliyor) continue;
 
                     var tam = Path.GetFullPath(Path.Combine(dizin, ad));

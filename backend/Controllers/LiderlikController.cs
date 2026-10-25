@@ -100,6 +100,7 @@ namespace Kage95.Backend.Controllers
             // Banlı (Aktif=false ve ban süresi dolmamış) kullanıcılar listelenmez.
             var q = _context.PuanKayitlari.AsNoTracking()
                 .Where(p => p.Puan > 0
+                    && p.Kullanici.Rol != "Owner" // site sahibi sıralamada görünmez
                     && (p.Kullanici.Aktif || (p.Kullanici.BanBitis != null && p.Kullanici.BanBitis <= simdi)));
             if (baslangic != null) q = q.Where(p => p.Tarih >= baslangic.Value);
 
