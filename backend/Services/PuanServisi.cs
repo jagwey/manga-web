@@ -23,6 +23,7 @@ namespace Kage95.Backend.Services
         public const string Seri = "seri";
         public const string ProfilResmi = "profil_resmi";
         public const string YoneticiBonus = "yonetici_bonus"; // elle verilen puan; günlük tavana sayılmaz
+        public const string YoneticiCeza = "yonetici_ceza";   // elle düşülen puan (negatif kayıt); günlük tavana sayılmaz
 
         // ---- Puanlar ----
         public const int BolumOkuPuan = 10;
@@ -288,6 +289,7 @@ namespace Kage95.Backend.Services
             Seri => "7 günlük seri bonusu",
             ProfilResmi => "Profil resmi yükledin",
             YoneticiBonus => "Yönetici bonusu",
+            YoneticiCeza => "Yönetici düzeltmesi",
             _ => eylem
         };
 

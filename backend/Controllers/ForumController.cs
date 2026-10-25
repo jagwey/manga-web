@@ -19,6 +19,8 @@ namespace Kage95.Backend.Controllers
         public int? MangaId { get; set; }
         public decimal? BolumNo { get; set; }
         public bool? Spoiler { get; set; }
+        /// <summary>Yalnızca ekip için: konu açılırken sabitlenir.</summary>
+        public bool? Sabit { get; set; }
     }
 
     public class ForumYanitIstek
@@ -143,7 +145,7 @@ namespace Kage95.Backend.Controllers
             if (liste.Count == 0) return new();
             var kullanicilar = await _context.Kullanicilar.AsNoTracking().Where(k => liste.Contains(k.Id))
                 .Select(k => new { k.Id, k.KullaniciAdi, k.ProfilResmiURL }).ToListAsync();
-            var puanlar = await _context.PuanKayitlari.AsNoTracking().Where(p => liste.Contains(p.KullaniciId) && p.Puan > 0)
+            var puanlar = await _context.PuanKayitlari.AsNoTracking().Where(p => liste.Contains(p.KullaniciId) && p.Puan != 0)
                 .GroupBy(p => p.KullaniciId).Select(g => new { Id = g.Key, Toplam = g.Sum(p => p.Puan) })
                 .ToDictionaryAsync(x => x.Id, x => x.Toplam);
             var stiller = await _tercihler.CozAsync(liste);
@@ -288,6 +290,7 @@ namespace Kage95.Backend.Controllers
             {
                 Kategori = kat.Anahtar, KullaniciId = uid.Value, Baslik = YorumKurallari.Kodla(baslik), Icerik = kodlu,
                 MangaId = mangaId, BolumNo = bolumNo, Spoiler = istek.Spoiler == true || kat.Anahtar == "teori",
+                Sabit = istek.Sabit == true && await YetkiliMiAsync(uid.Value),
                 Tarih = DateTime.UtcNow, SonYanitTarihi = DateTime.UtcNow
             };
             _context.ForumKonulari.Add(konu);

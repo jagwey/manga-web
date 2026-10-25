@@ -411,7 +411,11 @@
     }
 
     function YeniKonu(p) {
-        var izinli = p.liste.filter(function (k) { return !k.sadeceYetkili; });
+        // Ekip: duyuru kategorisi ve sabitleme seçeneği görünür; asıl yetki kontrolü sunucuda.
+        var ku = p.kullanici;
+        var ekip = !!ku && (ku.rol === 'Owner' || (ku.rol === 'Admin' && Array.isArray(ku.yetkiler) && ku.yetkiler.indexOf('yorum.sil') >= 0));
+        var izinli = p.liste.filter(function (k) { return ekip || !k.sadeceYetkili; });
+        var s = useState(false), sabit = s[0], setSabit = s[1];
         var a = useState(p.seri ? 'seri' : 'dojo'), kat = a[0], setKat = a[1];
         var b = useState(''), baslik = b[0], setBaslik = b[1];
         var c = useState(''), icerik = c[0], setIcerik = c[1];
@@ -437,7 +441,7 @@
             var bn = bolum.trim() ? parseFloat(bolum.replace(',', '.')) : null;
             istek(p.api + '/forum/konular', 'POST', p.tokenAl(), {
                 kategori: kat, baslik: baslik, icerik: icerik, mangaId: seri ? seri.id : null,
-                bolumNo: seri && bn != null && !isNaN(bn) ? bn : null, spoiler: spoiler
+                bolumNo: seri && bn != null && !isNaN(bn) ? bn : null, spoiler: spoiler, sabit: ekip && sabit
             }).then(function (c) {
                 setBekle(false);
                 if (!c.ok) { setHata(hataMetni(c, 'Konu açılamadı.')); return; }
@@ -471,6 +475,9 @@
                     h('label', { className: 'fr-onay' },
                         h('input', { type: 'checkbox', checked: spoiler || kat === 'teori', disabled: kat === 'teori', onChange: function (e) { setSpoiler(e.target.checked); } }),
                         kat === 'teori' ? 'Teoriler her zaman spoiler sayılır' : 'Spoiler içeriyor'),
+                    ekip ? h('label', { className: 'fr-onay' },
+                        h('input', { type: 'checkbox', checked: sabit, onChange: function (e) { setSabit(e.target.checked); } }),
+                        '釘 Konuyu sabitle') : null,
                     hata ? h('span', { className: 'fr-hata', role: 'alert' }, hata) : null,
                     h('button', { type: 'submit', className: 'fr-gonder', disabled: bekle || baslik.trim().length < 4 || !icerik.trim() }, bekle ? 'Açılıyor…' : 'Konuyu aç')))
         );

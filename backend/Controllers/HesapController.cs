@@ -88,10 +88,10 @@ namespace Kage95.Backend.Controllers
             if (k == null) return Unauthorized(new { message = "Oturumunuz geçersiz." });
             await PuanServisi.GunlukGirisAsync(_context, k.Id);
 
-            var kayitlar = _context.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == k.Id && p.Puan > 0);
+            var kayitlar = _context.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == k.Id && p.Puan != 0);
             var toplam = await kayitlar.SumAsync(p => (int?)p.Puan) ?? 0;
             var bas = PuanServisi.BugunBaslangicUtc();
-            var bugun = await kayitlar.Where(p => p.Tarih >= bas && p.Eylem != PuanServisi.YoneticiBonus).SumAsync(p => (int?)p.Puan) ?? 0;
+            var bugun = await kayitlar.Where(p => p.Tarih >= bas && p.Eylem != PuanServisi.YoneticiBonus && p.Eylem != PuanServisi.YoneticiCeza).SumAsync(p => (int?)p.Puan) ?? 0;
             var gecmis = (await kayitlar.OrderByDescending(p => p.Tarih).ThenByDescending(p => p.Id).Take(30)
                 .Select(p => new { p.Eylem, p.Puan, p.Tarih }).ToListAsync())
                 .Select(p => new { eylem = p.Eylem, aciklama = PuanServisi.Aciklama(p.Eylem), puan = p.Puan, tarih = p.Tarih })

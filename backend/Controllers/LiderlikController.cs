@@ -77,7 +77,7 @@ namespace Kage95.Backend.Controllers
         }
 
         private async Task<int> ToplamAsync(int uid)
-            => await _context.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == uid && p.Puan > 0).SumAsync(p => (int?)p.Puan) ?? 0;
+            => await _context.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == uid && p.Puan != 0).SumAsync(p => (int?)p.Puan) ?? 0;
 
         private async Task<Siralama> SiralamaAlAsync(string donem)
         {
@@ -99,7 +99,7 @@ namespace Kage95.Backend.Controllers
             var simdi = DateTime.UtcNow;
             // Banlı (Aktif=false ve ban süresi dolmamış) kullanıcılar listelenmez.
             var q = _context.PuanKayitlari.AsNoTracking()
-                .Where(p => p.Puan > 0
+                .Where(p => p.Puan != 0
                     && p.Kullanici.Rol != "Owner" // site sahibi sıralamada görünmez
                     && (p.Kullanici.Aktif || (p.Kullanici.BanBitis != null && p.Kullanici.BanBitis <= simdi)));
             if (baslangic != null) q = q.Where(p => p.Tarih >= baslangic.Value);
@@ -121,7 +121,7 @@ namespace Kage95.Backend.Controllers
             Dictionary<int, int> toplamlar;
             if (baslangic == null) toplamlar = ust.ToDictionary(x => x.Id, x => x.Puan);
             else
-                toplamlar = await _context.PuanKayitlari.AsNoTracking().Where(p => p.Puan > 0 && idler.Contains(p.KullaniciId))
+                toplamlar = await _context.PuanKayitlari.AsNoTracking().Where(p => p.Puan != 0 && idler.Contains(p.KullaniciId))
                     .GroupBy(p => p.KullaniciId).Select(g => new { g.Key, T = g.Sum(x => x.Puan) })
                     .ToDictionaryAsync(x => x.Key, x => x.T);
 

@@ -24,7 +24,7 @@ namespace Kage95.Backend.Security
             new("yorum.sil", "Yorumları denetle ve sil", "Tüm yorumları listeler ve uygunsuz olanları siler."),
             new("kullanici.gor", "Kullanıcıları görüntüle", "Kayıtlı kullanıcıların listesini görür."),
             new("kullanici.engelle", "Ban ve oturum yönetimi", "Kullanıcıyı süreli ya da süresiz banlar, banı kaldırır ve açık oturumlarını kapatır."),
-            new("kullanici.duzenle", "Kullanıcı adı ve e-posta değiştir", "Kullanıcının kullanıcı adını ve e-posta adresini değiştirir."),
+            new("kullanici.duzenle", "Kullanıcı bilgileri, XP ve seviye", "Kullanıcının adını ve e-postasını değiştirir; XP ekler, düşer, XP'yi ya da seviyeyi doğrudan ayarlar."),
             new("kullanici.sifre", "Kullanıcı şifresi sıfırla", "Kullanıcıya yeni şifre belirler ya da geçici şifre üretir."),
             new("kullanici.sil", "Kullanıcı hesabı sil", "Bir kullanıcı hesabını ve ona bağlı verileri kalıcı olarak siler."),
             new("bolum.duzenle", "Bölüm ve sayfaları düzenle", "Bölüm adı/numarasını değiştirir; sayfaları sıralar, değiştirir ve siler."),

@@ -167,6 +167,83 @@ using (var kapsam = app.Services.CreateScope())
     }
 }
 
+// Forum karşılama konusu: yoksa site sahibi adına bir kez, sabit ve kilitli olarak açılır.
+using (var kapsam = app.Services.CreateScope())
+{
+    try
+    {
+        var db = kapsam.ServiceProvider.GetRequiredService<AppDbContext>();
+        const string karsilamaBaslik = "Gölge Meclisi'ne hoş geldin: Kage 95 nedir, neden var?";
+        if (!db.ForumKonulari.Any(k => k.Baslik == karsilamaBaslik))
+        {
+            var sahip = db.Kullanicilar.Where(k => k.Rol == Roller.Owner).OrderBy(k => k.Id).FirstOrDefault()
+                ?? db.Kullanicilar.Where(k => k.Rol == Roller.Admin).OrderBy(k => k.Id).FirstOrDefault();
+            if (sahip != null)
+            {
+                var simdi = DateTime.UtcNow;
+                db.ForumKonulari.Add(new Kage95.Backend.Models.ForumKonu
+                {
+                    Kategori = "duyuru",
+                    KullaniciId = sahip.Id,
+                    Baslik = karsilamaBaslik,
+                    Icerik = """
+Selam gölge. Kage 95'e, sitenin kalbi olacak bu foruma hoş geldin. Kim olduğumuzu, neden kurulduğumuzu ve burada neler yapabileceğini tek yerde topladık.
+
+**Neden kurulduk?**
+Manga okumak bir zevk olmalı, işkence değil. Her sayfada açılan pencereler, ekranı kaplayan reklamlar, okurken yüklenmeyen sayfalar, seni başka siteye fırlatan sahte "devam et" düğmeleri... Hepimiz yaşadık. Kage 95 tam olarak buna bir cevap olarak doğdu: sade, hızlı ve okura saygı duyan bir okuma evi.
+
+**Felsefemiz**
+• *Önce okur.* Sitede alınan her karar "bu okurun işine yarıyor mu?" sorusuyla başlar.
+• *Rahatsız edici reklam yok.* Pop-up yok, yönlendirme yok, sayfanın ortasına yapışan afiş yok. Okurken sadece sen ve hikaye varsınız.
+• *Sade ama güçlü.* Kırmızı-siyah, gölgeli, dikkat dağıtmayan bir tasarım. Gereksiz süs değil, işe yarayan özellik.
+• *Topluluk bizim omurgamız.* Kage 95 sadece bir okuma sitesi değil, aynı seriyi seven insanların buluştuğu bir yer.
+
+**Sitede neler var?**
+• **Kütüphane:** Okuduğun serileri takip et, kaldığın bölümden devam et.
+• **Hızlı okuyucu:** Bölümler hızlı açılır, mobilde de rahat okunur.
+• **Puan, seviye ve rütbe:** Okudukça, yorum yaptıkça puan kazan, rütbeni yükselt, liderlik tablosuna gir.
+• **Ad stilleri:** Kazandığın puanlarla adına renk, efekt ve unvan ekle. Adın forumda, sohbette ve yorumlarda öyle görünür.
+• **Canlı sohbet:** Diğer okurlarla anlık konuş.
+• **Yorumlar ve bildirimler:** Serilere yorum yaz, sana yanıt gelince haberin olsun.
+• **Uygulama gibi kur:** Kage 95'i telefonuna ya da bilgisayarına uygulama olarak ekleyebilirsin.
+
+**Bu forum neden farklı?**
+Burada konunu bir seriye ve bölüme bağlayabilirsin. Mesela "Bölüm 120" diye işaretlediğin bir teori, o bölüme henüz gelmemiş okurlara bulanık görünür. O bölümü okumuş olanlar ise direkt görür. Yani spoiler korkusu olmadan, rahatça tartışabilirsin. Teoriler kategorisi her zaman spoiler sayılır.
+
+**Kategoriler**
+告 Duyurular: Sitedeki yenilikler ve ekipten haberler.
+道 Dojo: Genel sohbet, aklına ne gelirse.
+縁 Tanışma: Kendini tanıt, en sevdiğin seriyi söyle.
+巻 Seri Sohbeti: Bir serinin geneli hakkında konuş.
+話 Bölüm Tartışması: Yeni çıkan bölümleri tartış.
+謎 Teoriler: Tahminlerin, analizlerin, çılgın fikirlerin.
+薦 Öneri: "Buna benzer ne okuyayım?" sorusunun cevabı.
+声 Site Sesi: Hata bildirimi, istek ve öneri. Seni dinliyoruz.
+
+**Kısa kurallar**
+1. Saygılı ol. Hakaret, nefret söylemi ve kişisel saldırı yok.
+2. Spoiler varsa işaretle ya da konuyu bölüme bağla.
+3. Reklam, spam ve başka sitelere yönlendirme yok.
+4. Konuyu doğru kategoride aç.
+Kurallara uymayan içerik uyarısız silinebilir.
+
+Kage 95 sizinle büyüyor. Bir fikrin, bir şikayetin ya da sadece bir "merhaba"n varsa Site Sesi'nde ya da Tanışma'da yaz. İyi okumalar, gölgede görüşürüz. 影
+""",
+                    Sabit = true,
+                    Kilitli = true,
+                    Tarih = simdi,
+                    SonYanitTarihi = simdi
+                });
+                db.SaveChanges();
+            }
+        }
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Forum karşılama konusu açılamadı");
+    }
+}
+
 // 7. Middleware Boru Hattı
 var fho = new ForwardedHeadersOptions
 {

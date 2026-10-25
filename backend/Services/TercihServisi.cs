@@ -18,7 +18,7 @@ namespace Kage95.Backend.Services
         }
 
         public async Task<int> ToplamPuanAsync(int kullaniciId)
-            => await _db.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == kullaniciId && p.Puan > 0).SumAsync(p => (int?)p.Puan) ?? 0;
+            => await _db.PuanKayitlari.AsNoTracking().Where(p => p.KullaniciId == kullaniciId && p.Puan != 0).SumAsync(p => (int?)p.Puan) ?? 0;
 
         /// <summary>Kayıtlı tercihten, verilen seviyede GEÇERLİ olanları süzer; hiçbiri yoksa null.</summary>
         public static AdStiliDto? Suz(KullaniciTercihi t, int seviye)
@@ -61,7 +61,7 @@ namespace Kage95.Backend.Services
             var tIdler = tercihler.Select(t => t.KullaniciId).ToList();
             var puanlar = tercihler.Count == 0 ? new Dictionary<int, int>()
                 : await _db.PuanKayitlari.AsNoTracking()
-                    .Where(p => p.Puan > 0 && tIdler.Contains(p.KullaniciId))
+                    .Where(p => p.Puan != 0 && tIdler.Contains(p.KullaniciId))
                     .GroupBy(p => p.KullaniciId).Select(g => new { g.Key, T = g.Sum(x => x.Puan) })
                     .ToDictionaryAsync(x => x.Key, x => x.T);
             var tMap = tercihler.ToDictionary(t => t.KullaniciId);

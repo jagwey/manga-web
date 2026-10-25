@@ -336,7 +336,7 @@ namespace Kage95.Backend.Controllers
                 mangaYorumSayisi = await _context.MangaYorumlari.CountAsync(y => y.KullaniciId == id),
                 favoriSayisi = await _context.Favoriler.CountAsync(f => f.KullaniciId == id),
                 okumaKaydiSayisi = await _context.OkumaGecmisi.CountAsync(o => o.KullaniciId == id),
-                toplamPuan = await _context.PuanKayitlari.Where(p => p.KullaniciId == id && p.Puan > 0).SumAsync(p => (int?)p.Puan) ?? 0,
+                toplamPuan = await _context.PuanKayitlari.Where(p => p.KullaniciId == id && p.Puan != 0).SumAsync(p => (int?)p.Puan) ?? 0,
                 ban
             });
         }
@@ -515,6 +515,61 @@ namespace Kage95.Backend.Controllers
             PuanServisi.Gecersizlestir();
             await _denetim.KaydetAsync(User, "kullanici.puanSifirla", KullaniciHedefi(hedef), $"{silinen} puan kaydı silindi.");
             return Ok(new { message = "Kullanıcının tüm puanları silindi.", silinenKayit = silinen });
+        }
+
+        /// <summary>
+        /// XP düzenleme. islem: "ekle" (deger kadar ekler), "dus" (deger kadar düşer),
+        /// "ayarla" (toplam XP = deger), "seviye" (toplam XP = deger seviyesinin alt sınırı).
+        /// Fark tek bir yonetici_bonus (+) ya da yonetici_ceza (-) kaydı olarak deftere yazılır; toplam 0'ın altına inmez.
+        /// </summary>
+        [Yetki("kullanici.duzenle")]
+        [HttpPost("kullanicilar/{id:int}/puan")]
+        public async Task<IActionResult> KullaniciPuanDuzenle(int id, [FromBody] PuanDuzenleRequest request)
+        {
+            var hedef = await _context.Kullanicilar.AsNoTracking().FirstOrDefaultAsync(k => k.Id == id);
+            if (hedef == null) return NotFound(new { message = "Kullanıcı bulunamadı." });
+            var engel = HedefEngeli(hedef);
+            if (engel != null) return engel;
+
+            const int maksXp = 10_000_000;
+            var deger = request.Deger;
+            var mevcut = await _context.PuanKayitlari.Where(p => p.KullaniciId == id && p.Puan != 0).SumAsync(p => (int?)p.Puan) ?? 0;
+            int hedefXp;
+            switch ((request.Islem ?? string.Empty).Trim().ToLowerInvariant())
+            {
+                case "ekle":
+                    if (deger < 1 || deger > maksXp) return BadRequest(new { message = "Eklenecek XP 1 ile 10.000.000 arasında olmalıdır." });
+                    hedefXp = mevcut + deger; break;
+                case "dus":
+                    if (deger < 1 || deger > maksXp) return BadRequest(new { message = "Düşülecek XP 1 ile 10.000.000 arasında olmalıdır." });
+                    hedefXp = mevcut - deger; break;
+                case "ayarla":
+                    if (deger < 0 || deger > maksXp) return BadRequest(new { message = "XP 0 ile 10.000.000 arasında olmalıdır." });
+                    hedefXp = deger; break;
+                case "seviye":
+                    if (deger < 1 || deger > PuanServisi.MaksSeviye) return BadRequest(new { message = $"Seviye 1 ile {PuanServisi.MaksSeviye} arasında olmalıdır." });
+                    hedefXp = PuanServisi.SeviyeIcinGereken(deger); break;
+                default:
+                    return BadRequest(new { message = "islem ekle, dus, ayarla veya seviye olmalıdır." });
+            }
+            hedefXp = Math.Clamp(hedefXp, 0, maksXp);
+
+            var fark = hedefXp - mevcut;
+            if (fark != 0)
+            {
+                _context.PuanKayitlari.Add(new PuanKaydi
+                {
+                    KullaniciId = id,
+                    Eylem = fark > 0 ? PuanServisi.YoneticiBonus : PuanServisi.YoneticiCeza,
+                    Puan = fark,
+                    Tarih = DateTime.UtcNow
+                });
+                await _context.SaveChangesAsync();
+                PuanServisi.Gecersizlestir();
+                await _denetim.KaydetAsync(User, "kullanici.puan", KullaniciHedefi(hedef),
+                    $"{request.Islem} {deger}: {mevcut} -> {hedefXp} XP (seviye {PuanServisi.Seviye(mevcut)} -> {PuanServisi.Seviye(hedefXp)})");
+            }
+            return Ok(new { toplamPuan = hedefXp, seviye = PuanServisi.Seviye(hedefXp), rutbe = PuanServisi.Rutbe(hedefXp) });
         }
 
         [Yetki("kullanici.gor")]

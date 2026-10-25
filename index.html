@@ -105,6 +105,73 @@
             height: 100%;
             object-fit: contain;
             display: block;
+            transition: transform .4s cubic-bezier(.2,.8,.2,1);
+        }
+        .site-logo:hover .logo-muhur img { transform: rotate(-8deg) scale(1.06); }
+
+        /* Yazı logosu: KAGE + kırmızı mühür 95, altında 影 · Gölge Arşivi */
+        .logo-yazi { display: flex; flex-direction: column; line-height: 1; gap: 4px; }
+        .logo-ust { display: flex; align-items: center; gap: 7px; }
+        .logo-kage {
+            position: relative;
+            font-family: var(--font-baslik);
+            font-size: 1.35rem;
+            font-weight: 700;
+            letter-spacing: .2em;
+            margin-right: -.2em;
+            background: linear-gradient(100deg, var(--text-ana) 0%, var(--text-ana) 40%, #fff 50%, var(--text-ana) 60%, var(--text-ana) 100%);
+            background-size: 250% 100%;
+            background-position: 100% 0;
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            transition: background-position .8s ease;
+        }
+        .logo-kage::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            right: .2em;
+            bottom: -3px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--vurgu-parlak), transparent);
+            transform: scaleX(.35);
+            transform-origin: left;
+            transition: transform .45s cubic-bezier(.2,.8,.2,1);
+        }
+        .site-logo:hover .logo-kage { background-position: 0 0; }
+        .site-logo:hover .logo-kage::after { transform: scaleX(1); }
+        .logo-95 {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3px 5px 2px;
+            font-family: var(--font-baslik);
+            font-size: .8rem;
+            font-weight: 700;
+            color: #fff;
+            background: var(--vurgu-rengi);
+            border-radius: 3px;
+            box-shadow: inset 0 0 0 1px rgba(255,255,255,.15), 0 0 0 1px var(--vurgu-rengi);
+            transform: rotate(-6deg);
+            transition: transform .3s ease;
+        }
+        .site-logo:hover .logo-95 { transform: rotate(0) scale(1.08); }
+        .logo-alt {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--font-govde, inherit);
+            font-size: .62rem;
+            font-weight: 500;
+            letter-spacing: .28em;
+            text-transform: uppercase;
+            color: var(--text-ikincil);
+        }
+        .logo-alt b { font-family: var(--font-kanji); font-weight: 700; letter-spacing: 0; color: var(--vurgu-parlak); font-size: .8rem; }
+        @media (max-width: 380px) { .logo-alt { display: none; } }
+        @media (prefers-reduced-motion: reduce) {
+            .logo-kage, .logo-kage::after, .logo-95, .logo-muhur img { transition: none; }
         }
 
         .ana-menu { display: flex; flex-wrap: wrap; gap: var(--bosluk-3); }
@@ -958,7 +1025,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
     <script src="js/adstili.js"></script>
     <script src="js/yorum.js"></script>
-    <script src="js/forum.js?v=20261025a"></script>
+    <script src="js/forum.js?v=20261025b"></script>
     <script src="js/sohbet.js?v=20261025b"></script>
     <script type="text/babel">
         const VARSAYILAN_RENK = '#8e0e15';
@@ -1436,6 +1503,18 @@
                         </div>
 
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 'var(--bosluk-2)', marginTop: 4 }}>
+                            <div style={{ background: 'var(--bg-ana)', border: '1px solid var(--border-renk)', borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor" aria-hidden="true">
+                                        <path d={DISCORD_YOLU} />
+                                    </svg>
+                                    <strong style={{ fontSize: '0.95rem' }}>Discord</strong>
+                                </div>
+                                <p style={{ fontSize: '0.85rem', color: 'var(--text-ikincil)', margin: 0 }}>Topluluk, sohbet ve oyun testleri</p>
+                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" className="btn-ana" style={{ marginTop: 'auto', textAlign: 'center', textDecoration: 'none', minHeight: 40, fontSize: '.85rem' }}>
+                                    Sunucuya Katıl
+                                </a>
+                            </div>
                             <div style={{ background: 'var(--bg-ana)', border: '1px solid var(--border-renk)', borderRadius: 8, padding: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                                     <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
@@ -3593,7 +3672,10 @@
                         <div className="header-ic">
                             <a href="#/" className="site-logo" aria-label="Kage 95 Ana Sayfa">
                                 <span className="logo-muhur" aria-hidden="true"><img src="logo.svg" alt="" width="38" height="38" /></span>
-                                KAGE <span className="logo-95">95</span>
+                                <span className="logo-yazi" aria-hidden="true">
+                                    <span className="logo-ust"><span className="logo-kage">KAGE</span><span className="logo-95">95</span></span>
+                                    <span className="logo-alt"><b>影</b>Gölge Arşivi</span>
+                                </span>
                             </a>
 
                             <nav className="ana-menu" aria-label="Ana menü">

@@ -2353,6 +2353,53 @@
             );
         };
 
+        /* Seviye formülü backend PuanServisi ile aynı: L seviyesi için gereken toplam = 50*(L-1)*L, en yüksek 95 */
+        const MAKS_SEVIYE = 95;
+        const seviyeIcin = (l) => 50 * (l - 1) * l;
+        const seviyeHesapla = (xp) => { let l = 1; while (l < MAKS_SEVIYE && xp >= seviyeIcin(l + 1)) l++; return l; };
+
+        const PuanKart = ({ k, calistir, mesgul, kapat }) => {
+            const mevcut = Number(k.toplamPuan || 0);
+            const [islem, setIslem] = useState('ekle');
+            const [deger, setDeger] = useState('');
+            const [hata, setHata] = useState(null);
+            const sayi = parseInt(deger, 10);
+            const sonuc = isNaN(sayi) ? null
+                : islem === 'ekle' ? mevcut + sayi
+                : islem === 'dus' ? Math.max(0, mevcut - sayi)
+                : islem === 'ayarla' ? sayi
+                : seviyeIcin(Math.min(MAKS_SEVIYE, Math.max(1, sayi)));
+            const kaydet = async (e) => {
+                e.preventDefault();
+                if (isNaN(sayi) || sayi < (islem === 'ayarla' ? 0 : 1)) { setHata({ mesaj: 'Geçerli bir sayı girin.' }); return; }
+                if (islem === 'seviye' && sayi > MAKS_SEVIYE) { setHata({ mesaj: `Seviye en fazla ${MAKS_SEVIYE} olabilir.` }); return; }
+                const s = await calistir(() => istek(`/admin/kullanicilar/${k.id}/puan`, { method: 'POST', json: { islem, deger: sayi } }), `${k.kullaniciAdi} kullanıcısının XP'si güncellendi.`);
+                if (s.tamam) kapat(); else setHata(s.hata);
+            };
+            return (
+                <form onSubmit={kaydet}>
+                    <p>Şu an: <b>{mevcut.toLocaleString('tr-TR')} XP</b>, seviye <b>{seviyeHesapla(mevcut)}</b></p>
+                    <div className="form-grubu"><label htmlFor="pzIslem">İşlem</label>
+                        <select id="pzIslem" className="form-input" value={islem} onChange={(e) => { setIslem(e.target.value); setHata(null); }} disabled={mesgul}>
+                            <option value="ekle">XP ekle</option>
+                            <option value="dus">XP düş</option>
+                            <option value="ayarla">XP'yi ayarla</option>
+                            <option value="seviye">Seviyeyi ayarla</option>
+                        </select>
+                    </div>
+                    <div className="form-grubu"><label htmlFor="pzDeger">{islem === 'seviye' ? `Seviye (1-${MAKS_SEVIYE})` : 'XP miktarı'}</label>
+                        <input id="pzDeger" type="number" inputMode="numeric" min={islem === 'ayarla' ? 0 : 1} max={islem === 'seviye' ? MAKS_SEVIYE : 10000000} className="form-input" value={deger} onChange={(e) => setDeger(e.target.value)} disabled={mesgul} />
+                    </div>
+                    {sonuc != null && <p className="satir-alt">Sonuç: {sonuc.toLocaleString('tr-TR')} XP, seviye {seviyeHesapla(sonuc)}</p>}
+                    <div className="eylemler">
+                        <button type="submit" className="btn btn-ana" disabled={mesgul}>{mesgul ? 'Kaydediliyor...' : 'Uygula'}</button>
+                        <button type="button" className="btn" disabled={mesgul} onClick={kapat}>Vazgeç</button>
+                    </div>
+                    <HataSatiri b={hata} />
+                </form>
+            );
+        };
+
         /* Şifre sıfırlama: geçici şifre YALNIZCA bir kez gösterilir, yalnızca bellekte tutulur */
         const SifreKart = ({ k, calistir, mesgul, kapat }) => {
             const [mod, setMod] = useState('uret');
@@ -2645,6 +2692,9 @@
                 if (can('kullanici.duzenle')) kartlar.push(
                     <EylemKart key="duzenle" id="duzenle" baslik="Kullanıcı adı / e-posta" aciklama="Hesabın görünen adını ya da e-posta adresini değiştirin." buton="Düzenle" {...ortak}>
                         <DuzenleKart k={k} {...kp} />
+                    </EylemKart>,
+                    <EylemKart key="puan" id="puan" baslik="XP ve seviye" aciklama="XP ekleyin, düşün ya da XP'yi veya seviyeyi doğrudan ayarlayın. Liderlik tablosu da güncellenir." buton="XP / seviye düzenle" {...ortak}>
+                        <PuanKart k={k} {...kp} />
                     </EylemKart>);
                 if (can('kullanici.sifre')) kartlar.push(
                     <EylemKart key="sifre" id="sifre" baslik="Şifreyi sıfırla" aciklama="Kendiniz belirleyin ya da geçici şifre üretin. Tüm oturumlar kapanır." buton="Şifreyi sıfırla" tehlike {...ortak}>
@@ -2695,7 +2745,7 @@
                 ['Durum', k.aktif ? 'Aktif' : 'Banlı'], ['Kayıt tarihi', tarihSaat(k.kayitTarihi)],
                 ['Son giriş', k.sonGirisTarihi ? tarihSaat(k.sonGirisTarihi) : 'Hiç giriş yapmadı'],
                 ['Yorum', k.yorumSayisi], ['Favori', k.favoriSayisi], ['Okuma kaydı', k.okumaKaydiSayisi],
-                ['Toplam puan', Number(k.toplamPuan || 0).toLocaleString('tr-TR')]
+                ['Toplam puan', Number(k.toplamPuan || 0).toLocaleString('tr-TR')], ['Seviye', seviyeHesapla(Number(k.toplamPuan || 0))]
             ];
             return (
                 <div>

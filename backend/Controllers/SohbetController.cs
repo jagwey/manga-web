@@ -87,7 +87,7 @@ namespace Kage95.Backend.Controllers
 
             var idler = ham.Select(m => m.KullaniciId).Distinct().ToList();
             var toplamlar = idler.Count == 0 ? new Dictionary<int, int>()
-                : await _context.PuanKayitlari.AsNoTracking().Where(p => p.Puan > 0 && idler.Contains(p.KullaniciId))
+                : await _context.PuanKayitlari.AsNoTracking().Where(p => p.Puan != 0 && idler.Contains(p.KullaniciId))
                     .GroupBy(p => p.KullaniciId).Select(g => new { g.Key, T = g.Sum(x => x.Puan) }).ToDictionaryAsync(x => x.Key, x => x.T);
             var stiller = await _tercihler.CozAsync(idler);
 

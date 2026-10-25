@@ -7,6 +7,12 @@ namespace Kage95.Backend.Models
         public string? Email { get; set; }
     }
 
+    public class PuanDuzenleRequest
+    {
+        public string? Islem { get; set; }
+        public int Deger { get; set; }
+    }
+
     public class SifreSifirlaRequest
     {
         public string? YeniSifre { get; set; }
