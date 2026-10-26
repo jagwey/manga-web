@@ -94,9 +94,37 @@
 
 /* Spoiler örtüsü */
 .fr-ortu { position: relative; border-radius: 4px; overflow: hidden; }
-.fr-ortu-ic { filter: blur(7px); user-select: none; pointer-events: none; max-height: 140px; overflow: hidden; }
-.fr-ortu-dugme { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 100%; border: 1px dashed rgba(224,52,60,.5); border-radius: 4px; background: rgba(14,12,12,.6); color: var(--text-ana); font: inherit; font-size: 13px; cursor: pointer; padding: 8px; text-align: center; }
-.fr-ortu-dugme:hover { background: rgba(14,12,12,.45); }
+.fr-ortu-ic {
+    filter: blur(8px);
+    user-select: none;
+    pointer-events: none;
+    max-height: 140px;
+    overflow: hidden;
+    transition: filter 0.45s cubic-bezier(0.16, 1, 0.3, 1), max-height 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.fr-ortu.acildi .fr-ortu-ic { filter: blur(0); max-height: none; }
+.fr-ortu-dugme {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    width: 100%;
+    border: 1px dashed rgba(224,52,60,.5);
+    border-radius: 4px;
+    background: rgba(14,12,12,.7);
+    color: var(--text-ana);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 8px;
+    text-align: center;
+    backdrop-filter: blur(2px);
+    transition: background 0.2s, border-color 0.2s, opacity 0.3s;
+}
+.fr-ortu-dugme:hover { background: rgba(224,52,60,.12); border-color: var(--vurgu-parlak); }
 .fr-ortu-kanji { font-family: var(--font-kanji); color: var(--vurgu-parlak); font-size: 18px; }
 .fr-ortu-dugme small { color: var(--text-ikincil); font-size: 11px; }
 .fr-kart .fr-ortu { min-height: 52px; }

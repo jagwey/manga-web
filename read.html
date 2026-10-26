@@ -504,18 +504,208 @@
         }
         @keyframes don { to { transform: rotate(360deg); } }
 
+        /* --- KAGE-95 BÖLÜM SONU KARTI --- */
         .bolum-sonu {
             width: 100%;
-            max-width: 800px;
-            margin-top: var(--s4);
-            padding-top: var(--s3);
-            border-top: 1px solid var(--border-renk);
-            text-align: center;
+            max-width: var(--okuma-genislik, 800px);
+            margin: var(--s4) auto var(--s2);
+            padding: 0 4px;
         }
-        .bolum-sonu h3 { font-size: 1rem; font-weight: 500; }
-        .bolum-sonu p { color: var(--text-ikincil); margin: var(--s1) auto 0; max-width: var(--satir-olcu); }
-        .bolum-sonu-ctalar { display: flex; gap: var(--s2); margin-top: var(--s3); flex-wrap: wrap; justify-content: center; }
-        .bolum-sonu-ctalar .nav-btn { flex: 0 1 auto; min-width: 140px; }
+        .k95-bs-kart {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(175deg, rgba(28, 20, 22, 0.96) 0%, rgba(14, 12, 12, 0.98) 100%);
+            border: 1px solid rgba(224, 52, 60, 0.28);
+            border-top: 2px solid var(--vurgu-parlak, #e0343c);
+            border-radius: 16px;
+            padding: 34px 22px 28px;
+            text-align: center;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.65), 0 0 28px rgba(224, 52, 60, 0.12);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+        }
+        .k95-bs-kart::before {
+            content: '完';
+            position: absolute;
+            right: -10px;
+            bottom: -22px;
+            font-size: 130px;
+            font-family: var(--font-kanji, "Hiragino Mincho ProN", "Yu Mincho", serif);
+            color: rgba(224, 52, 60, 0.05);
+            pointer-events: none;
+            line-height: 1;
+            user-select: none;
+        }
+        .k95-bs-rozet {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(224, 52, 60, 0.25) 0%, rgba(142, 14, 21, 0.08) 70%);
+            border: 1px solid rgba(224, 52, 60, 0.45);
+            color: var(--vurgu-parlak, #e0343c);
+            font-size: 1.4rem;
+            font-family: var(--font-kanji, serif);
+            box-shadow: 0 0 18px rgba(224, 52, 60, 0.35);
+            margin-bottom: 12px;
+        }
+        .k95-bs-etiket {
+            font-size: 0.74rem;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--vurgu-parlak, #e0343c);
+            margin-bottom: 6px;
+        }
+        .k95-bs-baslik {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-ana, #ede7e2);
+            margin: 0 0 8px;
+            letter-spacing: -0.3px;
+        }
+        .k95-bs-aciklama {
+            font-size: 0.9rem;
+            color: var(--text-ikincil, #b3a7a1);
+            max-width: 520px;
+            margin: 0 auto 22px;
+            line-height: 1.5;
+        }
+        .k95-bs-aksiyonlar {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+        .k95-bs-ana-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 360px;
+            min-height: 44px;
+            padding: 0 24px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: #ffffff;
+            background: linear-gradient(135deg, #8e0e15 0%, #b81720 50%, #e0343c 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 999px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(224, 52, 60, 0.45);
+            transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s;
+            text-decoration: none;
+        }
+        .k95-bs-ana-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 26px rgba(224, 52, 60, 0.65);
+            filter: brightness(1.08);
+        }
+        .k95-bs-ana-btn:active {
+            transform: scale(0.97);
+        }
+        .k95-bs-ikincil-grup {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            max-width: 520px;
+        }
+        .k95-bs-ikinci-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 8px 16px;
+            font-size: 0.84rem;
+            font-weight: 500;
+            color: var(--text-ana, #ede7e2);
+            background: rgba(30, 24, 25, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 999px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
+        }
+        .k95-bs-ikinci-btn:hover {
+            background: rgba(224, 52, 60, 0.15);
+            border-color: rgba(224, 52, 60, 0.4);
+            color: #ffffff;
+            transform: translateY(-1px);
+        }
+        .k95-bs-ikinci-btn:active {
+            transform: scale(0.96);
+        }
+
+        /* --- YÜZEN SAYFA GÖSTERGESİ (FLOATING PAGE PILL) --- */
+        .okuyucu-yuzen-sayfa {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%) translateY(12px) scale(0.95);
+            bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+            z-index: 95;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 16px;
+            background: rgba(14, 12, 12, 0.88);
+            border: 1px solid rgba(224, 52, 60, 0.35);
+            border-radius: 999px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.65), 0 0 16px rgba(224, 52, 60, 0.2);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-ana, #ede7e2);
+            letter-spacing: 0.4px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.25s cubic-bezier(0.16, 1, 0.3, 1), transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.2s ease;
+            user-select: none;
+        }
+        .okuyucu-yuzen-sayfa.gorunur {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0) scale(1);
+        }
+        .okuyucu-yuzen-sayfa.bar-acik {
+            bottom: calc(74px + env(safe-area-inset-bottom, 0px));
+        }
+        .okuyucu-yuzen-sayfa .oys-nokta {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--vurgu-parlak, #e0343c);
+            box-shadow: 0 0 8px var(--vurgu-parlak, #e0343c);
+            display: inline-block;
+        }
+        .okuyucu-yuzen-sayfa .oys-mevcut {
+            color: #ffffff;
+            font-variant-numeric: tabular-nums;
+        }
+        .okuyucu-yuzen-sayfa .oys-bolu {
+            color: var(--text-ikincil, #888);
+            font-size: 0.75rem;
+        }
+        .okuyucu-yuzen-sayfa .oys-toplam {
+            color: var(--text-ikincil, #b3a7a1);
+            font-variant-numeric: tabular-nums;
+        }
+        @media (max-width: 640px) {
+            .okuyucu-yuzen-sayfa {
+                padding: 5px 13px;
+                font-size: 0.78rem;
+                bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+            }
+            .k95-bs-kart {
+                padding: 26px 16px 22px;
+            }
+            .k95-bs-baslik {
+                font-size: 1.1rem;
+            }
+        }
 
         /* --- YORUMLAR --- */
         .yorumlar-bolumu {
@@ -852,6 +1042,25 @@
                 setGenislik('normal'); setParlaklik(100); setGecis('solma'); setOtoHiz(2);
             };
 
+            // --- Yüzen sayfa göstergesi (kaydırma veya sayfa değişiminde belirir) ---
+            const [yuzenSayfaGoster, setYuzenSayfaGoster] = React.useState(false);
+            const yuzenTimerRef = React.useRef(null);
+            const tetikleYuzenSayfa = React.useCallback(() => {
+                setYuzenSayfaGoster(true);
+                if (yuzenTimerRef.current) clearTimeout(yuzenTimerRef.current);
+                yuzenTimerRef.current = setTimeout(() => {
+                    setYuzenSayfaGoster(false);
+                }, 1600);
+            }, []);
+
+            React.useEffect(() => {
+                tetikleYuzenSayfa();
+            }, [sayfaIndex, tetikleYuzenSayfa]);
+
+            React.useEffect(() => {
+                return () => { if (yuzenTimerRef.current) clearTimeout(yuzenTimerRef.current); };
+            }, []);
+
             // --- Üst çubuğu gizle/göster + webtoon kaydırma yüzdesi ---
             const [ustGizli, setUstGizli] = React.useState(false);
             const [kaydirmaOrani, setKaydirmaOrani] = React.useState(0);
@@ -869,7 +1078,10 @@
                         setKaydirmaOrani(maks > 0 ? Math.min(1, y / maks) : 0);
                     }
                 };
-                const kaydir = () => { if (!bekliyor) { bekliyor = true; requestAnimationFrame(hesapla); } };
+                const kaydir = () => {
+                    tetikleYuzenSayfa();
+                    if (!bekliyor) { bekliyor = true; requestAnimationFrame(hesapla); }
+                };
                 window.addEventListener('scroll', kaydir, { passive: true });
                 window.addEventListener('resize', kaydir);
                 document.addEventListener('load', kaydir, true); // görseller yüklenince yükseklik değişir
@@ -1120,15 +1332,51 @@
                 } catch (e) { bitti(false); }
             };
 
+            const sonrakiBolumObj = React.useMemo(() => (bolumler || []).find((b) => b.id === sonraki), [bolumler, sonraki]);
+            const oncekiBolumObj = React.useMemo(() => (bolumler || []).find((b) => b.id === onceki), [bolumler, onceki]);
+
             const bolumSonu = (
                 <div className="bolum-sonu">
-                    <h3>{yerTutucuMu ? 'Örnek bölümün sonu' : 'Bölümün sonu'}</h3>
-                    <p>
-                        {sonraki ? 'Sıradaki bölüme geçebilirsiniz.' : 'Şimdilik yayınlanmış son bölüm bu.'}
-                    </p>
-                    <div className="bolum-sonu-ctalar">
-                        <button className="nav-btn" disabled={!onceki} onClick={() => bolumeGit(onceki)}>Önceki bölüm</button>
-                        <button className="nav-btn btn-dolgu" disabled={!sonraki} onClick={() => bolumeGit(sonraki)}>Sonraki bölüm</button>
+                    <div className="k95-bs-kart">
+                        <div className="k95-bs-rozet" aria-hidden="true">完</div>
+                        <div className="k95-bs-etiket">Bölüm Tamamlandı</div>
+                        <h3 className="k95-bs-baslik">{veri ? veri.mangaAdi : (yerTutucuMu ? 'Örnek Seri' : 'Manga')}</h3>
+                        <p className="k95-bs-aciklama">
+                            {sonraki
+                                ? (sonrakiBolumObj && sonrakiBolumObj.baslik
+                                    ? `Sırada Bölüm ${sonrakiBolumObj.bolumNo}: "${sonrakiBolumObj.baslik}" seni bekliyor.`
+                                    : 'Sıradaki bölüme geçerek maceraya kaldığın yerden devam edebilirsin.')
+                                : 'Tebrikler, yayınlanmış en son bölüme ulaştın! Yeni bölümler eklendiğinde ilk okuyan sen ol.'}
+                        </p>
+                        <div className="k95-bs-aksiyonlar">
+                            {sonraki && (
+                                <button className="k95-bs-ana-btn" onClick={() => bolumeGit(sonraki)}>
+                                    <span>Sonraki Bölüm {sonrakiBolumObj ? `(Bölüm ${sonrakiBolumObj.bolumNo})` : ''}</span>
+                                    <span aria-hidden="true">→</span>
+                                </button>
+                            )}
+                            <div className="k95-bs-ikincil-grup">
+                                {onceki && (
+                                    <button className="k95-bs-ikinci-btn" onClick={() => bolumeGit(onceki)}>
+                                        ← Önceki {oncekiBolumObj ? `(Bölüm ${oncekiBolumObj.bolumNo})` : 'Bölüm'}
+                                    </button>
+                                )}
+                                {mangaId && (
+                                    <a href={`manga.html?id=${mangaId}`} className="k95-bs-ikinci-btn">
+                                        <Ikon ad="kitap" /> Seri Detayı
+                                    </a>
+                                )}
+                                <button className="k95-bs-ikinci-btn" onClick={() => {
+                                    const y = document.querySelector('.yorumlar-bolumu');
+                                    if (y) y.scrollIntoView({ behavior: 'smooth' });
+                                }}>
+                                    💬 Yorumlar
+                                </button>
+                                <button className="k95-bs-ikinci-btn" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                                    ↑ Başa Dön
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             );
@@ -1380,6 +1628,18 @@
 
                     {yukariGoster && (
                         <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                    )}
+
+                    {sayfalar.length > 0 && (
+                        <div 
+                            className={`okuyucu-yuzen-sayfa ${yuzenSayfaGoster ? 'gorunur' : ''} ${(!ustGizli && veri) ? 'bar-acik' : ''}`}
+                            aria-hidden="true"
+                        >
+                            <span className="oys-nokta"></span>
+                            <span className="oys-mevcut">{sayfaIndex + 1}</span>
+                            <span className="oys-bolu">/</span>
+                            <span className="oys-toplam">{sayfalar.length}</span>
+                        </div>
                     )}
 
                     {!ustGizli && veri && (
