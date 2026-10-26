@@ -1367,5 +1367,336 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
     }
 }
 
+/* ==========================================================================
+   Manga Detay Vitrini (Cyber-Gothic Hero Redesign)
+   ========================================================================== */
+.detay-geri-buton {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-ikincil);
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    margin-bottom: 18px;
+    transition: all 0.2s ease;
+}
+.detay-geri-buton:hover {
+    color: #ffffff;
+    background: rgba(224, 52, 60, 0.12);
+    border-color: rgba(224, 52, 60, 0.35);
+    transform: translateX(-3px);
+}
+
+:root:root .detay-ust {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 32px;
+    margin-bottom: var(--bosluk-4);
+    padding: clamp(20px, 3vw, 36px);
+    border: 1px solid rgba(224, 52, 60, 0.22);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(20, 15, 16, 0.94) 0%, rgba(12, 10, 11, 0.98) 100%);
+    box-shadow: 0 20px 48px rgba(0, 0, 0, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+:root:root .detay-ust::before {
+    content: '';
+    position: absolute;
+    inset: -60px;
+    z-index: -2;
+    background: var(--detay-kapak, none) center / cover no-repeat;
+    filter: blur(54px) saturate(1.6);
+    opacity: 0.22;
+}
+
+:root:root .detay-ust::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(circle at 85% 15%, rgba(224, 52, 60, 0.12) 0%, transparent 60%),
+                linear-gradient(180deg, rgba(14, 12, 13, 0.7) 0%, rgba(10, 8, 9, 0.96) 100%);
+}
+
+/* Kapak: Asla sığmama, kesilme veya taşma yapmaz! */
+:root:root .detay-kapak {
+    flex: 0 0 clamp(200px, 22vw, 260px);
+    align-self: flex-start;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #141011;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, 0.75), 0 0 24px rgba(224, 52, 60, 0.2);
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+}
+
+:root:root .detay-kapak:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 0 24px 55px rgba(0, 0, 0, 0.85), 0 0 32px rgba(224, 52, 60, 0.35);
+    border-color: rgba(224, 52, 60, 0.5);
+}
+
+:root:root .detay-kapak img {
+    width: 100%;
+    height: auto;
+    display: block;
+    object-fit: contain;
+    background: #120e0f;
+}
+
+:root:root .detay-bilgi {
+    flex: 1 1 360px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* Üst Rozet Şeridi (Durum, Bölüm Sayısı, Puan) */
+.detay-rozet-serit {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.detay-rozet {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 999px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.detay-rozet.yesil {
+    background: rgba(34, 197, 94, 0.12);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    color: #4ade80;
+}
+.detay-rozet.kizil {
+    background: rgba(224, 52, 60, 0.12);
+    border: 1px solid rgba(224, 52, 60, 0.3);
+    color: var(--vurgu-parlak);
+}
+.detay-rozet.notr {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-ana);
+}
+.detay-rozet.altin {
+    background: rgba(245, 158, 11, 0.12);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+
+:root:root .detay-baslik {
+    font-family: var(--font-baslik);
+    font-size: clamp(1.8rem, 2.6vw + 0.5rem, 2.6rem);
+    font-weight: 800;
+    line-height: 1.2;
+    color: #ffffff;
+    margin: 0;
+    overflow-wrap: anywhere;
+    letter-spacing: -0.01em;
+}
+
+/* Türler / Kategoriler */
+:root:root .detay-turler {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.detay-tur-oge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    background: rgba(224, 52, 60, 0.08);
+    border: 1px solid rgba(224, 52, 60, 0.22);
+    color: #ff646c;
+    transition: all 0.2s ease;
+}
+.detay-tur-oge:hover {
+    background: rgba(224, 52, 60, 0.18);
+    border-color: rgba(224, 52, 60, 0.45);
+    color: #ffffff;
+    transform: translateY(-1px);
+}
+
+/* Yazar, Çizer, Durum Bilgi Izgarası */
+.detay-meta-izgara {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin: 2px 0;
+}
+
+.detay-meta-kart {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 8px;
+    padding: 8px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.detay-meta-kart .dmk-etiket {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-ikincil);
+}
+.detay-meta-kart .dmk-deger {
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: var(--text-ana);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Özet / Açıklama Paneli */
+.detay-aciklama-panel {
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-left: 3px solid var(--vurgu-parlak);
+    border-radius: 8px;
+    padding: 14px 16px;
+}
+.detay-aciklama-baslik {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--vurgu-parlak);
+    margin-bottom: 6px;
+}
+.detay-aciklama-metin {
+    margin: 0;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: rgba(255, 255, 255, 0.82);
+    overflow-wrap: anywhere;
+}
+
+/* Aksiyon Butonları */
+:root:root .detay-eylemler {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 6px;
+}
+
+.detay-ana-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 9px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    color: #ffffff;
+    text-decoration: none;
+    background: linear-gradient(135deg, var(--vurgu-rengi, #8e0e15), var(--vurgu-parlak, #e0343c));
+    border: none;
+    box-shadow: 0 6px 20px rgba(142, 14, 21, 0.45);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    cursor: pointer;
+}
+.detay-ana-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(224, 52, 60, 0.55);
+    filter: brightness(1.1);
+}
+.detay-ana-btn.pasif {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-ikincil);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.detay-ikincil-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 0 18px;
+    border-radius: 9px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: var(--text-ana);
+    text-decoration: none;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+.detay-ikincil-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.24);
+    transform: translateY(-1px);
+}
+.detay-ikincil-btn.aktif {
+    background: rgba(224, 52, 60, 0.15);
+    border-color: rgba(224, 52, 60, 0.4);
+    color: var(--vurgu-parlak);
+}
+
+@media (max-width: 768px) {
+    :root:root .detay-ust {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 20px 16px;
+        gap: 20px;
+    }
+    :root:root .detay-kapak {
+        width: 190px;
+        max-width: 80%;
+        margin: 0 auto;
+    }
+    .detay-rozet-serit, :root:root .detay-turler {
+        justify-content: center;
+    }
+    .detay-aciklama-panel {
+        text-align: left;
+    }
+    :root:root .detay-eylemler {
+        width: 100%;
+        flex-direction: column;
+    }
+    .detay-ana-btn, .detay-ikincil-btn {
+        width: 100%;
+    }
+}
+
 /* Yan menu gibi ekran disi ogeler yatay kaydirma yaratmasin */
 :root:root { overflow-x: clip; }
