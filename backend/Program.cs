@@ -371,8 +371,10 @@ app.UseStaticFiles(new StaticFileOptions
     {
         var yol = ctx.File.Name.ToLowerInvariant();
         var h = ctx.Context.Response.Headers;
-        if (yol.EndsWith(".html") || yol == "sw.js" || yol.EndsWith(".webmanifest"))
-            h.CacheControl = "no-cache";
+        if (yol == "sw.js")
+            h.CacheControl = "no-cache, no-store, must-revalidate";
+        else if (yol.EndsWith(".html") || yol.EndsWith(".webmanifest"))
+            h.CacheControl = "no-cache, must-revalidate";
         else if (ctx.Context.Request.Query.ContainsKey("v"))
             h.CacheControl = "public, max-age=31536000, immutable";
         else
