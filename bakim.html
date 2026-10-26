@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0e0c0c">
+<title>Bakımdayız | Kage 95</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600&family=Noto+Serif+JP:wght@500;700&family=Noto+Serif:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--v:#8e0e15;--vp:#e0343c;--bg:#0e0c0c;--kart:#141111;--b:#2a2323;--bb:#3a3030;--t:#ede7e2;--t2:#a89f99;--serif:'Noto Serif',Georgia,serif;--kanji:'Noto Serif JP','Noto Serif',serif;--ease:cubic-bezier(.22,1,.36,1)}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%;background:var(--bg);color:var(--t);font-family:'Noto Sans',system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+body{min-height:100vh;min-height:100dvh;overflow-x:hidden;position:relative}
+canvas#kor{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.sis{position:fixed;inset:0;pointer-events:none;z-index:0;background:radial-gradient(60% 50% at 50% 0%,rgba(142,14,21,.28),transparent 70%),radial-gradient(80% 60% at 50% 110%,rgba(142,14,21,.16),transparent 70%)}
+main{position:relative;z-index:1;max-width:640px;margin:0 auto;padding:max(28px,env(safe-area-inset-top)) 20px max(32px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:22px;text-align:center}
+.muhur{width:92px;height:92px;border-radius:50%;border:1px solid var(--bb);display:grid;place-items:center;font-family:var(--kanji);font-weight:700;font-size:2.6rem;color:var(--vp);background:radial-gradient(circle,rgba(142,14,21,.25),rgba(20,17,17,.9) 70%);box-shadow:0 0 0 0 rgba(224,52,60,.45);margin-top:4vh;animation:nabiz 2.8s var(--ease) infinite}
+@keyframes nabiz{0%{box-shadow:0 0 0 0 rgba(224,52,60,.45)}70%,100%{box-shadow:0 0 0 26px rgba(224,52,60,0)}}
+h1{font-family:var(--serif);font-weight:600;font-size:clamp(2rem,1.4rem + 3vw,3.1rem);letter-spacing:.01em;line-height:1.15}
+h1 span{color:var(--vp)}
+#mesaj{color:var(--t2);max-width:46ch;line-height:1.65;font-size:1rem}
+.durum{display:inline-flex;align-items:center;gap:10px;padding:8px 16px;border:1px solid var(--b);border-radius:999px;background:rgba(20,17,17,.7);font-size:.85rem;color:var(--t2)}
+.durum i{width:8px;height:8px;border-radius:50%;background:var(--vp);animation:yan 1.4s ease-in-out infinite}
+@keyframes yan{50%{opacity:.25;transform:scale(.7)}}
+.oyun{width:100%;border:1px solid var(--b);border-radius:16px;background:rgba(20,17,17,.82);backdrop-filter:blur(6px);overflow:hidden;text-align:left}
+.sekmeler{display:flex;border-bottom:1px solid var(--b)}
+.sekmeler button{flex:1;padding:14px 8px;background:none;border:0;color:var(--t2);font:600 .88rem 'Noto Sans',sans-serif;cursor:pointer;position:relative;min-height:48px;transition:color .25s var(--ease),background .25s var(--ease)}
+.sekmeler button:hover{color:var(--t);background:rgba(255,255,255,.03)}
+.sekmeler button[aria-selected=true]{color:var(--t)}
+.sekmeler button[aria-selected=true]::after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:2px;background:var(--vp);border-radius:2px}
+.sekmeler{overflow-x:auto;scrollbar-width:none}.sekmeler::-webkit-scrollbar{display:none}.sekmeler button{flex:1 0 auto;padding:14px 14px;white-space:nowrap}
+#yc{display:block;width:100%;max-width:320px;aspect-ratio:1;margin:0 auto;border:1px dashed var(--bb);border-radius:12px;background:#120e0e;touch-action:none}
+.dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,46px);gap:6px;justify-content:center;margin-top:12px}
+.dpad button{border:1px solid var(--bb);background:#1a1414;color:var(--t);border-radius:10px;font-size:1.1rem;cursor:pointer;touch-action:manipulation}
+.dpad button:active{background:var(--v)}
+.dpad .u{grid-column:2}.dpad .l{grid-column:1;grid-row:2}.dpad .d{grid-column:2;grid-row:2}.dpad .r{grid-column:3;grid-row:2}
+#tik{width:100%;min-height:150px;border:1px dashed var(--bb);border-radius:12px;background:radial-gradient(circle,rgba(142,14,21,.18),transparent 70%);color:var(--t);font:700 1.4rem 'Noto Serif',serif;cursor:pointer;user-select:none;touch-action:manipulation;transition:transform .08s}
+#tik:active{transform:scale(.97)}
+.ip{display:grid;gap:10px}
+.ip a,.ip button.kopya{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 16px;border:1px solid var(--b);border-radius:12px;background:rgba(255,255,255,.02);color:var(--t);text-decoration:none;font:600 .92rem 'Noto Sans',sans-serif;cursor:pointer;min-height:48px;transition:border-color .25s var(--ease),background .25s var(--ease),transform .2s var(--ease)}
+.ip a:hover,.ip button.kopya:hover{border-color:var(--vp);background:rgba(142,14,21,.12);transform:translateY(-1px)}
+.ip small{color:var(--t2);font-weight:400;overflow-wrap:anywhere}
+.ip p{color:var(--t2);font-size:.88rem;line-height:1.6;margin-bottom:4px}
+.kombo{color:var(--vp)!important}
+.zor{display:flex;gap:8px;justify-content:center;margin-bottom:12px}
+.zor button{padding:6px 14px;border:1px solid var(--bb);background:none;color:var(--t2);border-radius:999px;font:600 .8rem 'Noto Sans',sans-serif;cursor:pointer;min-height:36px}
+.zor button[aria-pressed=true]{border-color:var(--vp);color:var(--t);background:rgba(142,14,21,.2)}
+.panel{padding:18px;display:none;animation:gir .45s var(--ease)}
+.panel.ac{display:block}
+@keyframes gir{from{opacity:0;transform:translateY(8px)}}
+.bilgi{display:flex;justify-content:space-between;gap:10px;font-size:.85rem;color:var(--t2);margin-bottom:12px;flex-wrap:wrap}
+.bilgi b{color:var(--t);font-variant-numeric:tabular-nums}
+.btn{appearance:none;border:1px solid var(--vp);background:var(--v);color:#fff;font:600 .9rem 'Noto Sans',sans-serif;padding:11px 22px;border-radius:10px;cursor:pointer;min-height:44px;transition:transform .2s var(--ease),background .2s,box-shadow .2s}
+.btn:hover{background:#a3121a;box-shadow:0 6px 22px -6px rgba(224,52,60,.6);transform:translateY(-1px)}
+.btn:active{transform:scale(.96)}
+.btn:focus-visible,.sekmeler button:focus-visible,.kart:focus-visible{outline:2px solid var(--vp);outline-offset:2px}
+/* refleks */
+#arena{position:relative;height:260px;border:1px dashed var(--bb);border-radius:12px;overflow:hidden;background:radial-gradient(circle at 50% 50%,rgba(142,14,21,.08),transparent 70%);touch-action:manipulation;user-select:none}
+#arena .orta{position:absolute;inset:0;display:grid;place-items:center;text-align:center;color:var(--t2);font-size:.92rem;padding:16px;gap:12px;align-content:center}
+.hedef{position:absolute;width:54px;height:54px;margin:-27px 0 0 -27px;border:0;background:none;cursor:pointer;padding:0;animation:hedef var(--omur,900ms) linear forwards}
+.hedef svg{width:100%;height:100%;filter:drop-shadow(0 0 8px rgba(224,52,60,.7));animation:don .9s linear infinite}
+@keyframes hedef{0%{transform:scale(.2);opacity:0}12%{transform:scale(1);opacity:1}80%{transform:scale(1);opacity:1}100%{transform:scale(.3);opacity:0}}
+@keyframes don{to{transform:rotate(360deg)}}
+.vurus{position:absolute;pointer-events:none;color:var(--vp);font-weight:700;font-size:1.1rem;animation:uc .6s var(--ease) forwards}
+@keyframes uc{to{transform:translateY(-34px);opacity:0}}
+/* hafiza */
+#izgara{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.kart{aspect-ratio:3/4;perspective:600px;border:0;background:none;padding:0;cursor:pointer}
+.kart>div{position:relative;width:100%;height:100%;transition:transform .5s var(--ease);transform-style:preserve-3d}
+.kart.a>div{transform:rotateY(180deg)}
+.kart span{position:absolute;inset:0;display:grid;place-items:center;border-radius:10px;border:1px solid var(--bb);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.kart .on{background:repeating-linear-gradient(45deg,#1a1414 0 8px,#161111 8px 16px);color:var(--v);font-family:var(--kanji);font-size:1.5rem;font-weight:700}
+.kart .arka{transform:rotateY(180deg);background:#1d1414;font-family:var(--kanji);font-size:2.1rem;font-weight:700;color:var(--vp)}
+.kart.e .arka{border-color:var(--vp);box-shadow:0 0 18px -4px rgba(224,52,60,.7);background:#2a1214}
+@media (hover:hover){.kart:not(.a):hover>div{transform:translateY(-3px)}}
+/* fal */
+.fal{min-height:150px;display:grid;place-items:center;text-align:center;padding:10px 6px 18px}
+.fal .sans{font-family:var(--kanji);font-size:2.1rem;font-weight:700;color:var(--vp);margin-bottom:8px}
+.fal p{color:var(--t);line-height:1.65;max-width:42ch;margin:0 auto}
+.fal small{display:block;color:var(--t2);margin-top:8px}
+.fal.y>div{animation:gir .55s var(--ease)}
+.alt{color:var(--t2);font-size:.78rem}
+.alt a{color:var(--t2);text-decoration:underline;text-underline-offset:3px}
+@media (max-width:420px){#arena{height:230px}.panel{padding:14px}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<canvas id="kor" aria-hidden="true"></canvas>
+<div class="sis" aria-hidden="true"></div>
+<main>
+  <div class="muhur" aria-hidden="true">影</div>
+  <h1>Bakımdayız<span>.</span></h1>
+  <p id="mesaj">Site kısa süreliğine bakımda. Birazdan tekrar dene.</p>
+  <div class="durum" role="status"><i></i><span id="durum">Site geri gelince seni kendimiz içeri alacağız</span></div>
+
+  <section class="oyun" aria-label="Beklerken oyna">
+    <div class="sekmeler" role="tablist">
+      <button role="tab" aria-selected="true" data-p="refleks">Gölge Refleks</button>
+      <button role="tab" aria-selected="false" data-p="hafiza">Hafıza</button>
+      <button role="tab" aria-selected="false" data-p="yilan">Yılan</button>
+      <button role="tab" aria-selected="false" data-p="tik">Hız</button>
+      <button role="tab" aria-selected="false" data-p="fal">Kader</button>
+      <button role="tab" aria-selected="false" data-p="iletisim">İletişim</button>
+    </div>
+
+    <div class="panel ac" id="p-refleks" role="tabpanel">
+      <div class="bilgi"><span>Süre <b id="r-sure">20</b></span><span>Puan <b id="r-puan">0</b></span><span>Kombo <b id="r-kombo" class="kombo">x1</b></span><span>Rekor <b id="r-rekor">0</b></span></div>
+      <div id="arena"><div class="orta" id="r-orta"><div>Shuriken kaybolmadan yakala.<br>20 saniyen var.</div><button class="btn" id="r-basla" type="button">Başla</button></div></div>
+    </div>
+
+    <div class="panel" id="p-hafiza" role="tabpanel">
+      <div class="zor" role="group" aria-label="Zorluk"><button type="button" data-z="6" aria-pressed="true">Kolay</button><button type="button" data-z="8" aria-pressed="false">Zor</button></div>
+      <div class="bilgi"><span>Hamle <b id="h-hamle">0</b></span><span>Süre <b id="h-sure">0</b>s</span><span>Eşleşen <b id="h-es">0/6</b></span><span>En iyi <b id="h-iyi">-</b></span></div>
+      <div id="izgara"></div>
+      <div style="margin-top:14px;text-align:center"><button class="btn" id="h-yeni" type="button">Yeniden karıştır</button></div>
+    </div>
+
+    <div class="panel" id="p-yilan" role="tabpanel">
+      <div class="bilgi"><span>Puan <b id="y-puan">0</b></span><span>Rekor <b id="y-rekor">0</b></span></div>
+      <canvas id="yc" width="320" height="320" aria-label="Yılan oyunu"></canvas>
+      <div class="dpad" aria-label="Yön tuşları"><button class="u" data-d="u" aria-label="Yukarı">▲</button><button class="l" data-d="l" aria-label="Sol">◀</button><button class="d" data-d="d" aria-label="Aşağı">▼</button><button class="r" data-d="r" aria-label="Sağ">▶</button></div>
+      <div style="margin-top:12px;text-align:center"><button class="btn" id="y-basla" type="button">Başla</button></div>
+      <p class="alt" style="text-align:center;margin-top:8px">Ok tuşları, WASD ya da kaydırma.</p>
+    </div>
+
+    <div class="panel" id="p-tik" role="tabpanel">
+      <div class="bilgi"><span>Süre <b id="t-sure">10.0</b></span><span>Tık <b id="t-say">0</b></span><span>Rekor <b id="t-rekor">0</b></span></div>
+      <button id="tik" type="button">Başlamak için dokun</button>
+      <p class="alt" style="text-align:center;margin-top:8px">İlk dokunuşta 10 saniye başlar. En çok kaç kere dokunabilirsin?</p>
+    </div>
+
+    <div class="panel" id="p-iletisim" role="tabpanel">
+      <div class="ip">
+        <p>Bakımın ne zaman biteceğini sormak, sorun bildirmek ya da öneri iletmek için bize ulaş.</p>
+        <a href="https://discord.gg/yxZZ7m2x8a" target="_blank" rel="noopener noreferrer"><span>Discord<br><small>Topluluğa katıl</small></span><span aria-hidden="true">↗</span></a>
+        <a href="https://www.instagram.com/kage95.dev/" target="_blank" rel="noopener noreferrer"><span>Instagram<br><small>@kage95.dev</small></span><span aria-hidden="true">↗</span></a>
+        <a href="mailto:jagweyy@gmail.com"><span>E-posta<br><small>jagweyy@gmail.com</small></span><span aria-hidden="true">↗</span></a>
+        <button class="kopya" id="kopya" type="button"><span>E-postayı kopyala</span><span aria-hidden="true" id="kopya-d">⧉</span></button>
+      </div>
+    </div>
+
+    <div class="panel" id="p-fal" role="tabpanel">
+      <div class="fal" id="fal"><div><div class="sans">運</div><p>Bakım bitene kadar kaderine bir bak.</p></div></div>
+      <div style="text-align:center"><button class="btn" id="f-cek" type="button">Kader çek</button></div>
+    </div>
+  </section>
+  <p class="alt">Sayfa kendiliğinden yenilenir. <a href="/">Şimdi dene</a></p>
+</main>
+
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),m=q.get('m');
+  if(m){document.getElementById('mesaj').textContent=m.slice(0,300);}
+  function dep(k,v){try{if(v===undefined)return localStorage.getItem('k95b_'+k);localStorage.setItem('k95b_'+k,v);}catch(e){return null;}}
+
+  /* --- kor / kul parcaciklari --- */
+  var c=document.getElementById('kor'),x=c.getContext('2d'),W,H,P=[],azalt=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  function boyut(){var d=Math.min(devicePixelRatio||1,2);W=c.width=innerWidth*d;H=c.height=innerHeight*d;c.style.width=innerWidth+'px';c.style.height=innerHeight+'px';}
+  function yeni(r){return{x:Math.random()*W,y:r?Math.random()*H:H+10,r:(Math.random()*2.2+.6)*(W/innerWidth),v:Math.random()*.5+.2,s:Math.random()*Math.PI*2,a:Math.random()*.6+.2}}
+  boyut();addEventListener('resize',boyut);
+  for(var i=0;i<(innerWidth<600?28:54);i++)P.push(yeni(true));
+  function ciz(){x.clearRect(0,0,W,H);P.forEach(function(p,i){p.y-=p.v*(W/innerWidth);p.s+=.012;p.x+=Math.sin(p.s)*.4;if(p.y<-10)P[i]=yeni(false);x.beginPath();x.fillStyle='rgba(224,52,60,'+p.a*(p.y/H*.9+.1)+')';x.arc(p.x,p.y,p.r,0,6.283);x.fill();});if(!azalt)requestAnimationFrame(ciz);}
+  ciz();
+
+  /* --- sekmeler --- */
+  var tabs=[].slice.call(document.querySelectorAll('.sekmeler button'));
+  tabs.forEach(function(b){b.addEventListener('click',function(){
+    tabs.forEach(function(t){t.setAttribute('aria-selected',t===b)});
+    [].forEach.call(document.querySelectorAll('.panel'),function(p){p.classList.toggle('ac',p.id==='p-'+b.dataset.p)});
+    if(b.dataset.p!=='refleks')rBitir(true);if(b.dataset.p!=='yilan')yDur();if(b.dataset.p!=='tik')tSifirla();
+  });});
+
+  /* --- refleks --- */
+  var ar=document.getElementById('arena'),orta=document.getElementById('r-orta'),rs=document.getElementById('r-sure'),rp=document.getElementById('r-puan'),rr=document.getElementById('r-rekor');
+  var kombo=1,seri=0,puan=0,sure=20,tmr=null,spw=null,calisiyor=false,rekor=+dep('rekor')||0;rr.textContent=rekor;
+  var SK='<svg viewBox="0 0 100 100"><path fill="#e0343c" d="M50 2l11 33 37 15-37 15-11 33-11-33L2 50l37-15z"/><circle cx="50" cy="50" r="9" fill="#0e0c0c"/></svg>';
+  function rBitir(sessiz){clearInterval(tmr);clearTimeout(spw);calisiyor=false;[].forEach.call(ar.querySelectorAll('.hedef,.vurus'),function(e){e.remove()});
+    if(sessiz&&puan===0&&sure===20){return;}
+    if(!sessiz||sure<20){
+      if(puan>rekor){rekor=puan;dep('rekor',rekor);rr.textContent=rekor;}
+      orta.style.display='grid';orta.innerHTML='<div>'+(puan?'Süre doldu. <b style="color:var(--t)">'+puan+'</b> puan.'+(puan>=rekor&&puan>0?' Yeni rekor!':''):'Süre doldu.')+'</div><button class="btn" id="r-basla" type="button">Tekrar</button>';
+      document.getElementById('r-basla').onclick=rBasla;
+    }
+    sure=20;rs.textContent=sure;
+  }
+  function rHedef(){
+    if(!calisiyor)return;
+    var omur=Math.max(520,950-puan*14),b=document.createElement('button');
+    b.type='button';b.className='hedef';b.setAttribute('aria-label','Shuriken');b.innerHTML=SK;b.style.setProperty('--omur',omur+'ms');
+    var w=ar.clientWidth,h=ar.clientHeight;b.style.left=(40+Math.random()*(w-80))+'px';b.style.top=(40+Math.random()*(h-80))+'px';
+    var al=function(e){e.preventDefault();if(!b.parentNode)return;seri++;kombo=Math.min(5,1+Math.floor(seri/5));puan+=kombo;rp.textContent=puan;document.getElementById('r-kombo').textContent='x'+kombo;var v=document.createElement('div');v.className='vurus';v.textContent='+'+kombo;v.style.left=b.style.left;v.style.top=b.style.top;ar.appendChild(v);setTimeout(function(){v.remove()},620);b.remove();};
+    b.addEventListener('pointerdown',al);
+    ar.appendChild(b);setTimeout(function(){if(b.parentNode){b.remove();seri=0;kombo=1;document.getElementById('r-kombo').textContent='x1';}},omur);
+    spw=setTimeout(rHedef,Math.max(260,620-puan*8));
+  }
+  function rBasla(){seri=0;kombo=1;document.getElementById('r-kombo').textContent='x1';puan=0;sure=20;rp.textContent=0;rs.textContent=20;orta.style.display='none';calisiyor=true;rHedef();
+    tmr=setInterval(function(){sure--;rs.textContent=sure;if(sure<=0)rBitir(false);},1000);}
+  document.getElementById('r-basla').onclick=rBasla;
+
+  /* --- hafiza --- */
+  var YT=['影','刃','月','桜','龍','鬼','雷','炎'],Y=YT.slice(0,6),hz=6,hs=document.getElementById('h-sure'),hT=null,hSn=0,iz=document.getElementById('izgara'),hh=document.getElementById('h-hamle'),he=document.getElementById('h-es'),hi=document.getElementById('h-iyi');
+  var ac=[],kilit=false,hamle=0,es=0,iyi=+dep('hiyi')||0;if(iyi)hi.textContent=iyi;
+  function kar(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function hYeni(){
+    clearInterval(hT);hT=null;hSn=0;hs.textContent=0;Y=YT.slice(0,hz);iz.innerHTML='';ac=[];kilit=false;hamle=0;es=0;hh.textContent=0;he.textContent='0/'+hz;
+    kar(Y.concat(Y)).forEach(function(k){
+      var b=document.createElement('button');b.type='button';b.className='kart';b.dataset.k=k;b.setAttribute('aria-label','Kapalı kart');
+      b.innerHTML='<div><span class="on">影</span><span class="arka">'+k+'</span></div>';
+      b.addEventListener('click',function(){
+        if(kilit||b.classList.contains('a'))return;if(!hT){hT=setInterval(function(){hSn++;hs.textContent=hSn;},1000);}
+        b.classList.add('a');ac.push(b);
+        if(ac.length===2){hamle++;hh.textContent=hamle;kilit=true;
+          if(ac[0].dataset.k===ac[1].dataset.k){
+            ac.forEach(function(e){e.classList.add('e')});es++;he.textContent=es+'/'+hz;ac=[];kilit=false;
+            if(es===hz){clearInterval(hT);if(hz===6&&(!iyi||hamle<iyi)){iyi=hamle;dep('hiyi',iyi);hi.textContent=iyi;}}
+          }else{setTimeout(function(){ac.forEach(function(e){e.classList.remove('a')});ac=[];kilit=false;},780);}
+        }
+      });
+      iz.appendChild(b);
+    });
+  }
+  document.getElementById('h-yeni').onclick=hYeni;
+  [].forEach.call(document.querySelectorAll('.zor button'),function(zb){zb.addEventListener('click',function(){hz=+zb.dataset.z;[].forEach.call(document.querySelectorAll('.zor button'),function(o){o.setAttribute('aria-pressed',o===zb)});hYeni();});});
+  hYeni();
+
+  /* --- yilan --- */
+  var yc=document.getElementById('yc'),yx=yc.getContext('2d'),G=16,N=20,yp=document.getElementById('y-puan'),yr=document.getElementById('y-rekor'),yb=document.getElementById('y-basla');
+  var yS,yD,yQ,yE,yPu,yT=null,yRek=+dep('yrekor')||0;yr.textContent=yRek;
+  function yCiz(){yx.fillStyle='#120e0e';yx.fillRect(0,0,320,320);
+    if(yE){yx.fillStyle='#e0343c';yx.beginPath();yx.arc(yE.x*G+G/2,yE.y*G+G/2,G/2-2,0,6.283);yx.fill();}
+    if(yS)yS.forEach(function(s,i){yx.fillStyle=i?'#8e0e15':'#e0343c';yx.fillRect(s.x*G+1,s.y*G+1,G-2,G-2);});}
+  function yYem(){do{yE={x:Math.floor(Math.random()*N),y:Math.floor(Math.random()*N)};}while(yS.some(function(s){return s.x===yE.x&&s.y===yE.y}));}
+  function yDur(){clearInterval(yT);yT=null;}
+  function yBasla(){yS=[{x:10,y:10},{x:9,y:10},{x:8,y:10}];yD={x:1,y:0};yQ=[];yPu=0;yp.textContent=0;yYem();yDur();yb.style.display='none';yT=setInterval(yAdim,120);yCiz();}
+  function yBit(){yDur();if(yPu>yRek){yRek=yPu;dep('yrekor',yRek);yr.textContent=yRek;}yb.style.display='';yb.textContent='Tekrar';
+    yCiz();yx.fillStyle='rgba(14,12,12,.7)';yx.fillRect(0,0,320,320);yx.fillStyle='#ede7e2';yx.font="700 22px 'Noto Serif',serif";yx.textAlign='center';yx.fillText('Bitti: '+yPu,160,165);}
+  function yAdim(){
+    if(yQ.length){var d=yQ.shift();if(d.x!==-yD.x||d.y!==-yD.y)yD=d;}
+    var h={x:yS[0].x+yD.x,y:yS[0].y+yD.y};
+    if(h.x<0||h.y<0||h.x>=N||h.y>=N||yS.some(function(s){return s.x===h.x&&s.y===h.y}))return yBit();
+    yS.unshift(h);
+    if(h.x===yE.x&&h.y===yE.y){yPu++;yp.textContent=yPu;yYem();}else yS.pop();
+    yCiz();}
+  var DY={u:{x:0,y:-1},d:{x:0,y:1},l:{x:-1,y:0},r:{x:1,y:0}};
+  function yYon(k){if(!yT)return;var l=yQ.length?yQ[yQ.length-1]:yD;var d=DY[k];if(d.x===-l.x&&d.y===-l.y)return;if(yQ.length<3)yQ.push(d);}
+  yb.onclick=yBasla;yCiz();
+  [].forEach.call(document.querySelectorAll('.dpad button'),function(b){b.addEventListener('pointerdown',function(e){e.preventDefault();yYon(b.dataset.d);});});
+  addEventListener('keydown',function(e){if(!yT)return;var m={ArrowUp:'u',ArrowDown:'d',ArrowLeft:'l',ArrowRight:'r',w:'u',s:'d',a:'l',d:'r'}[e.key];if(m){e.preventDefault();yYon(m);}});
+  var tx0,ty0;yc.addEventListener('touchstart',function(e){tx0=e.touches[0].clientX;ty0=e.touches[0].clientY;},{passive:true});
+  yc.addEventListener('touchend',function(e){var t=e.changedTouches[0],dx=t.clientX-tx0,dy=t.clientY-ty0;if(Math.max(Math.abs(dx),Math.abs(dy))<20)return;yYon(Math.abs(dx)>Math.abs(dy)?(dx>0?'r':'l'):(dy>0?'d':'u'));},{passive:true});
+
+  /* --- hiz --- */
+  var tb=document.getElementById('tik'),ts=document.getElementById('t-sure'),tc=document.getElementById('t-say'),tr=document.getElementById('t-rekor'),tT=null,tN=0,tK=0,tRek=+dep('trekor')||0;tr.textContent=tRek;
+  function tSifirla(){clearInterval(tT);tT=null;tN=0;tc.textContent=0;ts.textContent='10.0';tb.disabled=false;tb.textContent='Başlamak için dokun';}
+  tb.addEventListener('pointerdown',function(e){e.preventDefault();
+    if(!tT){tN=0;tK=Date.now();tb.textContent='Dokun!';tT=setInterval(function(){var k=10-(Date.now()-tK)/1000;if(k<=0){clearInterval(tT);tT=null;ts.textContent='0.0';tb.disabled=true;if(tN>tRek){tRek=tN;dep('trekor',tRek);tr.textContent=tRek;}tb.textContent='Bitti: '+tN+' tık'+(tN>=tRek&&tN>0?' (rekor!)':'');setTimeout(function(){tb.disabled=false;tb.textContent='Tekrar için dokun';},1200);}else ts.textContent=k.toFixed(1);},50);}
+    if(tb.disabled)return;tN++;tc.textContent=tN;});
+
+  /* --- iletisim --- */
+  document.getElementById('kopya').onclick=function(){var d=document.getElementById('kopya-d');
+    function ok(){d.textContent='✓';setTimeout(function(){d.textContent='⧉'},1800);}
+    try{navigator.clipboard.writeText('jagweyy@gmail.com').then(ok,function(){});}catch(e){}};
+
+  /* --- kader --- */
+  var F=[
+    ['大吉','Büyük şans. Kaçırdığın o bölüm bu hafta karşına çıkacak.'],
+    ['吉','İyi bir gün. Yarım bıraktığın seriyi bitirmek için tam zamanı.'],
+    ['中吉','Orta şans. Sıradaki bölümde beklemediğin bir gelişme var.'],
+    ['小吉','Küçük ama sağlam bir şans. Bir çay yap, birkaç bölüm oku.'],
+    ['末吉','Şans yavaş geliyor. Sabret, bakım da bitecek.'],
+    ['凶','Dikkat. Spoiler yememek için sosyal medyadan uzak dur.'],
+    ['大吉','Favori karakterin bu hafta ekrana dönüyor. Hazırlıklı ol.'],
+    ['吉','Gölgeler senden yana. Yeni bir seri keşfedeceksin.']
+  ],fe=document.getElementById('fal'),fs=-1;
+  document.getElementById('f-cek').onclick=function(){
+    var i;do{i=Math.floor(Math.random()*F.length)}while(i===fs);fs=i;
+    fe.classList.remove('y');void fe.offsetWidth;fe.classList.add('y');
+    fe.innerHTML='<div><div class="sans">'+F[i][0]+'</div><p>'+F[i][1]+'</p></div>';
+  };
+
+  /* --- site donunce yenile --- */
+  var du=document.getElementById('durum'),sn=0;
+  function kontrol(){
+    fetch('/api/ayarlar?_='+Date.now(),{cache:'no-store'}).then(function(r){
+      if(!r.ok)throw 0;return r.json();
+    }).then(function(j){
+      if(j&&j.bakimModu===false){du.textContent='Site döndü, yönlendiriliyorsun';setTimeout(function(){(window.top||window).location.href='/';},600);}
+      else{sn++;if(j&&j.bakimMesaji&&!m)document.getElementById('mesaj').textContent=j.bakimMesaji;}
+    }).catch(function(){sn++;});
+  }
+  setInterval(kontrol,20000);
+})();
+</script>
+</body>
+</html>

@@ -4,13 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Kage 95 - Modern Manga Arşivi ve Kütüphanesi</title>
+    <base href="/">
+    <script src="js/yol.js"></script>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
     <meta name="theme-color" content="#e60000">
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
-    <link rel="stylesheet" href="css/vurgu.css?v=20261026e">
+    <link rel="stylesheet" href="css/vurgu.css?v=20261026k">
     <link rel="stylesheet" href="css/forum.css?v=20261025a">
 
     <!-- Tipografi: Noto Serif (başlık), Noto Serif JP (kanji), Noto Sans (metin) -->
@@ -196,11 +198,16 @@
             position: absolute; top: calc(100% + 4px); left: 0; min-width: 250px;
             background: rgba(18, 14, 14, 0.98); border: 1px solid var(--border-belirgin, #3a3030);
             border-radius: 8px; box-shadow: 0 14px 32px rgba(0,0,0,.7), 0 0 16px rgba(224,52,60,.14);
-            padding: 6px; display: none; flex-direction: column; gap: 4px; z-index: 250;
+            padding: 6px; display: flex; flex-direction: column; gap: 4px; z-index: 250;
+            opacity: 0; visibility: hidden; pointer-events: none; transform: translateY(-6px);
+            transition: opacity .22s cubic-bezier(.22,1,.36,1), transform .3s cubic-bezier(.22,1,.36,1), visibility 0s linear .28s;
             backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
         }
+        /* Görünmez köprü: imleç düğmeden menüye inerken boşluğa düşüp menüyü kapatmasın */
+        .menu-dropdown-menu::before { content: ""; position: absolute; left: 0; right: 0; top: -24px; height: 24px; }
+        .menu-dropdown-kap::after { content: ""; position: absolute; left: 0; right: 0; top: 100%; height: 24px; }
         .menu-dropdown-kap:hover .menu-dropdown-menu,
-        .menu-dropdown-kap:focus-within .menu-dropdown-menu { display: flex; }
+        .menu-dropdown-kap:has(:focus-visible) .menu-dropdown-menu { opacity: 1; visibility: visible; pointer-events: auto; transform: none; transition-delay: 0s; }
         .menu-dropdown-oge {
             display: flex; align-items: center; gap: 12px; padding: 10px 14px;
             border-radius: 6px; color: var(--text-ana); text-decoration: none;
@@ -1246,7 +1253,7 @@
         };
 
         const rotaOku = () => {
-            const h = window.location.hash || '';
+            const h = (window.K95Yol ? window.K95Yol.hash() : window.location.hash) || '';
             const m = h.match(/^#\/manga\/(\d+)/);
             if (m) return { sayfa: 'manga', id: parseInt(m[1], 10) };
             const ku = h.match(/^#\/kullanici\/([^/?#]+)/);
@@ -1370,12 +1377,35 @@
                 placeholder="Bu seri hakkında ne düşünüyorsun? (Spoiler uyarısı yapmayı unutma)" />
         </>);
 
+        // Kartlarda ortak "Bl. N / Devam" butonu: kaldığın bölüm varsa o, yoksa son (ya da ilk) bölüm
+        const hizliBolumBul = (m) => {
+            try {
+                const v = JSON.parse(localStorage.getItem('kage95_son_okunan') || 'null');
+                if (v && v.bolumId && String(v.mangaId) === String(m.id)) return { id: v.bolumId, no: v.bolumNo, devam: true };
+            } catch (e) {}
+            if (m.sonBolumId) return { id: m.sonBolumId, no: m.sonBolumNo };
+            if (m.ilkBolumId) return { id: m.ilkBolumId, no: 1 };
+            return null;
+        };
+        const HizliOku = ({ m }) => {
+            const h = hizliBolumBul(m);
+            if (!h) return null;
+            const git = (e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `read.html?chapter=${h.id}`; };
+            return (
+                <span className={`kart-hizli-oku ${h.devam ? 'devam' : ''}`} role="button" tabIndex={0}
+                    title={h.devam ? 'Kaldığın yerden devam et' : (h.no != null ? `Bölüm ${h.no} Oku` : 'Oku')}
+                    onClick={git} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') git(e); }}>
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                    <span>{h.devam ? 'Devam' : (h.no != null ? `Bl. ${h.no}` : 'Oku')}</span>
+                </span>
+            );
+        };
+
         const MangaKart = ({ m, yeniGoster = true }) => {
             const yeni = yeniGoster && yeniMi(m.eklenmeTarihi);
             const tamam = m.durum === 'Tamamlandi';
             const ilkKategori = m.kategoriler && m.kategoriler[0] ? m.kategoriler[0] : '';
             const kartPuan = typeof m.ortalamaPuan === 'number' ? m.ortalamaPuan : (typeof m.puan === 'number' && m.puan > 0 && m.puan <= 5 ? m.puan : null);
-            const hizliBolum = m.sonBolumId ? { id: m.sonBolumId, no: m.sonBolumNo } : (m.ilkBolumId ? { id: m.ilkBolumId, no: 1 } : null);
             return (
                 <a className="manga-kart" href={`#/manga/${m.id}`}
                    aria-label={`${m.mangaAdi}, ${m.bolumSayisi || 0} bölüm${yeni ? ', yeni' : ''}${tamam ? ', tamamlandı' : ''}`}>
@@ -1386,22 +1416,7 @@
                                 <span className="rozet-mini rozet-yeni">Yeni</span>
                             </div>
                         )}
-                        {hizliBolum && (
-                            <span
-                                className="kart-hizli-oku"
-                                role="button"
-                                tabIndex={0}
-                                title={`Bölüm ${hizliBolum.no} Oku`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    window.location.href = `read.html?chapter=${hizliBolum.id}`;
-                                }}
-                            >
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                                <span>Bl. {hizliBolum.no}</span>
-                            </span>
-                        )}
+                        <HizliOku m={m} />
                     </div>
                     <h3 className="manga-baslik">{m.mangaAdi}</h3>
                     <div className="manga-meta">
@@ -2628,7 +2643,7 @@
             const kucuk = /^[\w.-]+$/.test(k) ? url.slice(0, url.lastIndexOf('/') + 1) + k : '';
             return { url, odak, kucuk };
         };
-        const OC_SURE = 6000;
+        const OC_SURE = 8500;
         // Slaytın bağlı olduğu manga: seri kaydı ("m12") ya da "/#/manga/12" bağlantısı
         const ocMangaId = (s) => {
             if (typeof s.id === 'string' && /^m\d+$/.test(s.id)) return Number(s.id.slice(1));
@@ -2674,8 +2689,9 @@
 
             const n = liste.length;
             const git = React.useCallback((k) => { if (n) setI(((k % n) + n) % n); }, [n]);
-            // Kaydırma hiç durmaz; yalnızca sekme gizliyken bekler
-            const otomatik = n > 1 && gorunur;
+            // Kullanıcı durdurabilir; ayrıca sekme gizliyken bekler
+            const [dur, setDur] = React.useState(false);
+            const otomatik = n > 1 && gorunur && !dur;
             React.useEffect(() => {
                 if (!otomatik) return;
                 const t = setTimeout(() => setI(x => (x + 1) % n), OC_SURE);
@@ -2772,6 +2788,11 @@
                             <button type="button" className="oc-ok oc-ok-sol" aria-label="Önceki slayt" onClick={() => git(i - 1)}><span aria-hidden="true">‹</span></button>
                             <button type="button" className="oc-ok oc-ok-sag" aria-label="Sonraki slayt" onClick={() => git(i + 1)}><span aria-hidden="true">›</span></button>
                             <div className="oc-noktalar" aria-hidden="true">{liste.map((_, k) => <span key={k} className={k === i ? 'aktif' : ''}></span>)}</div>
+                            <button type="button" className={`oc-dur ${dur ? 'durdu' : ''}`} aria-label={dur ? 'Otomatik geçişi başlat' : 'Otomatik geçişi durdur'} aria-pressed={dur} title={dur ? 'Oynat' : 'Duraklat'} onClick={() => setDur(d => !d)}>
+                                {dur
+                                    ? <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M2 1l7 4-7 4z" fill="currentColor"/></svg>
+                                    : <svg viewBox="0 0 10 10" width="10" height="10" aria-hidden="true"><path d="M2 1h2v8H2zM6 1h2v8H6z" fill="currentColor"/></svg>}
+                            </button>
                         </>}
                     </div>
                 </section>
@@ -2811,6 +2832,7 @@
                                     <span className="populer-sira" aria-hidden="true">{i + 1}</span>
                                     <span className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                                         <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
+                                        <HizliOku m={m} />
                                     </span>
                                 </a>
                                 <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
@@ -2863,6 +2885,7 @@
                                         {sirala === 'guncel' && yeni && <span className="populer-sira serit-rozet" aria-hidden="true">Yeni</span>}
                                         <span className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                                             <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
+                                            <HizliOku m={m} />
                                         </span>
                                     </a>
                                     <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
@@ -3949,10 +3972,9 @@
 
             if (ayarlar.bakimModu && !panelYetkisiVar(kullaniciAl())) {
                 return (
-                    <div className="bakim-ekrani" style={arkaPlanStili}>
-                        <h1>Bakımdayız</h1>
-                        <p>{ayarlar.bakimMesaji || 'Site kısa süreliğine bakımda. Birazdan tekrar dene.'}</p>
-                        <a className="btn-ikincil" href="login.html">Yönetici girişi</a>
+                    <div style={{ position: 'fixed', inset: 0, background: 'var(--bg-ana)' }}>
+                        <iframe title="Bakım" src={'bakim.html?m=' + encodeURIComponent(ayarlar.bakimMesaji || 'Site kısa süreliğine bakımda. Birazdan tekrar dene.')} style={{ width: '100%', height: '100%', border: 0, display: 'block' }} />
+                        <a className="btn-ikincil" href="login.html" style={{ position: 'fixed', right: 12, bottom: 12, fontSize: '.75rem', opacity: .7, zIndex: 5 }}>Yönetici girişi</a>
                     </div>
                 );
             }
@@ -3984,7 +4006,7 @@
                                         <span>Topluluk</span>
                                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: 4 }}><path d="m6 9 6 6 6-6" /></svg>
                                     </a>
-                                    <div className="menu-dropdown-menu">
+                                    <div className="menu-dropdown-menu" onClick={() => { if (document.activeElement && document.activeElement.blur) document.activeElement.blur(); }}>
                                         <a href="#/forum" className="menu-dropdown-oge">
                                             <Ikon ad="forum" boyut={18} />
                                             <div>

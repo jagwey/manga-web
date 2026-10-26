@@ -15,7 +15,9 @@ namespace Kage95.Backend.Services
         public bool Dene(string anahtar, int maks, TimeSpan pencere)
         {
             var simdi = DateTime.UtcNow;
-            if (_kayitlar.Count > 2000) Temizle(simdi);
+            // RAM taşma ve bellek doyurma engeli: 5.000 kayıt tavanı
+            if (_kayitlar.Count > 5000) _kayitlar.Clear();
+            else if (_kayitlar.Count > 2000) Temizle(simdi);
             var kuyruk = _kayitlar.GetOrAdd(anahtar, _ => new Queue<DateTime>());
             lock (kuyruk)
             {

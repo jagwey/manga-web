@@ -78,6 +78,7 @@ namespace Kage95.Backend.Controllers
 
     [ApiController]
     [Route("api/forum")]
+    [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("genel")]
     public class ForumController : ControllerBase
     {
         public static readonly ForumKategori[] Kategoriler =

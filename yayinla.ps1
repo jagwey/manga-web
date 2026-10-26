@@ -24,7 +24,7 @@ if (-not $SadeceOnyuz) {
 
     Write-Host "[2/4] IIS kilidini acmak icin app_offline.htm gonderiliyor..."
     $offFile = Join-Path $pubDir "app_offline.htm"
-    "Bakim" | Set-Content $offFile -Encoding utf8
+    Copy-Item (Join-Path $kokDizin "bakim.html") $offFile -Force
     curl.exe -s -S --ssl-reqd -k -u $kimlik -T $offFile "$ftpKok/app_offline.htm"
     Start-Sleep -Seconds 3
 
@@ -51,7 +51,7 @@ foreach ($f in $htmlDosyalar) {
     curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
 }
 
-$digerKokDosyalar = @("logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
+$digerKokDosyalar = @("bakim.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
 foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {

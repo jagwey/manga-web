@@ -11,6 +11,7 @@ namespace Kage95.Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("genel")]
     public class MangasController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -88,6 +89,16 @@ namespace Kage95.Backend.Controllers
 
             var totalCount = await query.CountAsync();
 
+            // Varsayılan ilk sayfa listesini 45 saniye önbellekte tutarak SQL Server yükünü minimize et
+            var varsayilanIstekMi = page == 1 && string.IsNullOrWhiteSpace(search) && string.IsNullOrWhiteSpace(category) 
+                && !onecikan && string.IsNullOrWhiteSpace(durum) && (string.IsNullOrWhiteSpace(sirala) || sirala == "yeni");
+            const string varsayilanAnahtar = "manga:katalog:varsayilan";
+            if (varsayilanIstekMi && _onbellek.TryGetValue(varsayilanAnahtar, out (List<MangaListDto> list, int count) cached))
+            {
+                Response.Headers.Append("X-Total-Count", cached.count.ToString());
+                return Ok(cached.list);
+            }
+
             // sirala: yeni (varsayılan), guncel (son bölüm tarihi), puan, ad. Eşitlikte sıra sabit kalsın diye Id ile bağlanır.
             // Arama varken ve sıralama seçilmemişse en alakalı sonuç en üste gelir.
             var siralaAnahtar = (sirala ?? "").Trim().ToLowerInvariant();
@@ -128,6 +139,11 @@ namespace Kage95.Backend.Controllers
                 .ToListAsync();
 
             foreach (var mg in mangas) mg.Puan = mg.Puan.HasValue ? Math.Round(mg.Puan.Value, 1, MidpointRounding.AwayFromZero) : null;
+
+            if (varsayilanIstekMi)
+            {
+                _onbellek.Set(varsayilanAnahtar, (mangas, totalCount), TimeSpan.FromSeconds(45));
+            }
 
             Response.Headers.Append("X-Total-Count", totalCount.ToString());
 

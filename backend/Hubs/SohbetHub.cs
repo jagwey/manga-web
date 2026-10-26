@@ -82,11 +82,26 @@ namespace Kage95.Backend.Hubs
             _sinir = sinir;
         }
 
+        private static int _sonYayinlananCevrimici = -1;
+        private static long _sonYayinZamaniTicks = 0;
+        private static readonly SemaphoreSlim _yayinSemaphoru = new(1, 1);
+
         public override async Task OnConnectedAsync()
         {
+            // WebSocket DoS ve bağlantı seli engeli: IP başına dakikada en fazla 30 bağlantı
+            var ip = Context.GetHttpContext()?.Connection.RemoteIpAddress?.ToString() ?? "bilinmiyor";
+            if (!_sinir.Dene($"hubconn:{ip}", 30, TimeSpan.FromMinutes(1)))
+            {
+                Context.Abort();
+                return;
+            }
+
             var n = Interlocked.Increment(ref _cevrimici);
             await base.OnConnectedAsync();
-            await Clients.All.SendAsync("Cevrimici", new { sayi = n });
+            // Yeni bağlanan kullanıcıya güncel sayıyı hemen ilet
+            await Clients.Caller.SendAsync("Cevrimici", new { sayi = n });
+            // Diğer tüm kullanıcılara yayını sınırla (broadcast storm koruması)
+            await KorumaliCevrimiciYayiniAsync();
         }
 
         public override async Task OnDisconnectedAsync(Exception? exception)
@@ -94,7 +109,33 @@ namespace Kage95.Backend.Hubs
             var n = Interlocked.Decrement(ref _cevrimici);
             if (n < 0) { Interlocked.Exchange(ref _cevrimici, 0); n = 0; }
             await base.OnDisconnectedAsync(exception);
-            await Clients.All.SendAsync("Cevrimici", new { sayi = n });
+            await KorumaliCevrimiciYayiniAsync();
+        }
+
+        private async Task KorumaliCevrimiciYayiniAsync()
+        {
+            var suanki = Cevrimici;
+            var simdiTicks = DateTime.UtcNow.Ticks;
+            var oncekiTicks = Volatile.Read(ref _sonYayinZamaniTicks);
+            var gecenSure = TimeSpan.FromTicks(simdiTicks - oncekiTicks);
+
+            // Son yayından bu yana 5 saniye geçmemişse ve fark 5'ten azsa yayını atla
+            if (gecenSure < TimeSpan.FromSeconds(5) && Math.Abs(suanki - _sonYayinlananCevrimici) < 5)
+                return;
+
+            if (!await _yayinSemaphoru.WaitAsync(0))
+                return;
+
+            try
+            {
+                _sonYayinlananCevrimici = suanki;
+                Volatile.Write(ref _sonYayinZamaniTicks, DateTime.UtcNow.Ticks);
+                await Clients.All.SendAsync("Cevrimici", new { sayi = suanki });
+            }
+            finally
+            {
+                _yayinSemaphoru.Release();
+            }
         }
 
         /// <summary>Genel odaya mesaj gönderir. Yalnızca giriş yapmış kullanıcı; sticker için seviye kapısı vardır.</summary>
@@ -163,17 +204,7 @@ namespace Kage95.Backend.Hubs
                 SonMetin[uid] = temiz;
             }
 
-            // Sohbette en fazla 50 mesaj tutulsun; 51. mesaj yazıldığında en eski mesajlar veritabanından silinsin.
-            var ellinciId = await _db.SohbetMesajlari.AsNoTracking()
-                .Where(m => !m.Silindi)
-                .OrderByDescending(m => m.Id)
-                .Skip(50 - 1)
-                .Select(m => (int?)m.Id)
-                .FirstOrDefaultAsync(ct);
-            if (ellinciId.HasValue)
-            {
-                await _db.SohbetMesajlari.Where(m => m.Id < ellinciId.Value || m.Silindi).ExecuteDeleteAsync(ct);
-            }
+// Canli sohbette anlik DELETE lock kaldirildi; temizlik arka planda SohbetTemizlikServisi ile yapilir
 
             var stil = await _tercihler.TekAsync(uid);
             await Clients.All.SendAsync("MesajGeldi", new SohbetMesajDto
@@ -222,7 +253,8 @@ namespace Kage95.Backend.Hubs
 
         protected override async Task ExecuteAsync(CancellationToken durdur)
         {
-            try { await Task.Delay(TimeSpan.FromMinutes(1), durdur); } catch (OperationCanceledException) { return; }
+            try { await Task.Delay(TimeSpan.FromSeconds(30), durdur); } catch (OperationCanceledException) { return; }
+            var sonDerinTemizlik = DateTime.UtcNow;
             while (!durdur.IsCancellationRequested)
             {
                 try
@@ -231,7 +263,7 @@ namespace Kage95.Backend.Hubs
                     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                     var simdi = DateTime.UtcNow;
 
-                    // 1. Sohbette en yeni 50 mesaj dışındakileri ve silinmişleri temizle
+                    // 1. Sohbette en yeni 50 mesaj dışındakileri ve silinmişleri temizle (Her 3 dakikada bir, kilit oluşturmadan)
                     var ellinciSohbetId = await db.SohbetMesajlari.AsNoTracking()
                         .Where(m => !m.Silindi)
                         .OrderByDescending(m => m.Id)
@@ -243,33 +275,38 @@ namespace Kage95.Backend.Hubs
                     else
                         await db.SohbetMesajlari.Where(m => m.Silindi).ExecuteDeleteAsync(durdur);
 
-                    // 2. Süresi dolmuş sohbet susturmalarını temizle
-                    await db.SohbetSusturmalari.Where(s => s.Bitis < simdi).ExecuteDeleteAsync(durdur);
+                    // Diğer derin temizlikler her 6 saatte bir çalışır
+                    if (simdi - sonDerinTemizlik > TimeSpan.FromHours(6))
+                    {
+                        sonDerinTemizlik = simdi;
+                        // 2. Süresi dolmuş sohbet susturmalarını temizle
+                        await db.SohbetSusturmalari.Where(s => s.Bitis < simdi).ExecuteDeleteAsync(durdur);
 
-                    // 3. 24 saatten eski 0 puanlık geçici okuma başlangıç (bolum_basla) kayıtlarını temizle
-                    var birGunOnce = simdi.AddDays(-1);
-                    await db.PuanKayitlari.Where(p => p.Puan == 0 && p.Tarih < birGunOnce).ExecuteDeleteAsync(durdur);
+                        // 3. 24 saatten eski 0 puanlık geçici okuma başlangıç (bolum_basla) kayıtlarını temizle
+                        var birGunOnce = simdi.AddDays(-1);
+                        await db.PuanKayitlari.Where(p => p.Puan == 0 && p.Tarih < birGunOnce).ExecuteDeleteAsync(durdur);
 
-                    // 4. 30 günden eski bildirimleri temizle
-                    var otuzGunOnce = simdi.AddDays(-30);
-                    await db.Bildirimler.Where(b => b.Tarih < otuzGunOnce).ExecuteDeleteAsync(durdur);
+                        // 4. 30 günden eski bildirimleri temizle
+                        var otuzGunOnce = simdi.AddDays(-30);
+                        await db.Bildirimler.Where(b => b.Tarih < otuzGunOnce).ExecuteDeleteAsync(durdur);
 
-                    // 5. Kapatılmış ve 7 günü geçmiş yorum şikayetlerini temizle
-                    var yediGunOnce = simdi.AddDays(-7);
-                    await db.YorumSikayetleri.Where(s => s.Durum == "kapali" && s.Tarih < yediGunOnce).ExecuteDeleteAsync(durdur);
+                        // 5. Kapatılmış ve 7 günü geçmiş yorum şikayetlerini temizle
+                        var yediGunOnce = simdi.AddDays(-7);
+                        await db.YorumSikayetleri.Where(s => s.Durum == "kapali" && s.Tarih < yediGunOnce).ExecuteDeleteAsync(durdur);
 
-                    // 6. Denetim kayıtlarında en güncel 500 satırı tut, daha eskileri sil
-                    var besYuzuncuDenetimId = await db.DenetimKayitlari.AsNoTracking()
-                        .OrderByDescending(d => d.Id)
-                        .Skip(500 - 1)
-                        .Select(d => (int?)d.Id)
-                        .FirstOrDefaultAsync(durdur);
-                    if (besYuzuncuDenetimId.HasValue)
-                        await db.DenetimKayitlari.Where(d => d.Id < besYuzuncuDenetimId.Value).ExecuteDeleteAsync(durdur);
+                        // 6. Denetim kayıtlarında en güncel 500 satırı tut, daha eskileri sil
+                        var besYuzuncuDenetimId = await db.DenetimKayitlari.AsNoTracking()
+                            .OrderByDescending(d => d.Id)
+                            .Skip(500 - 1)
+                            .Select(d => (int?)d.Id)
+                            .FirstOrDefaultAsync(durdur);
+                        if (besYuzuncuDenetimId.HasValue)
+                            await db.DenetimKayitlari.Where(d => d.Id < besYuzuncuDenetimId.Value).ExecuteDeleteAsync(durdur);
+                    }
                 }
                 catch (OperationCanceledException) { return; }
                 catch (Exception ex) { Console.WriteLine($"[Veritabanı temizlik] {ex.Message}"); }
-                try { await Task.Delay(TimeSpan.FromHours(6), durdur); } catch (OperationCanceledException) { return; }
+                try { await Task.Delay(TimeSpan.FromMinutes(3), durdur); } catch (OperationCanceledException) { return; }
             }
         }
     }

@@ -127,6 +127,9 @@ namespace Kage95.Backend.Controllers
 
             if (kullanici == null)
             {
+                // Timing Attack koruması: Kullanıcı sistemde bulunamadığında da sahte BCrypt doğrulaması
+                // çalıştırılarak yanıt süresi eşitlenir ve kullanıcı adı tespiti açığı kapatılır.
+                try { BCrypt.Net.BCrypt.Verify(request.Sifre, "$2a$11$e87wP4KPGqB3BsdG38d.wO8mO1fHw1lYk3fK4sD4H8K4sD4H8K4sD"); } catch { }
                 _sinirlayici.HataKaydet(sinirAnahtari);
                 return Unauthorized(new { message = "Kullanıcı adı veya şifre hatalı." });
             }

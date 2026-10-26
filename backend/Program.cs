@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Caching.Memory;
 using System.Text;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -13,6 +14,19 @@ using Kage95.Backend.Security;
 using Kage95.Backend.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Kestrel DoS, Slowloris ve RAM sisme korumalari
+builder.WebHost.ConfigureKestrel(options =>
+{
+    // Genel varsayilan istek govdesi limiti: 1 MB (UploadController 150MB kendi ozelligini korur)
+    options.Limits.MaxRequestBodySize = 1 * 1024 * 1024;
+    // Slowloris ve yavas soket acik tutma saldirilarina karsi zaman asimlari
+    options.Limits.RequestHeadersTimeout = TimeSpan.FromSeconds(15);
+    options.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(2);
+    // Eşzamanlı bağlantı sınırları (RAM ve soket koruması)
+    options.Limits.MaxConcurrentConnections = 2000;
+    options.Limits.MaxConcurrentUpgradedConnections = 500;
+});
 // Gizli ayarlar (JWT anahtarı) git'e girmeyen yerel dosyadan ya da ortam değişkeninden okunur.
 builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
 
@@ -91,15 +105,32 @@ builder.Services.AddAuthentication(options =>
             var idStr = ctx.Principal?.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             if (!int.TryParse(idStr, out var id)) { ctx.Fail("Geçersiz oturum."); return; }
 
-            var db = ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
-            var k = await db.Kullanicilar.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ctx.HttpContext.RequestAborted);
-            if (k == null) { ctx.Fail("Kullanıcı bulunamadı."); return; }
+            // Veritabanı doygunluğunu önlemek için kullanıcı durumunu 30 sn MemoryCache'de tut
+            var cache = ctx.HttpContext.RequestServices.GetRequiredService<Microsoft.Extensions.Caching.Memory.IMemoryCache>();
+            var cacheKey = $"jwt_usr_st_{id}";
+            if (!cache.TryGetValue(cacheKey, out (bool exists, bool banli, int tv) userStatus))
+            {
+                var db = ctx.HttpContext.RequestServices.GetRequiredService<AppDbContext>();
+                var k = await db.Kullanicilar.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id, ctx.HttpContext.RequestAborted);
+                if (k == null)
+                {
+                    userStatus = (false, false, 0);
+                    cache.Set(cacheKey, userStatus, TimeSpan.FromSeconds(15));
+                }
+                else
+                {
+                    var banli = await HesapDurumu.BanliMiAsync(db, k, ctx.HttpContext.RequestAborted);
+                    userStatus = (true, banli, k.TokenSurumu);
+                    cache.Set(cacheKey, userStatus, TimeSpan.FromSeconds(30));
+                }
+            }
 
-            if (await HesapDurumu.BanliMiAsync(db, k, ctx.HttpContext.RequestAborted)) { ctx.Fail("Hesap banlı."); return; }
+            if (!userStatus.exists) { ctx.Fail("Kullanıcı bulunamadı."); return; }
+            if (userStatus.banli) { ctx.Fail("Hesap banlı."); return; }
 
             var tvStr = ctx.Principal?.FindFirst("tv")?.Value;
             var tv = int.TryParse(tvStr, out var t) ? t : 0;
-            if (tv != k.TokenSurumu) ctx.Fail("Oturum sona erdi.");
+            if (tv != userStatus.tv) { ctx.Fail("Oturum sona erdi."); return; }
         }
     };
 });
@@ -128,6 +159,9 @@ builder.Services.AddRateLimiter(o =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(5) }));
     o.AddPolicy("kayit", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(30) }));
+    // Genel okuma ve API tarama hız sınırı (IP başına dakikada 120 istek)
+    o.AddPolicy("genel", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 120, Window = TimeSpan.FromMinutes(1) }));
 });
 
 // 5. Controller ve JSON Ayarları
@@ -285,7 +319,7 @@ else
     app.UseHttpsRedirection();
 }
 
-// Tarayıcıya yönelik temel güvenlik başlıkları
+// Tarayıcıya yönelik temel güvenlik başlıkları ve CSP
 app.Use(async (ctx, next) =>
 {
     var h = ctx.Response.Headers;
@@ -293,6 +327,16 @@ app.Use(async (ctx, next) =>
     h["X-Frame-Options"] = "DENY";
     h["Referrer-Policy"] = "strict-origin-when-cross-origin";
     h["Permissions-Policy"] = "camera=(), microphone=(), geolocation=()";
+    h["Content-Security-Policy"] = 
+        "default-src 'self'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://unpkg.com; " +
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; " +
+        "font-src 'self' https://fonts.gstatic.com data:; " +
+        "img-src 'self' data: https: blob:; " +
+        "connect-src 'self' wss: ws: https:; " +
+        "frame-ancestors 'none'; " +
+        "base-uri 'self'; " +
+        "form-action 'self';";
     await next();
 });
 

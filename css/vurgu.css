@@ -25,8 +25,8 @@
 :root:root .kart-kapak { border-radius: 10px; transition: transform .25s ease, box-shadow .25s ease, border-color .15s ease; }
 :root:root .kart-kapak img { transition: transform .45s ease; }
 @media (hover: hover) {
-    :root:root .manga-kart:hover .kart-kapak { transform: translateY(-5px); box-shadow: 0 14px 30px -10px var(--vurgu-rengi), 0 0 0 1px var(--vurgu-parlak); }
-    :root:root .manga-kart:hover .kart-kapak img { transform: scale(1.06); }
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-kapak { transform: translateY(-5px); box-shadow: 0 14px 30px -10px var(--vurgu-rengi), 0 0 0 1px var(--vurgu-parlak); }
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-kapak img { transform: scale(1.06); }
 }
 
 /* Düğmeler */
@@ -519,3 +519,157 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
 @media (min-width: 769px) {
     :root .site-footer .footer-ic nav { padding-right: 140px; }
 }
+
+/* ===== Premium hareket katmanı (en sonda: önceki geçişleri ince ayarlar) ===== */
+:root {
+    --k95-ease: cubic-bezier(.22, 1, .36, 1);
+    --k95-ease-yumusak: cubic-bezier(.4, 0, .2, 1);
+    --k95-hizli: .22s;
+    --k95-orta: .4s;
+    --k95-yavas: .7s;
+}
+@media (prefers-reduced-motion: no-preference) {
+    html { scroll-behavior: smooth; }
+    body { animation: k95-sayfa-gir .5s var(--k95-ease) both; }
+    @keyframes k95-sayfa-gir { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes k95-yuksel { from { opacity: 0; transform: translateY(18px) scale(.985); } to { opacity: 1; transform: none; } }
+    @keyframes oc-yuksel { from { opacity: 0; transform: translateY(24px); filter: blur(4px); } to { opacity: 1; transform: none; filter: blur(0); } }
+    @keyframes oc-gir { from { opacity: 0; transform: scale(1.025); } to { opacity: 1; transform: none; } }
+
+    :root:root .manga-kart { animation: k95-yuksel .7s var(--k95-ease) both; }
+    :root:root .manga-kart:nth-child(5) { animation-delay: .2s; }
+    :root:root .manga-kart:nth-child(6) { animation-delay: .24s; }
+    :root:root .manga-kart:nth-child(n+7) { animation-delay: .28s; }
+    :root:root .oc-slayt { animation: oc-gir .9s var(--k95-ease) both; }
+    :root:root .oc-icerik, :root:root .oc-icerik > * { animation: oc-yuksel .85s var(--k95-ease) both; }
+    :root:root .oc-icerik > :nth-child(2) { animation-delay: .08s; } :root:root .oc-icerik > :nth-child(3) { animation-delay: .16s; }
+    :root:root .oc-icerik > :nth-child(4) { animation-delay: .24s; } :root:root .oc-icerik > :nth-child(5) { animation-delay: .32s; }
+
+    /* Kartlar: yavaş çıkış, yumuşak iniş */
+    :root:root .kart-kapak { transition: transform var(--k95-orta) var(--k95-ease), box-shadow .6s var(--k95-ease), border-color var(--k95-orta) var(--k95-ease); will-change: transform; }
+    :root:root .kart-kapak img { transition: transform 1s var(--k95-ease), filter .6s var(--k95-ease); }
+    :root:root .oc-afis { transition: transform 1s var(--k95-ease), box-shadow .8s var(--k95-ease), opacity .6s var(--k95-ease); }
+    :root:root .oc-ok { transition: background-color var(--k95-hizli) var(--k95-ease), border-color var(--k95-hizli) var(--k95-ease), box-shadow var(--k95-orta) var(--k95-ease), transform var(--k95-orta) var(--k95-ease), color var(--k95-hizli) var(--k95-ease); }
+    :root:root .oc-noktalar span { transition: width .5s var(--k95-ease), background-color .4s var(--k95-ease), box-shadow .4s var(--k95-ease); }
+
+    /* Butonlar, çipler, ikonlar: aynı eğri, basınca çökme */
+    :root:root .btn-ana, :root:root .btn-ikincil, :root:root .btn-ikinci, :root:root .btn-ikon,
+    :root:root .oc-btn, :root:root .oc-btn-ikincil, :root:root .sosyal-btn, :root:root .gr-cip, :root:root .tur-bolum button, :root:root .fr-ac-dugme {
+        transition: transform var(--k95-orta) var(--k95-ease), box-shadow var(--k95-orta) var(--k95-ease), background-color var(--k95-hizli) var(--k95-ease-yumusak), border-color var(--k95-hizli) var(--k95-ease-yumusak), color var(--k95-hizli) var(--k95-ease-yumusak);
+        -webkit-tap-highlight-color: transparent;
+    }
+    :root:root .btn-ana:active, :root:root .btn-ikincil:active, :root:root .btn-ikinci:active, :root:root .btn-ikon:active,
+    :root:root .oc-btn:active, :root:root .oc-btn-ikincil:active, :root:root .sosyal-btn:active, :root:root .gr-cip:active, :root:root .tur-bolum button:active, :root:root .fr-ac-dugme:active {
+        transform: scale(.96); transition-duration: .08s;
+    }
+    :root:root .oc-ok:active { transform: translateY(-50%) scale(.92); transition-duration: .08s; }
+
+    /* Alanlar: odakta yumuşak halka */
+    :root:root input, :root:root textarea, :root:root select { transition: border-color var(--k95-hizli) var(--k95-ease-yumusak), box-shadow var(--k95-orta) var(--k95-ease), background-color var(--k95-hizli) var(--k95-ease-yumusak); }
+    :root:root input:focus-visible, :root:root textarea:focus-visible, :root:root select:focus-visible { box-shadow: 0 0 0 3px color-mix(in srgb, var(--vurgu-parlak, #e0343c) 28%, transparent); }
+
+    /* Bağlantılar ve kartlar */
+    :root:root a { transition-timing-function: var(--k95-ease-yumusak); }
+    :root:root .fr-kart, :root:root .gr-kart, :root:root .bildirim-oge { transition: border-color var(--k95-hizli) var(--k95-ease-yumusak), background-color var(--k95-hizli) var(--k95-ease-yumusak), transform var(--k95-orta) var(--k95-ease), box-shadow var(--k95-orta) var(--k95-ease); }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+    :root:root .btn-ana:hover, :root:root .oc-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 22px color-mix(in srgb, var(--vurgu-rengi, #8e0e15) 45%, transparent); }
+    :root:root .btn-ikincil:hover, :root:root .btn-ikinci:hover, :root:root .btn-ikon:hover, :root:root .oc-btn-ikincil:hover, :root:root .sosyal-btn:hover { transform: translateY(-2px); }
+    :root:root .fr-kart:hover, :root:root .gr-kart:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,.35); }
+    :root:root .btn-ana:active, :root:root .oc-btn:active, :root:root .btn-ikincil:active, :root:root .btn-ikinci:active, :root:root .btn-ikon:active { transform: scale(.96); }
+}
+/* Klavye odağı: tüm etkileşimli öğelerde net halka */
+:root:root :is(a, button, [role="button"], summary):focus-visible { outline: 2px solid var(--vurgu-parlak, #e0343c); outline-offset: 3px; border-radius: inherit; }
+
+/* ===== Manga kart detay etkilesimleri (hover / basma / bekleme) ===== */
+@keyframes k95-parilti { from { transform: translateX(-130%) skewX(-18deg); } to { transform: translateX(260%) skewX(-18deg); } }
+@keyframes k95-bekleme-zoom { from { transform: scale(1.06); } to { transform: scale(1.13); } }
+@keyframes k95-bekleme-nabiz { 0%,100% { box-shadow: 0 0 0 0 rgba(224,52,60,.55); } 50% { box-shadow: 0 0 0 7px rgba(224,52,60,0); } }
+@keyframes k95-bekleme-halka { 0%,100% { border-color: var(--vurgu-parlak); } 50% { border-color: rgba(255,255,255,.75); } }
+
+:root:root .kart-kapak::after {
+    content: ""; position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0;
+    background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.22) 50%, transparent 65%);
+    transform: translateX(-130%) skewX(-18deg);
+}
+:root:root .manga-baslik { position: relative; transition: color .3s var(--k95-ease); }
+:root:root .manga-baslik::after {
+    content: ""; position: absolute; left: 0; bottom: -2px; height: 2px; width: 100%;
+    background: var(--vurgu-parlak); transform: scaleX(0); transform-origin: left;
+    transition: transform .5s var(--k95-ease);
+}
+
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-kapak::after { opacity: 1; animation: k95-parilti .9s var(--k95-ease) both; }
+    /* bekleme: imlec ~0.8sn kapakta kalinca */
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-kapak img { animation: k95-bekleme-zoom 7s .8s ease-out both; }
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-kapak { animation: k95-bekleme-halka 2.4s 1s ease-in-out infinite; }
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-hizli-oku { animation: k95-bekleme-nabiz 1.6s 1s ease-out infinite; }
+    :root:root :is(.manga-kart, .populer-kart):hover .manga-baslik::after { transform: scaleX(1); transition-delay: .8s; }
+    :root:root :is(.manga-kart, .populer-kart):hover .manga-meta { transform: translateY(-1px); }
+}
+:root:root .manga-meta { transition: transform .4s var(--k95-ease), opacity .3s; }
+
+/* basma */
+@media (prefers-reduced-motion: no-preference) {
+    :root:root :is(.manga-kart, .populer-kart):active .kart-kapak {
+        transform: translateY(-1px) scale(.965); transition-duration: .1s;
+        box-shadow: 0 4px 12px -6px var(--vurgu-rengi), 0 0 0 1px var(--vurgu-parlak); animation: none;
+    }
+    :root:root :is(.manga-kart, .populer-kart):active .kart-kapak img { transform: scale(1.02); transition-duration: .15s; animation: none; }
+    :root:root :is(.manga-kart, .populer-kart):active .kart-hizli-oku { animation: none; }
+    :root:root .kart-hizli-oku:active { transform: scale(.92); transition-duration: .08s; }
+}
+
+/* Hizli oku / devam et: masaustunde yalniz hover'da, dokunmatikte her zaman gorunur */
+:root:root .kart-hizli-oku { padding: 5px 11px; gap: 5px; font-size: .78rem; right: 8px; bottom: 8px; white-space: nowrap; }
+:root:root .kart-hizli-oku.devam { background: var(--vurgu-rengi); border-color: var(--vurgu-parlak); }
+:root:root .kart-hizli-oku svg { transition: transform .3s var(--k95-ease); }
+@media (hover: hover) {
+    :root:root .kart-hizli-oku { opacity: 0; transform: translateY(10px) scale(.92); pointer-events: none; transition: opacity .25s ease, transform .4s var(--k95-ease), background .2s, border-color .2s; }
+    :root:root :is(.manga-kart, .populer-kart):hover .kart-hizli-oku,
+    :root:root :is(.manga-kart, .populer-kart):focus-within .kart-hizli-oku { opacity: 1; transform: none; pointer-events: auto; transition-delay: .08s, .08s, 0s, 0s; }
+    :root:root .kart-hizli-oku:hover { transform: scale(1.07); background: var(--vurgu-rengi); }
+    :root:root .kart-hizli-oku:hover svg { transform: translateX(2px); }
+}
+@media (hover: none) {
+    :root:root .kart-hizli-oku { padding: 4px 9px; font-size: .72rem; right: 6px; bottom: 6px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+    :root:root .populer-kart { animation: k95-yuksel .7s var(--k95-ease) both; }
+    :root:root .populer-kart:nth-child(2) { animation-delay: .05s; } :root:root .populer-kart:nth-child(3) { animation-delay: .1s; }
+    :root:root .populer-kart:nth-child(4) { animation-delay: .15s; } :root:root .populer-kart:nth-child(5) { animation-delay: .2s; }
+    :root:root .populer-kart:nth-child(n+6) { animation-delay: .25s; }
+    :root:root .populer-kart:active .kart-kapak { transform: translateY(-1px) scale(.965); }
+}
+
+/* Banner duraklat / oynat */
+.oc-dur { position: absolute; right: 16px; bottom: 12px; z-index: 11; width: 28px; height: 28px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.2); background: rgba(14,12,12,.55); color: rgba(255,255,255,.8); display: flex; align-items: center; justify-content: center; cursor: pointer; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: background .2s, color .2s, border-color .2s, transform .2s; }
+.oc-dur:hover, .oc-dur:focus-visible { background: rgba(142,14,21,.85); color: #fff; border-color: var(--oc-parlak, #e0343c); }
+.oc-dur:active { transform: scale(.92); }
+.oc-dur.durdu { border-color: var(--oc-parlak, #e0343c); color: #fff; }
+@media (max-width: 720px) { .oc-dur { right: 14px; bottom: 8px; width: 26px; height: 26px; } }
+
+/* Topluluk: forum, sohbet, yardim cilasi */
+:root:root .fr-kart { transition: border-color var(--k95-hizli) var(--k95-ease), transform var(--k95-hizli) var(--k95-ease), box-shadow var(--k95-hizli) var(--k95-ease), background var(--k95-hizli); }
+:root:root .fr-kat { transition: background var(--k95-hizli), border-color var(--k95-hizli), transform var(--k95-hizli) var(--k95-ease); }
+:root:root .fr-sirala button, :root:root .fr-ac-dugme, :root:root .ks-btn, :root:root .ks-stbtn { transition: background var(--k95-hizli), color var(--k95-hizli), border-color var(--k95-hizli), transform var(--k95-hizli) var(--k95-ease), box-shadow var(--k95-hizli); }
+:root:root .fr-ara input:focus, :root:root .ks-giris:focus, :root:root .k95y-form input:focus, :root:root .k95y-form textarea:focus { box-shadow: 0 0 0 3px rgba(224,52,60,.18); }
+:root:root .fr-sirala button:active, :root:root .fr-ac-dugme:active, :root:root .ks-btn:active, :root:root .k95y-btn:active { transform: scale(.96); }
+@media (hover: hover) {
+    :root:root .fr-kart:not(.dar):hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(0,0,0,.28); }
+    :root:root .fr-kat:hover { transform: translateX(3px); }
+    :root:root .k95y-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(224,52,60,.35); }
+}
+@media (prefers-reduced-motion: no-preference) {
+    @keyframes k95-fr-gir { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    @keyframes k95-ks-gir { from { opacity: 0; transform: translateY(8px) scale(.97); } to { opacity: 1; transform: none; } }
+    :root:root .fr-liste > .fr-kart, :root:root .fr-sabitler > * { animation: k95-fr-gir var(--k95-yavas) var(--k95-ease) both; }
+    :root:root .fr-liste > :nth-child(2) { animation-delay: .05s; } :root:root .fr-liste > :nth-child(3) { animation-delay: .1s; }
+    :root:root .fr-liste > :nth-child(4) { animation-delay: .15s; } :root:root .fr-liste > :nth-child(n+5) { animation-delay: .2s; }
+    :root:root .fr-kat { animation: k95-fr-gir var(--k95-orta) var(--k95-ease) both; }
+    :root:root .ks-satir { animation: k95-ks-gir var(--k95-orta) var(--k95-ease) both; }
+}
+
+/* Yan menu gibi ekran disi ogeler yatay kaydirma yaratmasin */
+:root:root { overflow-x: clip; }

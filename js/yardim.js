@@ -1613,7 +1613,7 @@
         });
 
         function rotaGuncelle() {
-            var h = window.location.hash || '';
+            var h = (window.K95Yol ? window.K95Yol.hash() : window.location.hash) || '';
             var sohbetMi = /^#\/sohbet\b/.test(h);
             if (sohbetMi) {
                 btn.style.display = 'none';

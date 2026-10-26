@@ -115,3 +115,15 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - (Bitti, 25.10) Depo ve Kök Dizin Temizliği: GitHub deposunu gereksiz şişiren ve kök dizini karıştıran dosyalar temizlendi: YAYINLAMA_REHBERI.md, test-hero.html, Mangalar_15_Yeni.sql ve .playwright-mcp/ klasörü tamamen silindi. Kök dizindeki Veritabani_Kurulumu.sql dosyası backend/Veritabani_Kurulumu.sql konumuna taşındı ve README.md güncellendi. Kök dizin sadece temel web sayfaları ve proje dosyalarına indirgendi.
 - (Bitti, 25.10) Tanıtım videosu malzemesi: Desktop/kage95-video/kareler (17 PNG: masaüstü, 4K hero, mobil) + klipler (yatay-hero, yatay-kaydirma, yatay-asistan 1920x1080; dikey-kaydirma 1080x1920 DPR3 kare kare). Kurgu kullanıcıda (Google Flow).
 - (Bitti, 25.10) Hero mobil/tablet: ≤680px dikey kapak zemin (<picture>), vitrin gizli, oklar sağ üstte, alt noktalar; 681–1100px ızgara + büyük kapak; dikey tablette yükseklik clamp(560px,54vh,760px). Canlıda 360/390/768/820/1024 dikey-yatay ölçüldü, taşma yok. vurgu.css ?v=20261025g, sw kage95-v27.
+- Premium animasyon katmanı (26.10): css/vurgu.css sonuna hareket token'ları (--k95-ease), kart/buton/çip/ok/input geçişleri, :active basma, focus-visible halka, sayfa-giriş ve banner blur-yükselme; css ?v=20261026f, sw v36. Canlı doğrulama bekliyor.
+- Masaüstü Topluluk menüsü: imleç menüye inerken kapanıyordu (4px boşluk + display:none); görünmez köprü + opacity/visibility geçişi eklendi (index.html).
+- [x] Manga kart detay etkilesimleri (27.10 öncesi 26.10): hover parıltı, basma (:active) ve 0.8sn bekleme efekti (zoom, halka, nabız, başlık çizgisi); css ?v=20261026g, sw v37
+- [x] Hızlı oku/Devam butonu tüm kartlara (ana liste, en çok okunanlar, yeni eklenenler/güncel şeritler); masaüstünde sadece hover'da, mobilde hep görünür; populer-kart hover/basma/bekleme animasyonları; css ?v=20261026h, sw v38
+- Banner: gecis 8.5sn, minimal duraklat/oynat butonu (oc-dur), css ?v=i, sw v39
+- Topluluk cilasi: forum/sohbet/yardim gecis+giris animasyonu (vurgu.css, ?v=j, sw v40)
+- Admin cilasi: admin.html ek style blogu (gecisler, hover, giris animasyonu)
+- Mobil yatay tasma duzeltmesi (html overflow-x clip), ?v=k, sw v42
+- Bakim ekrani: bakim.html (kor, Golge Refleks/Hafiza/Kader oyunlari, otomatik yenileme); index iframe ile gosterir; yayinla app_offline.htm artik bu sayfa; sw v43. Onceki 503 deploy gecici app_offline idi
+- Temiz adresler: js/yol.js (/forum, /manga/12), index <base href=/>, backend MapFallbackToFile, sw v44
+- Bakim sayfasi: Yilan, Hiz, Iletisim sekmeleri; refleks kombo; hafiza zorluk+sure; takili app_offline FTP'den silindi; sw v45
+- Topluluk dropdown: tikladiktan sonra acik kalma (focus-within) duzeltildi: :has(:focus-visible) + tikta blur; sw v46

@@ -33,7 +33,9 @@ namespace Kage95.Backend.Services
 
         public void HataKaydet(string anahtar)
         {
-            if (_hatalar.Count > 1000) Temizle();
+            // RAM taşma ve bellek doyurma engeli: 5.000 kayıt tavanı
+            if (_hatalar.Count > 5000) _hatalar.Clear();
+            else if (_hatalar.Count > 1000) Temizle();
             var liste = _hatalar.GetOrAdd(Anahtar(anahtar), _ => new List<DateTime>());
             lock (liste) { liste.Add(DateTime.UtcNow); }
         }

@@ -13,6 +13,7 @@ namespace Kage95.Backend.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Microsoft.AspNetCore.RateLimiting.EnableRateLimiting("genel")]
     public class ChaptersController : ControllerBase
     {
         private readonly AppDbContext _context;
