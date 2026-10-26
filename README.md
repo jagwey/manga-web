@@ -100,3 +100,9 @@ Ardından tarayıcıda `http://localhost:5500` adresini açın.
   UPDATE dbo.Kullanicilar SET Rol = N'Owner' WHERE KullaniciAdi = N'KullaniciAdiniz';
   ```
 - Site sahibi `admin.html` üzerinden diğer kullanıcılara `Admin` rolü ve granüler izinler (`manga.yaz`, `bolum.duzenle`, `yorum.sil`, `sohbet.yonet` vb.) tanımlayabilir.
+
+## Lisans ve Telif Hakkı
+
+© 2026 **KAGE95** (https://kage95.com) - Tüm Hakları Saklıdır. (All Rights Reserved)
+
+Bu projenin kaynak kodları, arayüz tasarımları, grafik varlıkları ve veritabanı mimarisi tescilli mülkiyettir. Eser sahibinin açık yazılı izni olmadan kopyalanması, klonlanması, başka bir sunucuda yeniden barındırılması veya ticari/gayriticari amaçla kullanılması **kesinlikle yasaktır**. Detaylar için [LICENSE](LICENSE) dosyasına göz atın.
