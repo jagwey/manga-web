@@ -550,7 +550,26 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
 .bildirim-kap { position: relative; display: inline-flex; align-items: center; }
 .bildirim-btn { position: relative; }
 .bildirim-rozet { position: absolute; top: 4px; right: 4px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 999px; background: var(--vurgu-parlak, #e0343c); color: #fff; font-size: .7rem; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
-.bildirim-panel { position: absolute; top: calc(100% + 8px); right: 0; z-index: 300; width: min(360px, calc(100vw - 24px)); max-height: 420px; display: flex; flex-direction: column; background: var(--bg-kart, #141111); border: 1px solid var(--border-belirgin, #3a3030); border-radius: 8px; box-shadow: 0 14px 36px rgba(0,0,0,.6); overflow: hidden; }
+.bildirim-panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    z-index: 300;
+    width: min(360px, calc(100vw - 24px));
+    max-height: 420px;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(175deg, rgba(22, 16, 17, 0.98) 0%, rgba(12, 10, 10, 0.99) 100%);
+    border: 1px solid rgba(224, 52, 60, 0.28);
+    border-top: 2px solid var(--vurgu-parlak, #e0343c);
+    border-radius: 12px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.75), 0 0 24px rgba(224,52,60,.15);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    overflow: hidden;
+    transform-origin: top right;
+    animation: k95-menu-acilis 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
 .bildirim-ust { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 14px; border-bottom: 1px solid var(--border-renk, #2a2323); font-size: .9rem; }
 .bildirim-ust-eylemler { display: flex; gap: 8px; }
 .bildirim-ust-btn { background: none; border: 0; padding: 2px 4px; font: inherit; font-size: .78rem; color: var(--text-ikincil, #a79d96); cursor: pointer; text-decoration: underline; }
