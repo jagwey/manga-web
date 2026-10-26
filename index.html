@@ -596,28 +596,32 @@
 
         .kart-hizli-oku {
             position: absolute;
+            left: 6px;
             right: 6px;
             bottom: 6px;
-            z-index: 3;
+            z-index: 5;
             display: inline-flex;
             align-items: center;
-            gap: 4px;
-            padding: 3px 8px;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px 8px;
+            min-height: 28px;
             font-size: .74rem;
-            font-weight: 600;
+            font-weight: 700;
             color: #fff;
-            background: rgba(14, 12, 12, 0.88);
-            border: 1px solid rgba(224, 52, 60, 0.6);
-            border-radius: 999px;
-            backdrop-filter: blur(4px);
-            transition: transform .18s ease, background .18s ease, border-color .18s ease;
+            background: rgba(14, 12, 12, 0.92);
+            border: 1px solid rgba(224, 52, 60, 0.4);
+            border-radius: 6px;
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            transition: transform .25s ease, background .25s ease, border-color .25s ease, opacity .25s ease;
             cursor: pointer;
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
         }
-        .kart-hizli-oku:hover {
-            background: var(--vurgu-rengi, #8e0e15);
-            border-color: var(--vurgu-parlak, #e0343c);
-            transform: scale(1.06);
-        }
+        .kart-hizli-oku .kho-ikon { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; }
+        .kart-hizli-oku .kho-metin { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
         .kart-rozet {
             position: absolute;
@@ -1486,26 +1490,59 @@
                 placeholder="Bu seri hakkında ne düşünüyorsun? (Spoiler uyarısı yapmayı unutma)" />
         </>);
 
-        // Kartlarda ortak "Bl. N / Devam" butonu: kaldığın bölüm varsa o, yoksa son (ya da ilk) bölüm
+        // Kartlarda ortak okuma şeridi: Eğer okunuyorsa "Kaldığın Yerden Devam Et", okunmuyorsa "İlk Bölümden Başla"
         const hizliBolumBul = (m) => {
+            if (!m) return null;
             try {
+                const tumO = JSON.parse(localStorage.getItem(OKUNAN_ANAHTAR) || '{}');
+                const okunanlar = (tumO[m.id] || []).map(String);
+                if (okunanlar.length > 0) {
+                    const sonId = okunanlar[okunanlar.length - 1];
+                    return { id: sonId, devam: true, metin: 'Kaldığın Yerden Devam Et' };
+                }
                 const v = JSON.parse(localStorage.getItem('kage95_son_okunan') || 'null');
-                if (v && v.bolumId && String(v.mangaId) === String(m.id)) return { id: v.bolumId, no: v.bolumNo, devam: true };
+                if (v && v.bolumId && String(v.mangaId) === String(m.id)) {
+                    return { id: v.bolumId, no: v.bolumNo, devam: true, metin: 'Kaldığın Yerden Devam Et' };
+                }
             } catch (e) {}
-            if (m.sonBolumId) return { id: m.sonBolumId, no: m.sonBolumNo };
-            if (m.ilkBolumId) return { id: m.ilkBolumId, no: 1 };
+
+            const ilkId = m.ilkBolumId || (m.bolumler && m.bolumler[0] && m.bolumler[0].id) || m.sonBolumId;
+            if (ilkId) {
+                return { id: ilkId, no: 1, devam: false, metin: 'İlk Bölümden Başla' };
+            }
             return null;
         };
         const HizliOku = ({ m }) => {
             const h = hizliBolumBul(m);
             if (!h) return null;
-            const git = (e) => { e.preventDefault(); e.stopPropagation(); window.location.href = `read.html?chapter=${h.id}`; };
+            const git = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = `read.html?chapter=${h.id}`;
+            };
             return (
-                <span className={`kart-hizli-oku ${h.devam ? 'devam' : ''}`} role="button" tabIndex={0}
-                    title={h.devam ? 'Kaldığın yerden devam et' : (h.no != null ? `Bölüm ${h.no} Oku` : 'Oku')}
-                    onClick={git} onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') git(e); }}>
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                    <span>{h.devam ? 'Devam' : (h.no != null ? `Bl. ${h.no}` : 'Oku')}</span>
+                <span
+                    className={`kart-hizli-oku ${h.devam ? 'devam' : 'basla'}`}
+                    role="button"
+                    tabIndex={0}
+                    title={h.metin}
+                    onClick={git}
+                    onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') git(e); }}
+                    aria-label={h.metin}
+                >
+                    <span className="kho-ikon" aria-hidden="true">
+                        {h.devam ? (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M8 5v14l11-7z" />
+                            </svg>
+                        ) : (
+                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+                            </svg>
+                        )}
+                    </span>
+                    <span className="kho-metin">{h.metin}</span>
                 </span>
             );
         };
