@@ -1,6 +1,6 @@
 // Kage 95 - basit servis çalışanı: uygulama kabuğu önbelleği.
 // /api ve /hub istekleri asla önbelleğe alınmaz, doğrudan ağa gider.
-const SURUM = 'kage95-v46';
+const SURUM = 'kage95-v47';
 const KABUK = [
     './', 'index.html', 'js/yol.js', 'read.html', 'login.html', 'admin.html',
     'logo.svg', 'favicon.svg', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'
@@ -30,12 +30,16 @@ self.addEventListener('fetch', function (e) {
     if (url.pathname.startsWith('/api') || url.pathname.startsWith('/hub') || url.pathname.indexOf('/api/') !== -1 || url.pathname.indexOf('/hub/') !== -1) return;
     if (url.pathname.indexOf('/uploads/') !== -1 || url.pathname.indexOf('/avatars/') !== -1) return;
 
-    // Ağ öncelikli, çevrimdışıysa önbellekten. Yalnızca gezinme (sayfa) isteklerinde index.html'e düşülür.
+    // Ağ öncelikli. Gezinme (sayfa) isteklerinde ağ 404 dönerse ya da çevrimdışıysa index.html kabuğuna düşülür.
     e.respondWith(
         fetch(istek).then(function (yanit) {
             if (yanit && yanit.ok) {
                 const kopya = yanit.clone();
                 caches.open(SURUM).then(function (c) { c.put(istek, kopya); });
+                return yanit;
+            }
+            if (istek.mode === 'navigate' && (!yanit || yanit.status === 404)) {
+                return caches.match('index.html');
             }
             return yanit;
         }).catch(function () {

@@ -419,4 +419,48 @@ app.MapGet("/api/durum", () => Results.Ok(new
     version = "2.0.0"
 }));
 
+// Bağımsız sayfalara doğrudan temiz yönlendirmeler
+app.MapGet("/login", () => Results.Redirect("/login.html"));
+app.MapGet("/giris", () => Results.Redirect("/login.html"));
+app.MapGet("/admin", () => Results.Redirect("/admin.html"));
+app.MapGet("/yonetim", () => Results.Redirect("/admin.html"));
+
+// SPA Yedek Rotası (F5 / Doğrudan URL):
+// /iletisim, /manga/12, /kutuphane, /forum, /sohbet, /liderlik vb. isteklerde
+// 404 vermek yerine index.html sunulur. Tarayıcı yenilendiğinde aynı sayfada kalır.
+app.MapFallback(async ctx =>
+{
+    var yol = ctx.Request.Path.Value ?? string.Empty;
+
+    // API veya WebSocket/SignalR istekleri 404 döner, asla HTML'e düşmez
+    if (yol.StartsWith("/api", StringComparison.OrdinalIgnoreCase) ||
+        yol.StartsWith("/hub", StringComparison.OrdinalIgnoreCase))
+    {
+        ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+        await ctx.Response.WriteAsJsonAsync(new { message = "İstenen API rotası bulunamadı." });
+        return;
+    }
+
+    // Dosya uzantısı olan ve bulunamayan statik dosya istekleri (.js, .css, .png vb.) HTML dönmesin, 404 versin
+    if (Path.HasExtension(yol) && !yol.EndsWith(".html", StringComparison.OrdinalIgnoreCase))
+    {
+        ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+        return;
+    }
+
+    var webRoot = app.Environment.WebRootPath ?? Path.Combine(app.Environment.ContentRootPath, "wwwroot");
+    var indexYol = Path.Combine(webRoot, "index.html");
+
+    if (File.Exists(indexYol))
+    {
+        ctx.Response.ContentType = "text/html; charset=utf-8";
+        ctx.Response.Headers.CacheControl = "no-cache";
+        await ctx.Response.SendFileAsync(indexYol);
+    }
+    else
+    {
+        ctx.Response.StatusCode = StatusCodes.Status404NotFound;
+    }
+});
+
 app.Run();
