@@ -1,23 +1,38 @@
 <div align="center">
 
-![KAGE 95 Banner](docs/assets/banner.jpg)
+  <a href="https://kage95.com" target="_blank" rel="noopener noreferrer">
+    <img src="logo.svg" alt="KAGE 95 Logo" width="130" height="130" />
+  </a>
 
-# 影 KAGE 95
-### *Modern, Minimalist ve Yüksek Performanslı Türkçe Manga Platformu*
+  <br />
 
-[![Live Site](https://img.shields.io/badge/Canlı_Site-kage95.com-e0343c?style=for-the-badge&logo=google-chrome&logoColor=white)](https://kage95.com)
-[![.NET](https://img.shields.io/badge/.NET_10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white)](https://dotnet.microsoft.com/)
-[![C#](https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white)](https://docs.microsoft.com/dotnet/csharp/)
-[![React](https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://react.dev)
-[![SignalR](https://img.shields.io/badge/SignalR-Realtime_WebSockets-e0343c?style=for-the-badge&logo=signal&logoColor=white)](https://dotnet.microsoft.com/apps/aspnet/signalr)
-[![SQL Server](https://img.shields.io/badge/SQL_Server-CC292B?style=for-the-badge&logo=microsoft-sql-server&logoColor=white)](https://www.microsoft.com/sql-server/)
-[![PWA](https://img.shields.io/badge/PWA-Destekli-8e0e15?style=for-the-badge&logo=pwa&logoColor=white)](https://web.dev/progressive-web-apps/)
-[![License](https://img.shields.io/badge/Lisans-Telif_Hakkı_Saklıdır-red?style=for-the-badge)](LICENSE)
+  # 影 KAGE 95
+  ### *Minimalist, Hızlı ve Karanlık Türkçe Manga Platformu*
 
-<br/>
+  <p align="center">
+    <a href="https://kage95.com"><img src="https://img.shields.io/badge/Canlı_Site-kage95.com-e0343c?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Site" /></a>
+    <a href="https://dotnet.microsoft.com/"><img src="https://img.shields.io/badge/.NET_10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10" /></a>
+    <a href="https://docs.microsoft.com/dotnet/csharp/"><img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white" alt="C#" /></a>
+    <a href="https://react.dev"><img src="https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 18" /></a>
+    <a href="https://dotnet.microsoft.com/apps/aspnet/signalr"><img src="https://img.shields.io/badge/SignalR-Realtime_WebSockets-e0343c?style=for-the-badge&logo=signal&logoColor=white" alt="SignalR" /></a>
+    <a href="https://www.microsoft.com/sql-server/"><img src="https://img.shields.io/badge/SQL_Server-CC292B?style=for-the-badge&logo=microsoft-sql-server&logoColor=white" alt="SQL Server" /></a>
+    <a href="https://web.dev/progressive-web-apps/"><img src="https://img.shields.io/badge/PWA-Destekli-8e0e15?style=for-the-badge&logo=pwa&logoColor=white" alt="PWA" /></a>
+    <a href="LICENSE"><img src="https://img.shields.io/badge/Lisans-Telif_Hakkı_Saklıdır-red?style=for-the-badge" alt="License" /></a>
+  </p>
 
-> **"Karanlığın gölgesinde okunan hikayeler."**  
-> KAGE 95 (影), karanlık ve kan kırmızısı Japon minimalist estetiğini en güncel web teknolojileriyle birleştiren; sıfır hantallık, yüksek hız ve zengin topluluk etkileşimi sunan yeni nesil manga arşivi ve kütüphanesidir.
+  <p align="center">
+    <a href="#-temel-özellikler"><b>Özellikler</b></a> &bull;
+    <a href="#️-mimari-yapı-system-architecture"><b>Mimari</b></a> &bull;
+    <a href="#-dizin-yapısı"><b>Dizin Yapısı</b></a> &bull;
+    <a href="#-kurulum-ve-çalıştırma"><b>Kurulum</b></a> &bull;
+    <a href="#-güvenlik--gizlilik"><b>Güvenlik</b></a> &bull;
+    <a href="#️-lisans-ve-telif-hakkı-license"><b>Lisans</b></a>
+  </p>
+
+  <br />
+
+  > **"Karanlığın gölgesinde okunan hikayeler."**  
+  > KAGE 95 (影), karanlık ve kan kırmızısı Japon minimalist estetiğini modern web teknolojileriyle birleştiren; sıfır hantallık, yüksek hız ve zengin topluluk etkileşimi sunan yeni nesil manga arşivi ve kütüphanesidir.
 
 </div>
 
@@ -119,11 +134,11 @@ kage95/
 │   └── pwa.js                    # Service Worker Kayıt ve Otomatik Tazeleyici
 ├── deploy/                       # Dağıtım ve Optimizasyon Araçları
 │   └── araclar/derle.mjs         # Babel + esbuild Minification ve SHA-1 Cache-Buster
-├── docs/assets/                  # Dokümantasyon Varlıkları ve Banner Görselleri
 ├── index.html                    # Ana Sayfa, Seri Detay, Kütüphane, Liderlik ve Topluluk
 ├── read.html                     # Gelişmiş Manga Okuyucu Motoru
 ├── admin.html                    # Yönetim Portalı
 ├── login.html                    # Giriş ve Kayıt Ekranı
+├── logo.svg                      # Özgün KAGE 95 Vektörel Mühür & Marka Logosu
 ├── sw.js                         # PWA Servis Çalışanı (Service Worker v35)
 └── LICENSE                       # Telif Hakkı ve Mülkiyet Lisansı
 ```
