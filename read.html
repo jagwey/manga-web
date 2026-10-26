@@ -381,7 +381,16 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
-        img.webtoon-sayfasi:not(.yuklendi) { min-height: 60vh; background: var(--bg-okuyucu); }
+        img.webtoon-sayfasi:not(.yuklendi), .manga-sayfasi:not(.yuklendi) {
+            min-height: 60vh;
+            background: linear-gradient(90deg, #151111 0%, #251a1b 50%, #151111 100%);
+            background-size: 200% 100%;
+            animation: okuyucu-iskelet 1.6s infinite ease-in-out;
+        }
+        @keyframes okuyucu-iskelet {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
 
         /* KLAVYE KISAYOL BİLGİSİ */
         .kisayol-bilgi {
@@ -398,18 +407,57 @@
             position: fixed;
             left: 0;
             right: 0;
-            bottom: 0;
-            height: 2px;
-            z-index: 120;
+            top: 0;
+            height: 3px;
+            z-index: 150;
             pointer-events: none;
+            background: rgba(14, 12, 12, 0.4);
         }
         .okuma-ilerleme > span {
             display: block;
             height: 100%;
             width: 100%;
-            background: var(--vurgu-parlak);
+            background: linear-gradient(90deg, var(--vurgu-rengi, #8e0e15), var(--vurgu-parlak, #e0343c));
+            box-shadow: 0 0 10px rgba(224, 52, 60, 0.75);
             transform-origin: left center;
             transition: transform 0.15s linear;
+        }
+
+        /* --- HIZLI BÖLÜM GEÇİŞ ÇUBUĞU (KONTROLLER AÇIKKEN) --- */
+        .okuyucu-hizli-alt-bar {
+            position: fixed;
+            bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 110;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 18px;
+            background: rgba(14, 12, 12, 0.92);
+            border: 1px solid var(--border-belirgin, #3a3030);
+            border-radius: 999px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 12px 32px rgba(0,0,0,0.65), 0 0 16px rgba(224, 52, 60, 0.18);
+            animation: hizli-bar-belir 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes hizli-bar-belir {
+            from { opacity: 0; transform: translate(-50%, 12px); }
+            to { opacity: 1; transform: translate(-50%, 0); }
+        }
+        .hizli-bolum-bilgi {
+            font-size: .86rem;
+            font-weight: 600;
+            color: var(--text-ana, #ede7e2);
+            white-space: nowrap;
+            padding: 0 4px;
+        }
+        .hizli-btn {
+            min-height: 36px;
+            padding: 0 14px;
+            font-size: .82rem;
+            border-radius: 999px;
         }
 
         /* --- DURUM (yükleniyor / hata / boş) --- */
@@ -1332,6 +1380,32 @@
 
                     {yukariGoster && (
                         <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                    )}
+
+                    {!ustGizli && veri && (
+                        <nav className="okuyucu-hizli-alt-bar" aria-label="Hızlı Bölüm Geçişi">
+                            <button 
+                                type="button" 
+                                className="nav-btn hizli-btn" 
+                                disabled={!onceki} 
+                                onClick={(e) => { e.stopPropagation(); bolumeGit(onceki); }} 
+                                aria-label="Önceki bölüm"
+                            >
+                                ← Önceki
+                            </button>
+                            <span className="hizli-bolum-bilgi">
+                                Bölüm {veri.bolumNo}
+                            </span>
+                            <button 
+                                type="button" 
+                                className="nav-btn btn-dolgu hizli-btn" 
+                                disabled={!sonraki} 
+                                onClick={(e) => { e.stopPropagation(); bolumeGit(sonraki); }} 
+                                aria-label="Sonraki bölüm"
+                            >
+                                Sonraki →
+                            </button>
+                        </nav>
                     )}
 
                     {kisayolAcik && (

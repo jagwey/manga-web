@@ -1068,7 +1068,7 @@
                                     <input className="form-input" aria-label="Öne çıkan resmi adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
                                         value={ocResim} onChange={(e) => setOcResim(e.target.value)} />
                                     {ocOran !== null && <Ilerleme oran={ocOran} etiket="Öne çıkan resmi yükleniyor" />}
-                                    <div className="not">Ana sayfadaki öne çıkanlar şeridinde kapak yerine gösterilir. Geniş görsel önerilir (örn. 1600×600). Boş bırakılırsa kapak kullanılır.</div>
+                                    <div className="not">Ana sayfadaki öne çıkanlar şeridinde kapak yerine gösterilir. Önerilen boyut: 1920×720 px (yatay, en az 1600×600), JPG veya WEBP. Karakter yüzlerini sol/orta bölgede tutun, sağ alt köşede küçük kapak durur. Boş bırakılırsa kapak kullanılır.</div>
                                 </div>
                             </div>
                         </div>
