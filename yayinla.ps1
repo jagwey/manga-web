@@ -48,7 +48,7 @@ foreach ($f in $htmlDosyalar) {
     $distYol = Join-Path $kokDizin "dist\$f"
     $tamYol = if (Test-Path $distYol) { $distYol } else { Join-Path $kokDizin $f }
     Write-Host "  -> wwwroot/$f ($tamYol)"
-    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
+    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
 }
 
 $digerKokDosyalar = @("bakim.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
@@ -56,25 +56,25 @@ foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
         Write-Host "  -> wwwroot/$f"
-        curl.exe -s -S --ssl-reqd -k -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
+        curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
     }
 }
 
 Get-ChildItem (Join-Path $kokDizin "css") -File | ForEach-Object {
     Write-Host "  -> wwwroot/css/$($_.Name)"
-    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/css/$($_.Name)"
+    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/css/$($_.Name)"
 }
 
 Get-ChildItem (Join-Path $kokDizin "js") -File | ForEach-Object {
     Write-Host "  -> wwwroot/js/$($_.Name)"
-    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
+    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
 }
 
 $distJs = Join-Path $kokDizin "dist\js"
 if (Test-Path $distJs) {
     Get-ChildItem $distJs -File | ForEach-Object {
         Write-Host "  -> wwwroot/js/$($_.Name) [dist]"
-        curl.exe -s -S --ssl-reqd -k -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
+        curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
     }
 }
 
