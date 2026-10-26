@@ -25,7 +25,7 @@ for (const ad of ['index.html', 'admin.html', 'read.html', 'login.html']) {
     html = html.replace(/<script src="https:\/\/unpkg\.com\/react-dom@18\/umd\/react-dom\.development\.js"[^>]*><\/script>/, `<script src="${REACT_DOM}" crossorigin="anonymous"></script>`);
     html = html.replace(/[ \t]*<script src="https:\/\/unpkg\.com\/@babel\/standalone\/babel\.min\.js"><\/script>\r?\n?/, '');
     // Yerel css/js bağlantılarına içerik özeti eklenir; CDN eski dosyayı sunmaz
-    html = html.replace(/(src|href)="((?:css|js)\/[\w.-]+\.(?:css|js))"/g, (tam, nit, yol) => {
+    html = html.replace(/(src|href)="((?:css|js)\/[\w.-]+\.(?:css|js))(?:\?[^"]*)?"/g, (tam, nit, yol) => {
         const dosya = path.join(kok, yol);
         if (!fs.existsSync(dosya)) return tam;
         return `${nit}="${yol}?v=${crypto.createHash('sha1').update(fs.readFileSync(dosya)).digest('hex').slice(0, 8)}"`;

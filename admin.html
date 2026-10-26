@@ -238,6 +238,15 @@
         }
         .kapak-yan { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
         .kapak-onizleme.oc-onizleme { width: 240px; height: 90px; padding: 0 8px; }
+        .oc-odak-kutu { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; margin-top: 14px; }
+        .oc-odak-kutu figure { margin: 0; min-width: 0; }
+        .oc-odak-kutu figcaption { font-size: 0.8125rem; margin-bottom: 6px; opacity: .75; }
+        .oc-odak { position: relative; cursor: crosshair; border-radius: 8px; overflow: hidden; line-height: 0; touch-action: none; user-select: none; }
+        .oc-odak img { width: 100%; height: auto; display: block; }
+        .oc-odak-nokta { position: absolute; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 2px rgba(0,0,0,.65); pointer-events: none; background: rgba(255,255,255,.18); }
+        .oc-odak-onizleme { border-radius: 8px; overflow: hidden; aspect-ratio: 8 / 3; line-height: 0; }
+        .oc-odak-onizleme img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        @media (max-width: 768px) { .oc-odak-kutu { grid-template-columns: minmax(0, 1fr); } }
         @media (max-width: 768px) { .kapak-onizleme.oc-onizleme { width: 100%; max-width: none; height: auto; aspect-ratio: 8 / 3; } }
 
         /* Sekmeler */
@@ -579,6 +588,66 @@
             return null;
         }
 
+        // Öne çıkan resim alanı: "adres#o=X,Y&k=kucuk.webp" (o = odak noktası yüzde, k = küçük/mobil varyant dosya adı)
+        const OC_VARSAYILAN_ODAK = { x: 50, y: 25 };
+        function ocAyir(v) {
+            const t = String(v || '').trim();
+            const i = t.indexOf('#');
+            const p = new URLSearchParams(i < 0 ? '' : t.slice(i + 1));
+            const o = (p.get('o') || '').split(',').map(Number);
+            const gecerli = o.length === 2 && o.every(n => Number.isFinite(n) && n >= 0 && n <= 100);
+            const k = p.get('k') || '';
+            return { url: i < 0 ? t : t.slice(0, i), odak: gecerli ? { x: o[0], y: o[1] } : OC_VARSAYILAN_ODAK, kucuk: /^[\w.-]+$/.test(k) ? k : '' };
+        }
+        function ocBirlestir(url, odak, kucuk) {
+            url = (url || '').trim();
+            if (!url) return '';
+            const p = [];
+            if (odak.x !== OC_VARSAYILAN_ODAK.x || odak.y !== OC_VARSAYILAN_ODAK.y) p.push('o=' + odak.x + ',' + odak.y);
+            if (kucuk) p.push('k=' + kucuk);
+            return p.length ? url + '#' + p.join('&') : url;
+        }
+
+        // Yükleme öncesi: en fazla 1920 px genişliğe indir (büyütme yok), WebP'ye çevir, 960 px'lik küçük varyant üret
+        function resimAc(f) {
+            return new Promise((coz, red) => {
+                const u = URL.createObjectURL(f);
+                const im = new Image();
+                im.onload = () => { URL.revokeObjectURL(u); coz(im); };
+                im.onerror = () => { URL.revokeObjectURL(u); red(new Error('açılamadı')); };
+                im.src = u;
+            });
+        }
+        function tuvalDosya(im, genislik, kalite, ad) {
+            const w = Math.min(genislik, im.naturalWidth);
+            const h = Math.round(im.naturalHeight * w / im.naturalWidth);
+            const c = document.createElement('canvas');
+            c.width = w; c.height = h;
+            const g = c.getContext('2d');
+            g.imageSmoothingEnabled = true; g.imageSmoothingQuality = 'high';
+            g.drawImage(im, 0, 0, w, h);
+            return new Promise((coz) => {
+                c.toBlob((b) => {
+                    if (b && b.type === 'image/webp') { coz(new File([b], ad + '.webp', { type: 'image/webp' })); return; }
+                    c.toBlob((j) => coz(j ? new File([j], ad + '.jpg', { type: 'image/jpeg' }) : null), 'image/jpeg', 0.92);
+                }, 'image/webp', kalite);
+            });
+        }
+        async function gorselIsle(f) {
+            if (/\.gif$/i.test(f.name) || f.type === 'image/gif') return { ana: f, kucuk: null, bilgi: '' };
+            try {
+                const im = await resimAc(f);
+                const ad = f.name.replace(/\.[^.]+$/, '').replace(/[^\w-]+/g, '-').slice(0, 40) || 'banner';
+                let ana = await tuvalDosya(im, 1920, 0.92, ad);
+                if (!ana || (ana.size >= f.size && im.naturalWidth <= 1920)) ana = f;
+                const kucuk = im.naturalWidth > 1100 ? await tuvalDosya(im, 960, 0.86, ad + '-k') : null;
+                const kb = (n) => n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.round(n / 1024) + ' KB';
+                return { ana, kucuk, bilgi: im.naturalWidth + '×' + im.naturalHeight + ' → ' + Math.min(1920, im.naturalWidth) + ' px genişlik, ' + kb(f.size) + ' → ' + kb(ana.size) + (kucuk ? ' (+ küçük varyant ' + kb(kucuk.size) + ')' : '') };
+            } catch (e) {
+                return { ana: f, kucuk: null, bilgi: '' };
+            }
+        }
+
         const dogalSirala = (a, b) => a.name.localeCompare(b.name, 'tr', { numeric: true, sensitivity: 'base' });
 
         function grupYukle(dosyalar, ilerle) {
@@ -890,6 +959,14 @@
             const [ocResim, setOcResim] = useState('');
             const [ocOran, setOcOran] = useState(null);
             const [ocHata, setOcHata] = useState(false);
+            const [ocOdak, setOcOdak] = useState(OC_VARSAYILAN_ODAK);
+            const [ocKucuk, setOcKucuk] = useState('');
+            const [ocBilgi, setOcBilgi] = useState('');
+            const ocOdakSec = (e) => {
+                const r = e.currentTarget.getBoundingClientRect();
+                const kes = (n) => Math.max(0, Math.min(100, Math.round(n)));
+                setOcOdak({ x: kes((e.clientX - r.left) / r.width * 100), y: kes((e.clientY - r.top) / r.height * 100) });
+            };
 
             const baslangic = useCallback(async () => {
                 setBildirim(null);
@@ -901,7 +978,7 @@
                         setAd(m.mangaAdi || ''); setAciklama(m.aciklama || ''); setYazar(m.yazar || ''); setCizer(m.cizer || '');
                         setDurum(m.durum === 'Tamamlandi' ? 'Tamamlandi' : 'DevamEdiyor');
                         setKapak(m.kapakResmiURL || ''); setSecili(m.kategoriler || []);
-                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan); setOcResim(m.oneCikanResimURL || '');
+                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan); { const a = ocAyir(m.oneCikanResimURL); setOcResim(a.url); setOcOdak(a.odak); setOcKucuk(a.kucuk); }
                         setYuklendi(true);
                     }
                 } catch (err) {
@@ -950,7 +1027,12 @@
                 setBildirim(null);
                 setMesgul(true); setOcOran(0);
                 try {
-                    await yukle([f], setOcOran, (_, urls) => setOcResim(urls[0]));
+                    const { ana, kucuk, bilgi } = await gorselIsle(f);
+                    await yukle(kucuk ? [ana, kucuk] : [ana], setOcOran, (_, urls) => {
+                        setOcResim(urls[0]); setOcOdak(OC_VARSAYILAN_ODAK);
+                        setOcKucuk(urls[1] ? urls[1].split('/').pop() : '');
+                        setOcBilgi(bilgi);
+                    });
                 } catch (err) {
                     setBildirim(hataBildirimi(err, () => ocYukle({ target: { files: [f], value: '' } })));
                 } finally {
@@ -965,7 +1047,7 @@
                 const govde = {
                     mangaAdi: ad.trim(), aciklama: aciklama.trim() || null, kapakResmiURL: kapak.trim() || null,
                     yazar: yazar.trim() || null, cizer: cizer.trim() || null, durum, kategoriler: secili, yayinda, oneCikan,
-                    oneCikanResimURL: ocResim.trim()
+                    oneCikanResimURL: ocBirlestir(ocResim, ocOdak, ocKucuk)
                 };
                 try {
                     await (id ? istek(`/mangas/${id}`, { method: 'PUT', json: govde }) : istek('/mangas', { method: 'POST', json: govde }));
@@ -1063,14 +1145,31 @@
                                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                                         <input id="ocDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={ocYukle} disabled={mesgul} />
                                         <label htmlFor="ocDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>Dosyadan yükle</label>
-                                        {ocResim && <button type="button" className="btn" disabled={mesgul} onClick={() => setOcResim('')}>Kaldır</button>}
+                                        {ocResim && <button type="button" className="btn" disabled={mesgul} onClick={() => { setOcResim(''); setOcKucuk(''); setOcOdak(OC_VARSAYILAN_ODAK); setOcBilgi(''); }}>Kaldır</button>}
                                     </div>
                                     <input className="form-input" aria-label="Öne çıkan resmi adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
-                                        value={ocResim} onChange={(e) => setOcResim(e.target.value)} />
+                                        value={ocResim} onChange={(e) => { setOcResim(e.target.value); setOcKucuk(''); }} />
                                     {ocOran !== null && <Ilerleme oran={ocOran} etiket="Öne çıkan resmi yükleniyor" />}
-                                    <div className="not">Ana sayfadaki öne çıkanlar şeridinde kapak yerine gösterilir. Önerilen boyut: 1920×720 px (yatay, en az 1600×600), JPG veya WEBP. Karakter yüzlerini sol/orta bölgede tutun, sağ alt köşede küçük kapak durur. Boş bırakılırsa kapak kullanılır.</div>
+                                    <div className="not">Ana sayfadaki öne çıkanlar şeridinde kapak yerine gösterilir. Önerilen boyut: 1920×720 px (yatay, en az 1600×600), JPG veya WEBP. Yüklenen resim otomatik olarak en fazla 1920 px genişliğe indirilip WEBP'ye çevrilir. Sağ alt köşede küçük kapak durur. Boş bırakılırsa kapak kullanılır.</div>
+                                    {ocBilgi && <div className="not">Optimize edildi: {ocBilgi}</div>}
                                 </div>
                             </div>
+                            {ocResim && !ocHata && (
+                                <div className="oc-odak-kutu">
+                                    <figure>
+                                        <figcaption>Ana konunun (yüzler) üzerine tıklayın</figcaption>
+                                        <div className="oc-odak" onPointerDown={(e) => { e.currentTarget.setPointerCapture(e.pointerId); ocOdakSec(e); }}
+                                            onPointerMove={(e) => { if (e.buttons) ocOdakSec(e); }}>
+                                            <img src={gorselUrl(ocResim)} alt="" draggable="false" />
+                                            <span className="oc-odak-nokta" style={{ left: ocOdak.x + '%', top: ocOdak.y + '%' }} />
+                                        </div>
+                                    </figure>
+                                    <figure>
+                                        <figcaption>Sitedeki kırpılmış görünüm</figcaption>
+                                        <div className="oc-odak-onizleme"><img src={gorselUrl(ocResim)} alt="" style={{ objectPosition: ocOdak.x + '% ' + ocOdak.y + '%' }} /></div>
+                                    </figure>
+                                </div>
+                            )}
                         </div>
 
                         <div className="tam" style={{ gridColumn: '1 / -1' }}>

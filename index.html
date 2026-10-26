@@ -174,7 +174,7 @@
             .logo-kage, .logo-kage::after, .logo-95, .logo-muhur img { transition: none; }
         }
 
-        .ana-menu { display: flex; flex-wrap: wrap; gap: var(--bosluk-3); }
+        .ana-menu { display: flex; flex-wrap: wrap; gap: var(--bosluk-3); align-items: center; }
 
         .menu-link {
             padding: 8px 0;
@@ -182,9 +182,34 @@
             color: var(--text-ikincil);
             border-bottom: 2px solid transparent;
             transition: color .15s ease, border-color .15s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
         }
 
         @media (hover: hover) { .menu-link:hover { color: var(--text-ana); border-bottom-color: var(--vurgu-parlak); } }
+        .menu-link.aktif { color: var(--vurgu-parlak); border-bottom-color: var(--vurgu-parlak); font-weight: 600; }
+
+        /* Masaüstü Topluluk Açılır Menüsü */
+        .menu-dropdown-kap { position: relative; display: inline-flex; align-items: center; }
+        .menu-dropdown-menu {
+            position: absolute; top: calc(100% + 4px); left: 0; min-width: 250px;
+            background: rgba(18, 14, 14, 0.98); border: 1px solid var(--border-belirgin, #3a3030);
+            border-radius: 8px; box-shadow: 0 14px 32px rgba(0,0,0,.7), 0 0 16px rgba(224,52,60,.14);
+            padding: 6px; display: none; flex-direction: column; gap: 4px; z-index: 250;
+            backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+        }
+        .menu-dropdown-kap:hover .menu-dropdown-menu,
+        .menu-dropdown-kap:focus-within .menu-dropdown-menu { display: flex; }
+        .menu-dropdown-oge {
+            display: flex; align-items: center; gap: 12px; padding: 10px 14px;
+            border-radius: 6px; color: var(--text-ana); text-decoration: none;
+            transition: background .15s ease, color .15s ease;
+        }
+        .menu-dropdown-oge:hover { background: rgba(224, 52, 60, 0.12); color: var(--vurgu-parlak); }
+        .menu-dropdown-oge div { display: flex; flex-direction: column; }
+        .menu-dropdown-oge strong { font-size: .88rem; font-weight: 600; }
+        .menu-dropdown-oge small { font-size: .74rem; color: var(--text-ikincil); margin-top: 2px; }
 
         .header-sag {
             margin-left: auto;
@@ -777,11 +802,30 @@
             position: absolute; right: 6px; background: none; border: 0; color: var(--text-ikincil);
             cursor: pointer; font-size: .75rem; padding: 4px;
         }
-        .siralama-btn {
+        .siralama-btn, .mod-toggle-btn {
             font-size: .82rem; color: var(--text-ikincil); text-decoration: none; padding: 6px 10px;
-            border: 1px solid var(--border-renk); border-radius: 6px; background: var(--bg-kart);
+            border: 1px solid var(--border-renk); border-radius: 6px; background: var(--bg-kart); cursor: pointer;
         }
-        .siralama-btn:hover { color: var(--vurgu-parlak); border-color: var(--vurgu-parlak); }
+        .siralama-btn:hover, .mod-toggle-btn:hover { color: var(--vurgu-parlak); border-color: var(--vurgu-parlak); }
+        .bolum-izgara {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+            gap: 8px;
+            padding: var(--bosluk-2) 0;
+            list-style: none;
+        }
+        .bolum-cip {
+            display: flex; align-items: center; justify-content: center; gap: 6px;
+            min-height: 42px; padding: 6px 10px; background: var(--bg-kart);
+            border: 1px solid var(--border-renk); border-radius: 6px; color: var(--text-ana);
+            text-decoration: none; font-size: .85rem; font-weight: 600; transition: all .15s ease;
+        }
+        .bolum-cip:hover {
+            border-color: var(--vurgu-parlak); color: var(--vurgu-parlak);
+            background: rgba(224, 52, 60, 0.1); transform: translateY(-2px);
+        }
+        .bolum-cip.okundu { color: var(--text-ikincil); background: rgba(255, 255, 255, 0.02); }
+        .cip-nokta { width: 5px; height: 5px; border-radius: 50%; background: var(--vurgu-parlak); }
         .arama-bos-kutu {
             padding: var(--bosluk-4) var(--bosluk-2); text-align: center; color: var(--text-ikincil);
             background: var(--bg-kart); border: 1px dashed var(--border-renk); border-radius: 8px; margin-top: var(--bosluk-2);
@@ -2571,6 +2615,19 @@
             if (u.startsWith('/')) { try { return new URL(API_URL).origin + u; } catch (e) { return u; } }
             return u;
         };
+        // "adres#o=X,Y&k=kucuk.webp": odak noktası (yüzde) ve aynı klasördeki küçük varyant
+        const ocGorselCoz = (u) => {
+            const t = ocGorselGuvenli(u);
+            const i = t.indexOf('#');
+            if (i < 0) return { url: t, odak: '', kucuk: '' };
+            const p = new URLSearchParams(t.slice(i + 1));
+            const url = t.slice(0, i);
+            const o = (p.get('o') || '').split(',').map(Number);
+            const odak = o.length === 2 && o.every(n => Number.isFinite(n) && n >= 0 && n <= 100) ? o[0] + '% ' + o[1] + '%' : '';
+            const k = p.get('k') || '';
+            const kucuk = /^[\w.-]+$/.test(k) ? url.slice(0, url.lastIndexOf('/') + 1) + k : '';
+            return { url, odak, kucuk };
+        };
         const OC_SURE = 6000;
         // Slaytın bağlı olduğu manga: seri kaydı ("m12") ya da "/#/manga/12" bağlantısı
         const ocMangaId = (s) => {
@@ -2644,7 +2701,8 @@
             const s = sAn;
             const d = (mId && detay[mId]) || {};
             const bag = ocBaglantiGuvenli(s.baglanti);
-            const gorsel = ocGorselGuvenli(s.gorselUrl);
+            const gorselCoz = ocGorselCoz(s.gorselUrl);
+            const gorsel = gorselCoz.url;
             // Geniş görsel değilse (dikey kapak) zemin bulanıklaşır
             const bulanik = s.genis !== true;
             const afis = ocGorselGuvenli(s.kapakUrl) || ocGorselGuvenli(d.kapakResmiURL) || gorsel;
@@ -2676,7 +2734,10 @@
                                 {/* Dar dikey ekranda yatay afiş aşırı büyür; orada dikey kapak zemin olur */}
                                 {gorsel && <picture>
                                     {afis && afis !== gorsel && <source media="(max-width: 680px)" srcSet={afis} />}
-                                    <img src={gorsel} alt="" decoding="async" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                                    <img src={gorsel} alt="" decoding="async"
+                                        srcSet={gorselCoz.kucuk ? `${gorselCoz.kucuk} 960w, ${gorsel} 1920w` : undefined}
+                                        sizes={gorselCoz.kucuk ? '100vw' : undefined}
+                                        style={gorselCoz.odak ? { objectPosition: gorselCoz.odak } : undefined} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                                 </picture>}
                             </div>
                             <div className="oc-karart" aria-hidden="true"></div>
@@ -3164,6 +3225,7 @@
             const [dene, setDene] = React.useState(0);
             const [kopyaMesaj, setKopyaMesaj] = React.useState('');
             const [bolumArama, setBolumArama] = React.useState('');
+            const [gorunumModu, setGorunumModu] = React.useState('liste');
             const [okumaDurumu, setOkumaDurumu] = React.useState(() => kutuphaneDurumuAl(id));
             React.useEffect(() => {
                 if (manga && manga.mangaAdi) document.title = manga.mangaAdi + ' | Kage 95';
@@ -3363,9 +3425,14 @@
                                     </div>
                                 )}
                                 {bolumler.length > 1 && (
-                                    <button className="link-btn siralama-btn" onClick={() => setYeniFirst(!yeniFirst)} aria-label="Bölüm sıralamasını değiştir">
-                                        {yeniFirst ? '↓ Yeniden eskiye' : '↑ Eskiden yeniye'}
-                                    </button>
+                                    <>
+                                        <button type="button" className="link-btn mod-toggle-btn" onClick={() => setGorunumModu(gorunumModu === 'liste' ? 'izgara' : 'liste')} title="Görünüm Değiştir">
+                                            {gorunumModu === 'liste' ? '☵ Izgara' : '☰ Liste'}
+                                        </button>
+                                        <button className="link-btn siralama-btn" onClick={() => setYeniFirst(!yeniFirst)} aria-label="Bölüm sıralamasını değiştir">
+                                            {yeniFirst ? '↓ Yeniden eskiye' : '↑ Eskiden yeniye'}
+                                        </button>
+                                    </>
                                 )}
                             </div>
                         </div>
@@ -3380,6 +3447,23 @@
                                 <p>"{bolumArama}" ile eşleşen bölüm bulunamadı.</p>
                                 <button type="button" className="btn-ikincil" onClick={() => setBolumArama('')}>Tüm bölümleri göster</button>
                             </div>
+                        ) : gorunumModu === 'izgara' ? (
+                            <ul className="bolum-izgara">
+                                {filtreliBolumler.map(b => {
+                                    const okundu = okunan.has(String(b.id));
+                                    return (
+                                        <li key={b.id}>
+                                            <a className={`bolum-cip ${okundu ? 'okundu' : ''}`}
+                                               href={`read.html?chapter=${b.id}`}
+                                               onClick={() => { okunduIsaretle(id, b.id); }}
+                                               title={`Bölüm ${bolumNoYaz(b.bolumNo)}${b.bolumAdi ? ' · ' + b.bolumAdi : ''}`}>
+                                                <span>Bl. {bolumNoYaz(b.bolumNo)}</span>
+                                                {okundu && <span className="cip-nokta" aria-hidden="true"></span>}
+                                            </a>
+                                        </li>
+                                    );
+                                })}
+                            </ul>
                         ) : (
                             <ul className="bolum-listesi">
                                 {filtreliBolumler.map(b => {
@@ -3895,9 +3979,29 @@
                             <nav className="ana-menu" aria-label="Ana menü">
                                 <a className="menu-link" href="#/">Ana Sayfa</a>
                                 <a className="menu-link" href="#/kutuphane">Kütüphane</a>
+                                <div className="menu-dropdown-kap">
+                                    <a className={`menu-link ${(rota.sayfa === 'forum' || rota.sayfa === 'sohbet') ? 'aktif' : ''}`} href="#/forum" aria-current={(rota.sayfa === 'forum' || rota.sayfa === 'sohbet') ? 'page' : undefined}>
+                                        <span>Topluluk</span>
+                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" style={{ marginLeft: 4 }}><path d="m6 9 6 6 6-6" /></svg>
+                                    </a>
+                                    <div className="menu-dropdown-menu">
+                                        <a href="#/forum" className="menu-dropdown-oge">
+                                            <Ikon ad="forum" boyut={18} />
+                                            <div>
+                                                <strong>Forum</strong>
+                                                <small>Tartışmalar, teoriler ve incelemeler</small>
+                                            </div>
+                                        </a>
+                                        <a href="#/sohbet" className="menu-dropdown-oge">
+                                            <Ikon ad="sohbet" boyut={18} />
+                                            <div>
+                                                <strong>Canlı Sohbet</strong>
+                                                <small>Anlık sohbet odası ve etkinlikler</small>
+                                            </div>
+                                        </a>
+                                    </div>
+                                </div>
                                 <a className="menu-link" href="#/liderlik" aria-current={rota.sayfa === 'liderlik' ? 'page' : undefined}>Liderlik</a>
-                                <a className="menu-link" href="#/forum" aria-current={rota.sayfa === 'forum' ? 'page' : undefined}>Forum</a>
-                                <a className="menu-link" href="#/sohbet" aria-current={rota.sayfa === 'sohbet' ? 'page' : undefined}>Sohbet</a>
                                 <a className="menu-link" href="#/iletisim" aria-current={rota.sayfa === 'iletisim' ? 'page' : undefined}>İletişim</a>
                             </nav>
 

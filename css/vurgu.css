@@ -287,12 +287,15 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 .oc-icerik > * { animation: oc-yuksel .6s ease-out both; }
 .oc-icerik > :nth-child(2) { animation-delay: .06s; } .oc-icerik > :nth-child(3) { animation-delay: .12s; }
 .oc-icerik > :nth-child(4) { animation-delay: .18s; } .oc-icerik > :nth-child(5) { animation-delay: .24s; }
-/* En solda ve en sağda küçük oklar */
-.oc-ok { position: absolute; top: 50%; transform: translateY(-50%); z-index: 2; width: 36px; height: 36px; padding: 0 0 3px; border-radius: 50%; border: 1px solid rgba(255,255,255,.18); background: rgba(10,8,8,.45); color: #ede7e2; font-size: 1.4rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .15s, color .15s, border-color .15s; }
-.oc-ok-sol { left: 12px; }
-.oc-ok-sag { right: 12px; }
-/* Slayt göstergesi yalnız dar ekranda */
-.oc-noktalar { display: none; }
+/* En solda ve en sağda oklar */
+.oc-ok { position: absolute; top: 50%; transform: translateY(-50%); z-index: 10; width: 44px; height: 44px; padding: 0 0 3px; border-radius: 50%; border: 1px solid rgba(255,255,255,.22); background: rgba(14,12,12,.65); color: #ede7e2; font-size: 1.6rem; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); transition: all .18s ease; }
+.oc-ok-sol { left: 16px; }
+.oc-ok-sag { right: 16px; }
+.oc-ok:hover { background: rgba(142,14,21,.85); color: #fff; border-color: var(--oc-parlak, #e0343c); transform: translateY(-50%) scale(1.08); box-shadow: 0 6px 20px rgba(224,52,60,.4); }
+/* Slayt göstergesi */
+.oc-noktalar { display: flex; justify-content: center; gap: 8px; position: absolute; left: 0; right: 0; bottom: 16px; z-index: 10; pointer-events: none; }
+.oc-noktalar span { width: 8px; height: 8px; border-radius: 999px; background: rgba(255,255,255,.35); transition: all .25s ease; }
+.oc-noktalar span.aktif { width: 24px; background: var(--oc-parlak, #e0343c); box-shadow: 0 0 10px rgba(224,52,60,.65); }
 @keyframes oc-gir { from { opacity: 0; } to { opacity: 1; } }
 @keyframes oc-yuksel { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .oc-slayt, .oc-icerik, .oc-icerik > *, .oc-afis, .oc-vitrin::before { animation: none; } .oc-afis, .oc-btn, .oc-btn-ikincil { transition: none; } }
