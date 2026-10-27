@@ -232,13 +232,13 @@ Yayın için gerekli FTP bilgileri `deploy/yayin.Local.json` dosyasında tutulur
 | JWT imzası | `JwtSettings:Secret` | Şifre sıfırlama belirteci de bu anahtardan türetilir |
 | E-posta sunucusu | `EmailSettings:Server`, `Port` | `smtp-relay.brevo.com`, `587` (STARTTLS) |
 | Gönderen | `EmailSettings:SenderName`, `SenderEmail` | `Kage 95`, `noreply@kage95.com` |
-| SMTP kimliği | `EmailSettings:Username`, `Password` | **Gizli.** `appsettings*.json` dosyaları git'e girmez |
+| SMTP kimliği | `EmailSettings:Username`, `Password` | **Gizli.** Git'teki `appsettings.json` içinde boş durur; gerçek değer gitignore'daki `appsettings.Local.json` dosyasında (yerel ve sunucu) tutulur |
 | Site adresi | `Site:Url` | Sıfırlama bağlantısının kökü (`https://kage95.com`) |
 
 ```mermaid
 flowchart TD
-    A["appsettings.json<br/>(yerel, gitignore)"] --> M{{"IConfiguration"}}
-    B["appsettings.Development.json<br/>(yerel, gitignore)"] --> M
+    A["appsettings.json<br/>(git'te, sırsız)"] --> M{{"IConfiguration"}}
+    B["appsettings.Local.json<br/>(gitignore, sırlar burada)"] --> M
     C["Sunucu ortam yapılandırması<br/>(üretim)"] --> M
     M --> E["EmailService"]
     M --> T["SifreSifirlamaTokeni"]
