@@ -130,13 +130,14 @@ namespace Kage95.Backend.Controllers
             var sifreHata = HesapKurallari.SifreHata(request.Sifre, kullaniciAdi);
             if (sifreHata != null) return BadRequest(new { message = sifreHata });
 
-            // Hesap varlığı sızmasın diye tek genel mesaj.
-            var mevcut = await _context.Kullanicilar
-                .AnyAsync(k => k.KullaniciAdi.ToLower() == kullaniciAdi.ToLowerInvariant() || k.Email.ToLower() == email);
-
-            if (mevcut)
+            // Hangi alanın çakıştığını söyle; deneme sayısını "kayit" hız sınırı kısıyor.
+            if (await _context.Kullanicilar.AnyAsync(k => k.KullaniciAdi.ToLower() == kullaniciAdi.ToLowerInvariant()))
             {
-                return BadRequest(new { message = "Kayıt oluşturulamadı. Bilgileri değiştirip tekrar deneyin." });
+                return Conflict(new { message = "Bu kullanıcı adı alınmış. Başka bir ad dene.", alan = "kullaniciAdi" });
+            }
+            if (await _context.Kullanicilar.AnyAsync(k => k.Email.ToLower() == email))
+            {
+                return Conflict(new { message = "Bu e-posta adresiyle zaten bir hesap var. Giriş yap ya da şifreni sıfırla.", alan = "email" });
             }
 
             // Şifreyi BCrypt ile güvenli hash'le
