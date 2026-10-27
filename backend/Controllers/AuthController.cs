@@ -1,5 +1,9 @@
 using System.Security.Claims;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -21,9 +25,12 @@ namespace Kage95.Backend.Controllers
         private readonly IEmailService _eposta;
         private readonly IConfiguration _config;
         private readonly ILogger<AuthController> _log;
+        private readonly IHttpClientFactory _http;
+        private readonly IDataProtector _oauthState;
 
         public AuthController(AppDbContext context, ITokenService tokenService, ISiteAyarServisi ayarlar, IGirisSinirlayici sinirlayici,
-            IEmailService eposta, IConfiguration config, ILogger<AuthController> log)
+            IEmailService eposta, IConfiguration config, ILogger<AuthController> log,
+            IHttpClientFactory http, IDataProtectionProvider protection)
         {
             _eposta = eposta;
             _config = config;
@@ -32,6 +39,8 @@ namespace Kage95.Backend.Controllers
             _tokenService = tokenService;
             _ayarlar = ayarlar;
             _sinirlayici = sinirlayici;
+            _http = http;
+            _oauthState = protection.CreateProtector("Kage95.OAuth.State");
         }
 
         /// <summary>
@@ -239,6 +248,151 @@ namespace Kage95.Backend.Controllers
                 Yetkiler = Izinler.Cozumle(kullanici)
             });
         }
+
+        [AllowAnonymous]
+        [HttpGet("providers")]
+        public IActionResult Providers() => Ok(new
+        {
+            google = !string.IsNullOrWhiteSpace(_config["Authentication:Google:ClientId"]) &&
+                     !string.IsNullOrWhiteSpace(_config["Authentication:Google:ClientSecret"]),
+            discord = !string.IsNullOrWhiteSpace(_config["Authentication:Discord:ClientId"]) &&
+                      !string.IsNullOrWhiteSpace(_config["Authentication:Discord:ClientSecret"])
+        });
+
+        [AllowAnonymous]
+        [HttpGet("external/{provider}")]
+        public IActionResult ExternalStart(string provider)
+        {
+            provider = provider.ToLowerInvariant();
+            var clientId = _config[$"Authentication:{provider}:ClientId"];
+            var clientSecret = _config[$"Authentication:{provider}:ClientSecret"];
+            if (provider is not ("google" or "discord") || string.IsNullOrWhiteSpace(clientId) || string.IsNullOrWhiteSpace(clientSecret))
+                return NotFound(new { message = "Bu giriş sağlayıcısı yapılandırılmamış." });
+
+            var state = _oauthState.Protect($"{provider}|{DateTimeOffset.UtcNow.ToUnixTimeSeconds()}|{Guid.NewGuid():N}");
+            var callback = CallbackUrl(provider);
+            var query = provider == "google"
+                ? $"client_id={Uri.EscapeDataString(clientId)}&redirect_uri={Uri.EscapeDataString(callback)}&response_type=code&scope=openid%20email%20profile&state={Uri.EscapeDataString(state)}&access_type=online"
+                : $"client_id={Uri.EscapeDataString(clientId)}&redirect_uri={Uri.EscapeDataString(callback)}&response_type=code&scope=identify%20email&state={Uri.EscapeDataString(state)}";
+            var endpoint = provider == "google" ? "https://accounts.google.com/o/oauth2/v2/auth" : "https://discord.com/oauth2/authorize";
+            return Redirect(endpoint + "?" + query);
+        }
+
+        [AllowAnonymous]
+        [HttpGet("external/{provider}/callback")]
+        public async Task<IActionResult> ExternalCallback(string provider, string? code, string? state, string? error)
+        {
+            var loginUrl = LoginUrl();
+            if (!string.IsNullOrWhiteSpace(error) || string.IsNullOrWhiteSpace(code) || string.IsNullOrWhiteSpace(state))
+                return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Sosyal giriş iptal edildi."));
+            try
+            {
+                var stateValue = _oauthState.Unprotect(state);
+                var parts = stateValue.Split('|');
+                if (parts.Length != 3 || parts[0] != provider.ToLowerInvariant() ||
+                    !long.TryParse(parts[1], out var issued) ||
+                    DateTimeOffset.UtcNow.ToUnixTimeSeconds() - issued > 600)
+                    throw new InvalidOperationException("Geçersiz veya süresi dolmuş OAuth state.");
+
+                var profile = await GetExternalProfileAsync(provider.ToLowerInvariant(), code, CallbackUrl(provider));
+                if (profile == null || string.IsNullOrWhiteSpace(profile.Email) || !profile.EmailVerified)
+                    return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Sağlayıcı doğrulanmış bir e-posta döndürmedi."));
+
+                var user = provider.Equals("google", StringComparison.OrdinalIgnoreCase)
+                    ? await _context.Kullanicilar.FirstOrDefaultAsync(x => x.GoogleSubject == profile.Subject)
+                    : await _context.Kullanicilar.FirstOrDefaultAsync(x => x.DiscordUserId == profile.Subject);
+
+                if (user == null)
+                {
+                    var email = profile.Email.Trim().ToLowerInvariant();
+                    if (await _context.Kullanicilar.AnyAsync(x => x.Email.ToLower() == email))
+                        return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Bu e-posta zaten şifreli bir hesaba bağlı. Önce normal giriş yapın."));
+                    if (!await _ayarlar.AcikMiAsync("kayitAcik", true))
+                        return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Yeni kayıtlar şu an kapalı."));
+
+                    user = new Kullanici
+                    {
+                        KullaniciAdi = await UniqueUsernameAsync(profile.Name),
+                        Email = email,
+                        SifreHash = BCrypt.Net.BCrypt.HashPassword(Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32))),
+                        Rol = "User",
+                        ProfilResmiURL = profile.Picture,
+                        KayitTarihi = DateTime.UtcNow,
+                        SonGirisTarihi = DateTime.UtcNow
+                    };
+                    if (provider == "google") user.GoogleSubject = profile.Subject;
+                    else user.DiscordUserId = profile.Subject;
+                    _context.Kullanicilar.Add(user);
+                }
+                else
+                {
+                    user.SonGirisTarihi = DateTime.UtcNow;
+                    if (!string.IsNullOrWhiteSpace(profile.Picture)) user.ProfilResmiURL = profile.Picture;
+                }
+
+                if (await HesapDurumu.BanliMiAsync(_context, user))
+                    return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Bu hesap kapatılmış veya banlanmış."));
+                await _context.SaveChangesAsync();
+                var token = _tokenService.GenerateToken(user);
+                return Redirect(loginUrl + "#oauth_token=" + Uri.EscapeDataString(token));
+            }
+            catch (Exception ex)
+            {
+                _log.LogWarning(ex, "OAuth callback başarısız ({Provider}).", provider);
+                return Redirect(loginUrl + "#oauth_error=" + Uri.EscapeDataString("Sosyal giriş tamamlanamadı."));
+            }
+        }
+
+        private string CallbackUrl(string provider) =>
+            $"{(_config["Site:Url"] ?? $"{Request.Scheme}://{Request.Host}").TrimEnd('/')}/api/auth/external/{provider}/callback";
+
+        private string LoginUrl() => $"{(_config["Site:Url"] ?? $"{Request.Scheme}://{Request.Host}").TrimEnd('/')}/login.html";
+
+        private async Task<string> UniqueUsernameAsync(string? displayName)
+        {
+            var baseName = new string((displayName ?? "KageOkuru").Where(char.IsLetterOrDigit).ToArray());
+            if (baseName.Length < 3) baseName = "KageOkuru";
+            baseName = baseName[..Math.Min(35, baseName.Length)];
+            var candidate = baseName;
+            for (var i = 0; await _context.Kullanicilar.AnyAsync(x => x.KullaniciAdi == candidate); i++)
+                candidate = $"{baseName[..Math.Min(35, baseName.Length)]}{Random.Shared.Next(1000, 9999)}";
+            return candidate;
+        }
+
+        private async Task<ExternalProfile?> GetExternalProfileAsync(string provider, string code, string callback)
+        {
+            var client = _http.CreateClient();
+            if (provider == "google")
+            {
+                var token = await client.PostAsync("https://oauth2.googleapis.com/token", new FormUrlEncodedContent(new Dictionary<string, string>
+                {
+                    ["code"] = code, ["client_id"] = _config["Authentication:Google:ClientId"]!, ["client_secret"] = _config["Authentication:Google:ClientSecret"]!,
+                    ["redirect_uri"] = callback, ["grant_type"] = "authorization_code"
+                }));
+                token.EnsureSuccessStatusCode();
+                var tokenData = await token.Content.ReadFromJsonAsync<GoogleToken>();
+                var response = await client.GetAsync($"https://openidconnect.googleapis.com/v1/userinfo?access_token={Uri.EscapeDataString(tokenData?.AccessToken ?? "")}");
+                response.EnsureSuccessStatusCode();
+                var p = await response.Content.ReadFromJsonAsync<GoogleProfile>();
+                return p == null ? null : new ExternalProfile(p.Sub, p.Name, p.Email, p.EmailVerified, p.Picture);
+            }
+            var discordToken = await client.PostAsync("https://discord.com/api/oauth2/token", new FormUrlEncodedContent(new Dictionary<string, string>
+            {
+                ["code"] = code, ["client_id"] = _config["Authentication:Discord:ClientId"]!, ["client_secret"] = _config["Authentication:Discord:ClientSecret"]!,
+                ["redirect_uri"] = callback, ["grant_type"] = "authorization_code"
+            }));
+            discordToken.EnsureSuccessStatusCode();
+            var discordData = await discordToken.Content.ReadFromJsonAsync<DiscordToken>();
+            client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", discordData?.AccessToken);
+            var d = await client.GetFromJsonAsync<DiscordProfile>("https://discord.com/api/users/@me");
+            return d == null ? null : new ExternalProfile(d.Id, d.Username, d.Email ?? "", d.Verified, string.IsNullOrWhiteSpace(d.Avatar) ? null : $"https://cdn.discordapp.com/avatars/{d.Id}/{d.Avatar}.png");
+        }
+
+        private sealed record ExternalProfile(string Subject, string Name, string Email, bool EmailVerified, string? Picture);
+        private sealed class GoogleToken { [JsonPropertyName("access_token")] public string? AccessToken { get; set; } }
+        private sealed class GoogleProfile { public string Sub { get; set; } = ""; public string Name { get; set; } = ""; public string Email { get; set; } = ""; [JsonPropertyName("email_verified")] public bool EmailVerified { get; set; } public string? Picture { get; set; } }
+        private sealed class DiscordToken { [JsonPropertyName("access_token")] public string? AccessToken { get; set; } }
+        private sealed class DiscordProfile { public string Id { get; set; } = ""; public string Username { get; set; } = ""; public string? Email { get; set; } public bool Verified { get; set; } public string? Avatar { get; set; } }
 
         /// <summary>
         /// Oturum açmış aktif kullanıcının bilgileri

@@ -52,6 +52,10 @@ namespace Kage95.Backend.Data
                 entity.Property(e => e.Rol).HasMaxLength(20).HasDefaultValue("User");
                 entity.Property(e => e.ProfilResmiURL).HasMaxLength(500);
                 entity.Property(e => e.Yetkiler).HasMaxLength(1000);
+                entity.Property(e => e.GoogleSubject).HasMaxLength(200);
+                entity.HasIndex(e => e.GoogleSubject).IsUnique().HasFilter("[GoogleSubject] IS NOT NULL");
+                entity.Property(e => e.DiscordUserId).HasMaxLength(100);
+                entity.HasIndex(e => e.DiscordUserId).IsUnique().HasFilter("[DiscordUserId] IS NOT NULL");
                 entity.Property(e => e.Aktif).HasDefaultValue(true);
                 entity.Property(e => e.BanNedeni).HasMaxLength(500);
                 entity.Property(e => e.TokenSurumu).HasDefaultValue(0);

@@ -32,6 +32,8 @@ BEGIN
         SifreHash      NVARCHAR(256)     NOT NULL,
         Rol            NVARCHAR(20)      NOT NULL CONSTRAINT DF_Kullanicilar_Rol DEFAULT ('Kullanici'),
         ProfilResmiURL NVARCHAR(500)     NULL,
+        GoogleSubject  NVARCHAR(200)     NULL,
+        DiscordUserId  NVARCHAR(100)     NULL,
         KayitTarihi    DATETIME2         NOT NULL CONSTRAINT DF_Kullanicilar_KayitTarihi DEFAULT (SYSDATETIME()),
 
         CONSTRAINT PK_Kullanicilar PRIMARY KEY (Id),
@@ -51,6 +53,16 @@ BEGIN
     IF COL_LENGTH(N'dbo.Kullanicilar', N'ProfilResmiURL') IS NULL
         ALTER TABLE dbo.Kullanicilar ADD ProfilResmiURL NVARCHAR(500) NULL;
 END
+GO
+
+IF COL_LENGTH(N'dbo.Kullanicilar', N'GoogleSubject') IS NULL
+    ALTER TABLE dbo.Kullanicilar ADD GoogleSubject NVARCHAR(200) NULL;
+IF COL_LENGTH(N'dbo.Kullanicilar', N'DiscordUserId') IS NULL
+    ALTER TABLE dbo.Kullanicilar ADD DiscordUserId NVARCHAR(100) NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_GoogleSubject' AND object_id = OBJECT_ID(N'dbo.Kullanicilar'))
+    CREATE UNIQUE INDEX IX_Kullanicilar_GoogleSubject ON dbo.Kullanicilar(GoogleSubject) WHERE GoogleSubject IS NOT NULL;
+IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_DiscordUserId' AND object_id = OBJECT_ID(N'dbo.Kullanicilar'))
+    CREATE UNIQUE INDEX IX_Kullanicilar_DiscordUserId ON dbo.Kullanicilar(DiscordUserId) WHERE DiscordUserId IS NOT NULL;
 GO
 
 -- 2b) Yetki sistemi: Yetkiler (virgülle ayrılmış izin anahtarları) ve Aktif (hesap açık/kapalı)

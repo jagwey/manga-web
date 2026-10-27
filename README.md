@@ -407,6 +407,22 @@ dosyaya yazmak yerine `JwtSettings__Secret` ortam değişkeni veya sunucu secret
 store kullanın. `deploy/appsettings.Production.json` bilerek boş secret ile
 gelir; uygulama eksik secret ile başlarsa açıkça hata verir.
 
+### Google ve Discord ile giriş
+
+Sosyal giriş düğmeleri yalnızca sağlayıcı bilgileri yapılandırılmışsa giriş
+sayfasında görünür. Google Cloud Console'da şu callback adresini ekleyin:
+`https://kage95.com/api/auth/external/google/callback`. Discord Developer
+Portal'da da `https://kage95.com/api/auth/external/discord/callback` adresini
+ekleyin. Client ID ve secret değerlerini production sunucusunda sırasıyla
+`Authentication__Google__ClientId`, `Authentication__Google__ClientSecret`,
+`Authentication__Discord__ClientId` ve `Authentication__Discord__ClientSecret`
+ortam değişkenleriyle verin.
+
+İlk sosyal girişte doğrulanmış e-posta ile yeni bir Kage 95 hesabı oluşturulur.
+Mevcut şifreli hesaplar otomatik olarak birleştirilmez; bu, yanlış/ele
+geçirilmiş bir OAuth hesabıyla mevcut hesabın devralınmasını önler. Kullanıcı
+aynı e-posta ile kayıtlı hesaba önce normal giriş yapmalıdır.
+
 ### 3. Backend'i Başlatma
 ```powershell
 cd backend

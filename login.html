@@ -183,6 +183,15 @@
             transition: background-color 0.15s, border-color 0.15s;
         }
 
+        .sosyal-giris { margin-top: 20px; display: grid; gap: 10px; }
+        .sosyal-giris-baslik { color: var(--text-ikincil); text-align: center; font-size: .78rem; }
+        .sosyal-btn {
+            min-height: 44px; border: 1px solid var(--border-renk); border-radius: 2px;
+            background: transparent; color: var(--text-ana); cursor: pointer; font-size: .88rem;
+            transition: border-color .15s, background-color .15s;
+        }
+        .sosyal-btn:hover { border-color: var(--vurgu-parlak); background: rgba(224,52,60,.08); }
+
         @media (hover:hover) { .btn-gonder:hover { background: var(--vurgu-parlak); border-color: var(--vurgu-parlak); } }
         .btn-gonder:disabled { opacity: 0.6; cursor: default; }
 
@@ -287,6 +296,24 @@
             const [sifre, setSifre] = React.useState('');
             const [sifreGoster, setSifreGoster] = React.useState(false);
             const [bildirim, setBildirim] = React.useState(null);
+            const [sosyalSaglayicilar, setSosyalSaglayicilar] = React.useState({ google: false, discord: false });
+            React.useEffect(() => {
+                const hash = new URLSearchParams(window.location.hash.slice(1));
+                const oauthToken = hash.get('oauth_token');
+                const oauthError = hash.get('oauth_error');
+                if (oauthError) {
+                    setBildirim({ tur: 'hata', mesaj: oauthError });
+                    history.replaceState(null, '', window.location.pathname + window.location.search);
+                } else if (oauthToken) {
+                    localStorage.setItem('kage95_token', oauthToken);
+                    history.replaceState(null, '', window.location.pathname);
+                    window.location.href = 'index.html';
+                    return;
+                }
+                fetch(window.KAGE95_API_URL + '/auth/providers').then(r => r.ok ? r.json() : {}).then(v => {
+                    setSosyalSaglayicilar({ google: v.google === true, discord: v.discord === true });
+                }).catch(() => {});
+            }, []);
 
             const formGonder = async (e) => {
                 e.preventDefault();
@@ -440,6 +467,22 @@
                             {gonderiliyor ? 'Lütfen bekleyin...' : girisModu ? 'Giriş Yap' : 'Hesap Oluştur'}
                         </button>
                     </form>
+
+                    {(sosyalSaglayicilar.google || sosyalSaglayicilar.discord) && (
+                        <div className="sosyal-giris" aria-label="Sosyal giriş seçenekleri">
+                            <div className="sosyal-giris-baslik">veya sosyal hesapla devam et</div>
+                            {sosyalSaglayicilar.google && (
+                                <button type="button" className="sosyal-btn" onClick={() => { window.location.href = window.KAGE95_API_URL + '/auth/external/google'; }}>
+                                    Google ile devam et
+                                </button>
+                            )}
+                            {sosyalSaglayicilar.discord && (
+                                <button type="button" className="sosyal-btn" onClick={() => { window.location.href = window.KAGE95_API_URL + '/auth/external/discord'; }}>
+                                    Discord ile devam et
+                                </button>
+                            )}
+                        </div>
+                    )}
 
                     <div className="alt-linkler">
                         {girisModu && (

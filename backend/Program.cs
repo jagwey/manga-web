@@ -12,6 +12,7 @@ using Kage95.Backend.Data;
 using Kage95.Backend.Services;
 using Kage95.Backend.Security;
 using Kage95.Backend.Hubs;
+using Microsoft.AspNetCore.DataProtection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // 2. Servisler
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHttpClient();
+builder.Services.AddDataProtection();
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();
 builder.Services.AddScoped<ISiteAyarServisi, SiteAyarServisi>();
 builder.Services.AddSingleton<IGirisSinirlayici, GirisSinirlayici>();
@@ -192,6 +195,10 @@ using (var kapsam = app.Services.CreateScope())
             "IF COL_LENGTH(N'dbo.Mangalar', N'SilinmeTarihi') IS NULL ALTER TABLE dbo.Mangalar ADD SilinmeTarihi DATETIME2 NULL;" +
             "IF COL_LENGTH(N'dbo.Mangalar', N'Slug') IS NULL ALTER TABLE dbo.Mangalar ADD Slug NVARCHAR(250) NULL;" +
             "IF OBJECT_ID(N'dbo.KullaniciTercihleri') IS NOT NULL AND COL_LENGTH(N'dbo.KullaniciTercihleri', N'AdEfekti') IS NULL ALTER TABLE dbo.KullaniciTercihleri ADD AdEfekti NVARCHAR(20) NULL;" +
+            "IF COL_LENGTH(N'dbo.Kullanicilar', N'GoogleSubject') IS NULL ALTER TABLE dbo.Kullanicilar ADD GoogleSubject NVARCHAR(200) NULL;" +
+            "IF COL_LENGTH(N'dbo.Kullanicilar', N'DiscordUserId') IS NULL ALTER TABLE dbo.Kullanicilar ADD DiscordUserId NVARCHAR(100) NULL;" +
+            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_GoogleSubject' AND object_id = OBJECT_ID(N'dbo.Kullanicilar')) CREATE UNIQUE INDEX IX_Kullanicilar_GoogleSubject ON dbo.Kullanicilar(GoogleSubject) WHERE GoogleSubject IS NOT NULL;" +
+            "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_DiscordUserId' AND object_id = OBJECT_ID(N'dbo.Kullanicilar')) CREATE UNIQUE INDEX IX_Kullanicilar_DiscordUserId ON dbo.Kullanicilar(DiscordUserId) WHERE DiscordUserId IS NOT NULL;" +
             // Eski ayrı öne çıkanlar tablosu kaldırıldı; öne çıkanlar artık mangadaki OneCikan bayrağından gelir.
             "IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NOT NULL DROP TABLE dbo.OneCikanlar;" +
             // Forum tabloları
