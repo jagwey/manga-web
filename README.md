@@ -86,6 +86,167 @@ flowchart TD
 
 ---
 
+## 🧩 Servisler & Altyapı (Hangi Hizmeti Nerede Kullanıyoruz?)
+
+Kage 95'in çalışması için kullanılan dış hizmetlerin tamamı aşağıdadır. Bu bölümde **hiçbir parola, API anahtarı veya sunucu sırrı yer almaz**; yalnızca hizmet adları ve ayar anahtarı adları yazılıdır.
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Hosting-SmarterASP.NET-0A66C2?style=for-the-badge&logo=microsoftazure&logoColor=white" alt="Hosting: SmarterASP.NET">
+  <img src="https://img.shields.io/badge/DNS%20%2B%20CDN-Cloudflare-F38020?style=for-the-badge&logo=cloudflare&logoColor=white" alt="Cloudflare">
+  <img src="https://img.shields.io/badge/E--posta-Brevo%20SMTP-0B996E?style=for-the-badge&logo=brevo&logoColor=white" alt="Brevo">
+  <img src="https://img.shields.io/badge/Veritabanı-SQL%20Server-CC2927?style=for-the-badge&logo=microsoftsqlserver&logoColor=white" alt="SQL Server">
+  <img src="https://img.shields.io/badge/Sunucu-IIS%20%2B%20.NET%2010-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt="IIS .NET 10">
+  <img src="https://img.shields.io/badge/SSL-Let's%20Encrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=white" alt="Let's Encrypt">
+</p>
+
+### 📋 Servis Kartları
+
+| | Hizmet | Ne için kullanılıyor? | Nerede ayarlanıyor? |
+|:-:|---|---|---|
+| 🌍 | **Alan adı: `kage95.com`** | Sitenin adresi. Alan adı DNS yönetimi Cloudflare'e devredilmiştir. | Kayıt firması (registrar): *belirtilmedi — sahibi tarafından eklenecek* |
+| ☁️ | **Cloudflare** | DNS, ters vekil (proxy), CDN önbelleği, DDoS koruması, SSL modu **Full** | Cloudflare paneli → `kage95.com` |
+| 🖥️ | **SmarterASP.NET (SITE4NOW)** | Windows / IIS barındırma, .NET 10 çalışma ortamı, SQL Server veritabanı, FTP | SmarterASP.NET kontrol paneli |
+| 🗄️ | **Microsoft SQL Server** | Kullanıcı, manga, bölüm, yorum, forum verileri (`Kage95DB`) | `ConnectionStrings:DefaultConnection` |
+| ✉️ | **Brevo (eski adıyla Sendinblue)** | Şifre sıfırlama ve sistem e-postaları (SMTP) | `EmailSettings` bölümü |
+| 🔐 | **Let's Encrypt** | Kaynak sunucuda (origin) ücretsiz SSL sertifikası | SmarterASP.NET paneli, `.well-known/web.config` |
+| 📦 | **FTP + `yayinla.ps1`** | Tek komutla canlıya yayın | `deploy/yayin.Local.json` (git'e girmez) |
+| 💬 | **Discord** | Topluluk sunucusu ve iletişim | `discord.gg/yxZZ7m2x8a` |
+
+### 🗺️ Altyapı Haritası
+
+```mermaid
+flowchart LR
+    U(["👤 Ziyaretçi<br/>kage95.com"])
+
+    subgraph REG["🌍 Alan Adı"]
+        DOM["kage95.com<br/>Kayıt firması: belirtilmedi"]
+    end
+
+    subgraph CFG["☁️ Cloudflare"]
+        DNS["DNS<br/>@ ve www → CNAME"]
+        PROXY["Ters vekil + CDN<br/>SSL: Full"]
+    end
+
+    subgraph HOST["🖥️ SmarterASP.NET (SITE4NOW) · Windows IIS"]
+        APP["ASP.NET Core .NET 10<br/>API + SignalR + statik dosyalar"]
+        SQL[("SQL Server<br/>Kage95DB")]
+        LE["Let's Encrypt<br/>origin SSL"]
+    end
+
+    subgraph MAIL["✉️ Brevo"]
+        SMTP["smtp-relay.brevo.com<br/>:587 STARTTLS"]
+    end
+
+    U --> DOM --> DNS --> PROXY --> APP
+    APP --> SQL
+    LE -.sertifika.-> APP
+    APP -- "SMTP (MailKit)" --> SMTP
+    SMTP -- "noreply@kage95.com" --> INBOX(["📬 Kullanıcının e-postası"])
+
+    style CFG fill:#fff3e6,stroke:#F38020
+    style HOST fill:#e8f1fb,stroke:#0A66C2
+    style MAIL fill:#e6f6f0,stroke:#0B996E
+    style REG fill:#f3f3f3,stroke:#888
+```
+
+### 🌐 Bir İstek Nasıl İlerler?
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant T as Tarayıcı
+    participant C as Cloudflare
+    participant I as IIS (SmarterASP.NET)
+    participant A as ASP.NET Core
+    participant D as SQL Server
+
+    T->>C: HTTPS isteği (kage95.com)
+    C-->>T: Önbellekte statik dosya varsa doğrudan döner
+    C->>I: Yoksa HTTPS ile origin'e iletir (SSL Full)
+    I->>A: İstek uygulamaya geçer
+    Note over A: ForwardedHeaders yalnızca<br/>Cloudflare IP aralıklarına güvenir
+    A->>D: Veri sorgusu
+    D-->>A: Sonuç
+    A-->>T: JSON / HTML / SignalR (Cloudflare üzerinden)
+```
+
+### ✉️ Brevo ile Şifre Sıfırlama Akışı
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor K as Kullanıcı
+    participant W as Web Arayüzü
+    participant A as AuthController
+    participant T as SifreSifirlamaTokeni
+    participant E as EmailService (MailKit)
+    participant B as Brevo SMTP
+
+    K->>W: "Şifremi unuttum" + e-posta
+    W->>A: POST /api/auth/forgot-password
+    A->>A: Hesap var mı? (cevap her zaman aynı)
+    A->>T: 30 dk geçerli imzalı belirteç üret
+    A->>E: SendEmailAsync(alıcı, konu, HTML)
+    E->>B: STARTTLS :587 + kimlik doğrulama
+    B-->>K: 📬 Sıfırlama bağlantısı
+    K->>W: Bağlantıya tıklar (/?sifre-sifirla=...)
+    W->>A: POST /api/auth/reset-password
+    A->>T: Süre + HMAC imzası doğrula
+    A->>A: Yeni şifre (BCrypt), eski oturumlar kapanır
+    A-->>K: ✅ Şifre güncellendi
+```
+
+**Güvenlik notları**
+
+- Belirteç **veritabanında saklanmaz**: `kullaniciId.bitişZamanı` verisi, `JwtSettings:Secret` ve şifre hash parmak izi ile HMAC-SHA256 imzalanır.
+- Şifre değiştiği anda parmak izi değişir; böylece bağlantı **tek kullanımlıktır**.
+- `forgot-password` hesap var olsa da olmasa da aynı cevabı verir (kullanıcı adı/e-posta sızdırmaz).
+- Hız sınırı: `sifre-sifirlama` politikası, IP başına 15 dakikada 5 istek.
+
+> ℹ️ Şifre sıfırlama **arka uç uçları hazırdır**. Giriş sayfasındaki "Şifremi unuttum" formu ve `/?sifre-sifirla=` bağlantısını karşılayan yeni şifre ekranı ön yüzde henüz yapılmamıştır.
+
+### 🚀 Yayın (Deploy) Akışı
+
+```mermaid
+flowchart LR
+    DEV["💻 Geliştirici bilgisayarı"] --> BUILD["derle.mjs<br/>SHA-1 özetli dist"]
+    BUILD --> PUB["dotnet publish<br/>Release"]
+    PUB --> OFF["app_offline.htm<br/>(IIS kilidi açılır)"]
+    OFF --> FTP["FTP ile yükleme<br/>yayinla.ps1"]
+    FTP --> ON["app_offline.htm silinir<br/>site yeniden başlar"]
+    ON --> CHK{"kage95.com<br/>200 dönüyor mu?"}
+    CHK -- Evet --> OK["✅ Yayında"]
+    CHK -- Hayır --> FIX["⚠️ Günlüklere bak"]
+
+    style OK fill:#e6f6f0,stroke:#0B996E
+    style FIX fill:#fdeceb,stroke:#CC2927
+```
+
+Yayın için gerekli FTP bilgileri `deploy/yayin.Local.json` dosyasında tutulur. Bu dosya `.gitignore` içindedir ve **hiçbir koşulda commit edilmemelidir**.
+
+### 🔑 Yapılandırma Anahtarları (değer yok, yalnızca ad)
+
+| Ayar | Anahtar | Not |
+|---|---|---|
+| Veritabanı | `ConnectionStrings:DefaultConnection` | Sunucuda ortam yapılandırmasıyla verilir |
+| JWT imzası | `JwtSettings:Secret` | Şifre sıfırlama belirteci de bu anahtardan türetilir |
+| E-posta sunucusu | `EmailSettings:Server`, `Port` | `smtp-relay.brevo.com`, `587` (STARTTLS) |
+| Gönderen | `EmailSettings:SenderName`, `SenderEmail` | `Kage 95`, `noreply@kage95.com` |
+| SMTP kimliği | `EmailSettings:Username`, `Password` | **Gizli.** `appsettings*.json` dosyaları git'e girmez |
+| Site adresi | `Site:Url` | Sıfırlama bağlantısının kökü (`https://kage95.com`) |
+
+```mermaid
+flowchart TD
+    A["appsettings.json<br/>(yerel, gitignore)"] --> M{{"IConfiguration"}}
+    B["appsettings.Development.json<br/>(yerel, gitignore)"] --> M
+    C["Sunucu ortam yapılandırması<br/>(üretim)"] --> M
+    M --> E["EmailService"]
+    M --> T["SifreSifirlamaTokeni"]
+    M --> D["AppDbContext"]
+```
+
+---
+
 ## ✨ Temel Özellikler
 
 ### 📖 1. Akıllı Okuma Deneyimi

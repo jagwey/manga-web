@@ -11,6 +11,17 @@ namespace Kage95.Backend.Models
         public string Sifre { get; set; } = string.Empty;
     }
 
+    public class SifremiUnuttumRequest
+    {
+        public string Email { get; set; } = string.Empty;
+    }
+
+    public class SifreSifirlaTokenRequest
+    {
+        public string Token { get; set; } = string.Empty;
+        public string YeniSifre { get; set; } = string.Empty;
+    }
+
     public class LoginRequest
     {
         public string KullaniciAdiOrEmail { get; set; } = string.Empty;

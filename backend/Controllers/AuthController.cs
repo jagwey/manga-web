@@ -18,13 +18,78 @@ namespace Kage95.Backend.Controllers
         private readonly ITokenService _tokenService;
         private readonly ISiteAyarServisi _ayarlar;
         private readonly IGirisSinirlayici _sinirlayici;
+        private readonly IEmailService _eposta;
+        private readonly IConfiguration _config;
+        private readonly ILogger<AuthController> _log;
 
-        public AuthController(AppDbContext context, ITokenService tokenService, ISiteAyarServisi ayarlar, IGirisSinirlayici sinirlayici)
+        public AuthController(AppDbContext context, ITokenService tokenService, ISiteAyarServisi ayarlar, IGirisSinirlayici sinirlayici,
+            IEmailService eposta, IConfiguration config, ILogger<AuthController> log)
         {
+            _eposta = eposta;
+            _config = config;
+            _log = log;
             _context = context;
             _tokenService = tokenService;
             _ayarlar = ayarlar;
             _sinirlayici = sinirlayici;
+        }
+
+        /// <summary>
+        /// Şifremi unuttum: e-posta kayıtlıysa 30 dakika geçerli sıfırlama bağlantısı gönderir.
+        /// Hesap varlığı sızmasın diye cevap her zaman aynıdır.
+        /// </summary>
+        [HttpPost("forgot-password")]
+        [EnableRateLimiting("sifre-sifirlama")]
+        public async Task<IActionResult> ForgotPassword([FromBody] SifremiUnuttumRequest request)
+        {
+            const string genel = "E-posta kayıtlıysa şifre sıfırlama bağlantısı gönderildi.";
+            var email = request.Email?.Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(email) || HesapKurallari.EmailHata(email) != null)
+                return Ok(new { message = genel });
+
+            var k = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Email.ToLower() == email && x.Aktif);
+            if (k != null)
+            {
+                try
+                {
+                    var token = SifreSifirlamaTokeni.Uret(_config, k.Id, k.SifreHash);
+                    var site = (_config["Site:Url"] ?? "https://kage95.com").TrimEnd('/');
+                    var link = $"{site}/?sifre-sifirla={Uri.EscapeDataString(token)}";
+                    var ad = System.Net.WebUtility.HtmlEncode(k.KullaniciAdi);
+                    var html = $"<p>Merhaba {ad},</p>" +
+                        "<p>Kage 95 hesabın için şifre sıfırlama isteği aldık. Yeni şifre belirlemek için bağlantıya tıkla (30 dakika geçerli):</p>" +
+                        $"<p><a href=\"{link}\">Şifremi sıfırla</a></p>" +
+                        "<p>Bu isteği sen yapmadıysan bu e-postayı yok sayabilirsin; şifren değişmez.</p>";
+                    await _eposta.SendEmailAsync(k.Email, "Kage 95 - Şifre sıfırlama", html);
+                }
+                catch (Exception ex)
+                {
+                    _log.LogError(ex, "Şifre sıfırlama e-postası gönderilemedi (kullanıcı {Id}).", k.Id);
+                }
+            }
+            return Ok(new { message = genel });
+        }
+
+        /// <summary>E-postadaki belirteçle yeni şifre belirler; eski oturumlar kapanır.</summary>
+        [HttpPost("reset-password")]
+        [EnableRateLimiting("sifre-sifirlama")]
+        public async Task<IActionResult> ResetPassword([FromBody] SifreSifirlaTokenRequest request)
+        {
+            const string gecersiz = "Bağlantı geçersiz ya da süresi dolmuş. Yeniden şifre sıfırlama isteyin.";
+            if (!SifreSifirlamaTokeni.Cozumle(request.Token, out var id)) return BadRequest(new { message = gecersiz });
+
+            var k = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Id == id && x.Aktif);
+            if (k == null || !SifreSifirlamaTokeni.ImzaDogru(_config, request.Token, k.SifreHash))
+                return BadRequest(new { message = gecersiz });
+
+            var sifreHata = HesapKurallari.SifreHata(request.YeniSifre, k.KullaniciAdi);
+            if (sifreHata != null) return BadRequest(new { message = sifreHata });
+
+            k.SifreHash = BCrypt.Net.BCrypt.HashPassword(request.YeniSifre);
+            k.TokenSurumu++;
+            await _context.SaveChangesAsync();
+            _sinirlayici.Sifirla(k.KullaniciAdi);
+            return Ok(new { message = "Şifre güncellendi. Yeni şifrenle giriş yapabilirsin." });
         }
 
         /// <summary>

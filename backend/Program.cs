@@ -39,6 +39,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // 2. Servisler
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();
 builder.Services.AddScoped<ISiteAyarServisi, SiteAyarServisi>();
 builder.Services.AddSingleton<IGirisSinirlayici, GirisSinirlayici>();
@@ -157,6 +158,8 @@ builder.Services.AddRateLimiter(o =>
     string Ip(HttpContext c) => c.Connection.RemoteIpAddress?.ToString() ?? "bilinmiyor";
     o.AddPolicy("giris", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 30, Window = TimeSpan.FromMinutes(5) }));
+    o.AddPolicy("sifre-sifirlama", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
+        _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(15) }));
     o.AddPolicy("kayit", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(30) }));
     // Genel okuma ve API tarama hız sınırı (IP başına dakikada 120 istek)
