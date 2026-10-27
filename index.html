@@ -4209,6 +4209,47 @@
             );
         };
 
+        // Doğrulanmamış e-posta uyarısı: girişi engellemez, sadece hatırlatır ve linki yeniden gönderir.
+        const EpostaDogrulamaBandi = () => {
+            const [kullanici, setKullanici] = React.useState(kullaniciAl);
+            const [kapali, setKapali] = React.useState(() => { try { return sessionStorage.getItem('kage95_dogrulama_kapali') === '1'; } catch (e) { return false; } });
+            const [durum, setDurum] = React.useState(null);
+            React.useEffect(() => {
+                const f = () => setKullanici(kullaniciAl());
+                window.addEventListener('kage95-kullanici', f);
+                return () => window.removeEventListener('kage95-kullanici', f);
+            }, []);
+            if (!kullanici || kullanici.emailDogrulandi !== false || kapali) return null;
+
+            const gonder = async () => {
+                setDurum({ mesgul: true });
+                try {
+                    const yanit = await fetch(API_URL + '/auth/resend-verification', { method: 'POST', headers: { 'Authorization': 'Bearer ' + tokenAl() } });
+                    const veri = await yanit.json().catch(() => ({}));
+                    if (yanit.status === 429) { setDurum({ metin: 'Çok fazla istek. Biraz sonra tekrar dene.' }); return; }
+                    if (veri.dogrulandi) {
+                        localStorage.setItem('kage95_user', JSON.stringify({ ...kullanici, emailDogrulandi: true }));
+                        window.dispatchEvent(new Event('kage95-kullanici'));
+                        return;
+                    }
+                    setDurum({ metin: veri.message || (yanit.ok ? 'Bağlantı gönderildi.' : 'Gönderilemedi.'), gonderildi: yanit.ok });
+                } catch (e) {
+                    setDurum({ metin: 'Sunucuya ulaşılamadı.' });
+                }
+            };
+            const kapat = () => { setKapali(true); try { sessionStorage.setItem('kage95_dogrulama_kapali', '1'); } catch (e) {} };
+
+            return (
+                <div className="duyuru-bandi" role="status">
+                    <span>{durum && durum.metin ? durum.metin : `E-posta adresin (${kullanici.email}) henüz doğrulanmadı. Gelen kutundaki bağlantıya tıkla.`}</span>
+                    {!(durum && durum.gonderildi) && (
+                        <button onClick={gonder} disabled={durum && durum.mesgul}>{durum && durum.mesgul ? 'Gönderiliyor…' : 'Tekrar gönder'}</button>
+                    )}
+                    <button onClick={kapat} aria-label="Uyarıyı kapat">Kapat</button>
+                </div>
+            );
+        };
+
         /* ------------------------- KÖK ------------------------- */
         // Üst çubuk menüsü: girişliyse profil rozeti, girişsizse üç çizgi; ikisi de aynı açılır menüyü kullanır.
         const HesapMenusu = ({ onGorunum, kayitAcik = true }) => {
@@ -4226,7 +4267,14 @@
                     .then(r => r.ok ? r.json() : null)
                     .then(v => {
                         const k = kullaniciAl();
-                        if (v && k && v.rol !== k.rol) cikisYap();
+                        if (v && k && v.rol !== k.rol) { cikisYap(); return; }
+                        // E-posta doğrulama durumunu sunucuyla eşitle (banner bunu okur).
+                        if (v && k && k.emailDogrulandi !== v.emailDogrulandi) {
+                            try {
+                                localStorage.setItem('kage95_user', JSON.stringify({ ...k, emailDogrulandi: v.emailDogrulandi === true }));
+                                window.dispatchEvent(new Event('kage95-kullanici'));
+                            } catch (e) {}
+                        }
                     })
                     .catch(() => {});
             }, []);
@@ -4443,6 +4491,7 @@
                             <button onClick={duyuruyuKapat} aria-label="Duyuruyu kapat">Kapat</button>
                         </div>
                     )}
+                    <EpostaDogrulamaBandi />
                     <header className="site-header" role="banner">
                         <div className="header-ic">
                             <a href="#/" className="site-logo" aria-label="Kage 95 Ana Sayfa">

@@ -59,6 +59,7 @@ namespace Kage95.Backend.Data
                 entity.Property(e => e.Aktif).HasDefaultValue(true);
                 entity.Property(e => e.BanNedeni).HasMaxLength(500);
                 entity.Property(e => e.TokenSurumu).HasDefaultValue(0);
+                entity.Property(e => e.EmailDogrulandi).HasDefaultValue(false);
                 entity.Property(e => e.KayitTarihi).HasDefaultValueSql("SYSDATETIME()");
             });
 

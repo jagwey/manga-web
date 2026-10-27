@@ -24,6 +24,8 @@ namespace Kage95.Backend.Models
         public string? ProfilResmiURL { get; set; }
         public string? GoogleSubject { get; set; }
         public string? DiscordUserId { get; set; }
+        // Kayıt sonrası e-postadaki linke tıklanınca true olur; girişi engellemez.
+        public bool EmailDogrulandi { get; set; }
         public DateTime KayitTarihi { get; set; } = DateTime.UtcNow;
 
         public ICollection<Yorum> Yorumlar { get; set; } = new List<Yorum>();

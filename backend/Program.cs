@@ -197,6 +197,8 @@ using (var kapsam = app.Services.CreateScope())
             "IF OBJECT_ID(N'dbo.KullaniciTercihleri') IS NOT NULL AND COL_LENGTH(N'dbo.KullaniciTercihleri', N'AdEfekti') IS NULL ALTER TABLE dbo.KullaniciTercihleri ADD AdEfekti NVARCHAR(20) NULL;" +
             "IF COL_LENGTH(N'dbo.Kullanicilar', N'GoogleSubject') IS NULL ALTER TABLE dbo.Kullanicilar ADD GoogleSubject NVARCHAR(200) NULL;" +
             "IF COL_LENGTH(N'dbo.Kullanicilar', N'DiscordUserId') IS NULL ALTER TABLE dbo.Kullanicilar ADD DiscordUserId NVARCHAR(100) NULL;" +
+            // E-posta doğrulama: kolon ilk eklenirken mevcut hesaplar doğrulanmış sayılır (WITH VALUES yerine sonradan UPDATE, aynı batch'te derlenebilmesi için EXEC).
+            "IF COL_LENGTH(N'dbo.Kullanicilar', N'EmailDogrulandi') IS NULL BEGIN ALTER TABLE dbo.Kullanicilar ADD EmailDogrulandi BIT NOT NULL CONSTRAINT DF_Kullanicilar_EmailDogrulandi DEFAULT (0); EXEC(N'UPDATE dbo.Kullanicilar SET EmailDogrulandi = 1'); END;" +
             "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_GoogleSubject' AND object_id = OBJECT_ID(N'dbo.Kullanicilar')) EXEC(N'CREATE UNIQUE INDEX IX_Kullanicilar_GoogleSubject ON dbo.Kullanicilar(GoogleSubject) WHERE GoogleSubject IS NOT NULL');" +
             "IF NOT EXISTS (SELECT 1 FROM sys.indexes WHERE name = N'IX_Kullanicilar_DiscordUserId' AND object_id = OBJECT_ID(N'dbo.Kullanicilar')) EXEC(N'CREATE UNIQUE INDEX IX_Kullanicilar_DiscordUserId ON dbo.Kullanicilar(DiscordUserId) WHERE DiscordUserId IS NOT NULL');" +
             // Eski ayrı öne çıkanlar tablosu kaldırıldı; öne çıkanlar artık mangadaki OneCikan bayrağından gelir.

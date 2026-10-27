@@ -37,6 +37,7 @@ namespace Kage95.Backend.Models
         public string Rol { get; set; } = string.Empty;
         public string? ProfilResmiURL { get; set; }
         public List<string> Yetkiler { get; set; } = new();
+        public bool EmailDogrulandi { get; set; }
     }
 
     public class UserProfileResponse
@@ -47,6 +48,12 @@ namespace Kage95.Backend.Models
         public string Rol { get; set; } = string.Empty;
         public DateTime KayitTarihi { get; set; }
         public List<string> Yetkiler { get; set; } = new();
+        public bool EmailDogrulandi { get; set; }
+    }
+
+    public class EpostaDogrulaRequest
+    {
+        public string Token { get; set; } = string.Empty;
     }
 
     // Manga DTOs

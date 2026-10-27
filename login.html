@@ -235,6 +235,13 @@
             color: var(--text-ana);
         }
 
+        .alan-uyari {
+            margin-top: 6px;
+            font-size: 0.85rem;
+            color: var(--vurgu-parlak);
+        }
+        .form-input[aria-invalid="true"] { border-color: var(--vurgu-parlak); }
+
         a:focus-visible, button:focus-visible { outline: 1px solid var(--vurgu-parlak); outline-offset: 2px; }
 
         @media (prefers-reduced-motion: reduce) {
@@ -279,6 +286,7 @@
         const SifreEkrani = ({ mod, token, geri }) => {
             const [email, setEmail] = React.useState('');
             const [yeniSifre, setYeniSifre] = React.useState('');
+            const [yeniSifreTekrar, setYeniSifreTekrar] = React.useState('');
             const [sifreGoster, setSifreGoster] = React.useState(false);
             const [gonderiliyor, setGonderiliyor] = React.useState(false);
             const [bildirim, setBildirim] = React.useState(null);
@@ -288,6 +296,10 @@
             const gonder = async (e) => {
                 e.preventDefault();
                 setBildirim(null);
+                if (sifirlamaModu && yeniSifre !== yeniSifreTekrar) {
+                    setBildirim({ tur: 'hata', mesaj: 'Şifreler eşleşmiyor. İki alana da aynı şifreyi girin.' });
+                    return;
+                }
                 setGonderiliyor(true);
                 try {
                     const yanit = await fetch(window.KAGE95_API_URL + (sifirlamaModu ? '/auth/reset-password' : '/auth/forgot-password'), {
@@ -333,6 +345,7 @@
                     {!bitti && (
                         <form onSubmit={gonder}>
                             {sifirlamaModu ? (
+                                <>
                                 <div className="form-grubu">
                                     <label htmlFor="yeniSifreInput">Yeni Şifre (en az 8 karakter)</label>
                                     <div className="input-kapsayici">
@@ -357,6 +370,24 @@
                                         </button>
                                     </div>
                                 </div>
+                                <div className="form-grubu">
+                                    <label htmlFor="yeniSifreTekrarInput">Yeni Şifre (tekrar)</label>
+                                    <input
+                                        id="yeniSifreTekrarInput"
+                                        type={sifreGoster ? 'text' : 'password'}
+                                        className="form-input"
+                                        placeholder="••••••••"
+                                        value={yeniSifreTekrar}
+                                        onChange={(e) => setYeniSifreTekrar(e.target.value)}
+                                        required
+                                        autoComplete="new-password"
+                                        aria-invalid={yeniSifreTekrar !== '' && yeniSifreTekrar !== yeniSifre}
+                                    />
+                                    {yeniSifreTekrar !== '' && yeniSifreTekrar !== yeniSifre && (
+                                        <div className="alan-uyari">Şifreler eşleşmiyor.</div>
+                                    )}
+                                </div>
+                                </>
                             ) : (
                                 <div className="form-grubu">
                                     <label htmlFor="sifirlaEmailInput">E-Posta Adresi</label>
@@ -385,6 +416,47 @@
             );
         };
 
+        // login.html?eposta-dogrula=TOKEN: e-postadaki doğrulama linki buraya gelir.
+        const EpostaDogrulamaEkrani = ({ token, geri }) => {
+            const [durum, setDurum] = React.useState({ tur: null, mesaj: 'E-posta adresin doğrulanıyor...' });
+            React.useEffect(() => {
+                fetch(window.KAGE95_API_URL + '/auth/verify-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token })
+                }).then(async (yanit) => {
+                    const veri = await yanit.json().catch(() => ({}));
+                    if (yanit.status === 429) { setDurum({ tur: 'hata', mesaj: 'Çok fazla deneme yaptınız. Biraz bekleyip tekrar deneyin.' }); return; }
+                    if (!yanit.ok) { setDurum({ tur: 'hata', mesaj: veri.message || 'Doğrulama başarısız.' }); return; }
+                    // Aynı tarayıcıda o hesapla oturum açıksa kayıtlı kullanıcı bilgisini de güncelle.
+                    try {
+                        const u = JSON.parse(localStorage.getItem('kage95_user') || 'null');
+                        if (u && u.id === veri.id) localStorage.setItem('kage95_user', JSON.stringify({ ...u, emailDogrulandi: true }));
+                    } catch {}
+                    setDurum({ tur: 'basarili', mesaj: veri.message || 'E-posta adresin doğrulandı.' });
+                }).catch(() => setDurum({ tur: 'hata', mesaj: 'Sunucuya ulaşılamadı. Lütfen tekrar deneyin.' }));
+            }, []);
+
+            return (
+                <div className="auth-kapsayici">
+                    <a href="index.html" className="btn-geri-don" aria-label="Ana Sayfaya Dön">
+                        Ana sayfa
+                    </a>
+                    <div className="auth-logo">
+                        <h1><img src="logo.svg" alt="" className="auth-logo-img" width="40" height="40" /> KAGE <span>95</span></h1>
+                        <p>E-posta doğrulama</p>
+                    </div>
+                    <div className={`bildirim ${durum.tur || ''}`} role="status">{durum.mesaj}</div>
+                    {durum.tur === 'basarili' && (
+                        <a href="index.html" className="btn-gonder" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', textDecoration: 'none' }}>Siteye git</a>
+                    )}
+                    <div className="alt-linkler">
+                        <button className="alt-link" onClick={geri}>Girişe dön</button>
+                    </div>
+                </div>
+            );
+        };
+
         const AuthSayfasi = () => {
             const [girisModu, setGirisModu] = React.useState(() => new URLSearchParams(window.location.search).get('kayit') !== '1');
             const [gonderiliyor, setGonderiliyor] = React.useState(false);
@@ -403,9 +475,11 @@
             const [kullaniciAdi, setKullaniciAdi] = React.useState('');
             const [email, setEmail] = React.useState('');
             const [sifre, setSifre] = React.useState('');
+            const [sifreTekrar, setSifreTekrar] = React.useState('');
             const [sifreGoster, setSifreGoster] = React.useState(false);
             const [bildirim, setBildirim] = React.useState(null);
             const [sifreMod, setSifreMod] = React.useState(() => new URLSearchParams(window.location.search).get('sifre-sifirla') ? 'sifirla' : null);
+            const [dogrulamaTokeni, setDogrulamaTokeni] = React.useState(() => new URLSearchParams(window.location.search).get('eposta-dogrula'));
             const [sosyalSaglayicilar, setSosyalSaglayicilar] = React.useState({ google: false, discord: false });
             React.useEffect(() => {
                 const hash = new URLSearchParams(window.location.hash.slice(1));
@@ -428,6 +502,10 @@
             const formGonder = async (e) => {
                 e.preventDefault();
                 setBildirim(null);
+                if (!girisModu && sifre !== sifreTekrar) {
+                    setBildirim({ tur: 'hata', mesaj: 'Şifreler eşleşmiyor. İki alana da aynı şifreyi girin.' });
+                    return;
+                }
                 setGonderiliyor(true);
                 try {
                     const yol = girisModu ? '/auth/login' : '/auth/register';
@@ -455,13 +533,16 @@
                     }
                     localStorage.setItem('kage95_token', veri.token);
                     localStorage.setItem('kage95_user', JSON.stringify({
-                        id: veri.id, kullaniciAdi: veri.kullaniciAdi, email: veri.email, rol: veri.rol, yetkiler: veri.yetkiler || [], profilResmiURL: veri.profilResmiURL
+                        id: veri.id, kullaniciAdi: veri.kullaniciAdi, email: veri.email, rol: veri.rol, yetkiler: veri.yetkiler || [], profilResmiURL: veri.profilResmiURL,
+                        emailDogrulandi: veri.emailDogrulandi === true
                     }));
                     setBildirim({
                         tur: 'basarili',
-                        mesaj: girisModu ? 'Hoş geldiniz! Ana sayfaya yönlendiriliyorsunuz...' : 'Kayıt başarılı! Ana sayfaya yönlendiriliyorsunuz...'
+                        mesaj: girisModu
+                            ? 'Hoş geldiniz! Ana sayfaya yönlendiriliyorsunuz...'
+                            : `Kayıt başarılı! ${veri.email} adresine doğrulama bağlantısı gönderdik. Ana sayfaya yönlendiriliyorsunuz...`
                     });
-                    setTimeout(() => { window.location.href = 'index.html'; }, 900);
+                    setTimeout(() => { window.location.href = 'index.html'; }, girisModu ? 900 : 2500);
                 } catch (err) {
                     setBildirim({ tur: 'hata', mesaj: 'Sunucuya ulaşılamadı. API çalışıyor mu?' });
                 } finally {
@@ -473,6 +554,10 @@
                 history.replaceState(null, '', window.location.pathname);
                 setSifreMod(null);
             };
+
+            if (dogrulamaTokeni) {
+                return <EpostaDogrulamaEkrani token={dogrulamaTokeni} geri={() => { history.replaceState(null, '', window.location.pathname); setDogrulamaTokeni(null); }} />;
+            }
 
             if (sifreMod) {
                 return <SifreEkrani mod={sifreMod} token={new URLSearchParams(window.location.search).get('sifre-sifirla') || ''} geri={sifreGeri} />;
@@ -573,6 +658,26 @@
                                 </button>
                             </div>
                         </div>
+
+                        {!girisModu && (
+                            <div className="form-grubu">
+                                <label htmlFor="sifreTekrarInput">Şifre (tekrar)</label>
+                                <input
+                                    id="sifreTekrarInput"
+                                    type={sifreGoster ? "text" : "password"}
+                                    className="form-input"
+                                    placeholder="••••••••"
+                                    value={sifreTekrar}
+                                    onChange={(e) => setSifreTekrar(e.target.value)}
+                                    required
+                                    autoComplete="new-password"
+                                    aria-invalid={sifreTekrar !== '' && sifreTekrar !== sifre}
+                                />
+                                {sifreTekrar !== '' && sifreTekrar !== sifre && (
+                                    <div className="alan-uyari">Şifreler eşleşmiyor.</div>
+                                )}
+                            </div>
+                        )}
 
                         <button type="submit" className="btn-gonder" disabled={gonderiliyor}>
                             {gonderiliyor ? 'Lütfen bekleyin...' : girisModu ? 'Giriş Yap' : 'Hesap Oluştur'}

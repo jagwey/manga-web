@@ -155,6 +155,9 @@ namespace Kage95.Backend.Controllers
             _context.Kullanicilar.Add(yeniKullanici);
             await _context.SaveChangesAsync();
 
+            // Doğrulama e-postası gönderilemese de kayıt geçerli; kullanıcı sonra yeniden isteyebilir.
+            await DogrulamaEpostasiGonderAsync(yeniKullanici);
+
             var token = _tokenService.GenerateToken(yeniKullanici);
 
             return Ok(new AuthResponse
@@ -165,8 +168,67 @@ namespace Kage95.Backend.Controllers
                 Email = yeniKullanici.Email,
                 Rol = yeniKullanici.Rol,
                 ProfilResmiURL = yeniKullanici.ProfilResmiURL,
-                Yetkiler = Izinler.Cozumle(yeniKullanici)
+                Yetkiler = Izinler.Cozumle(yeniKullanici),
+                EmailDogrulandi = yeniKullanici.EmailDogrulandi
             });
+        }
+
+        /// <summary>E-postadaki doğrulama linkiyle hesabı doğrulanmış işaretler. Giriş gerektirmez.</summary>
+        [HttpPost("verify-email")]
+        [EnableRateLimiting("sifre-sifirlama")]
+        public async Task<IActionResult> VerifyEmail([FromBody] EpostaDogrulaRequest request)
+        {
+            const string gecersiz = "Doğrulama bağlantısı geçersiz ya da süresi dolmuş. Hesabından yeni bağlantı isteyebilirsin.";
+            if (!EpostaDogrulamaTokeni.Cozumle(request.Token, out var id)) return BadRequest(new { message = gecersiz });
+
+            var k = await _context.Kullanicilar.FirstOrDefaultAsync(x => x.Id == id);
+            if (k == null || !EpostaDogrulamaTokeni.ImzaDogru(_config, request.Token, k.Email))
+                return BadRequest(new { message = gecersiz });
+
+            if (!k.EmailDogrulandi)
+            {
+                k.EmailDogrulandi = true;
+                await _context.SaveChangesAsync();
+            }
+            return Ok(new { message = "E-posta adresin doğrulandı.", id = k.Id });
+        }
+
+        /// <summary>Oturum açmış, doğrulanmamış kullanıcıya doğrulama e-postasını yeniden gönderir.</summary>
+        [Authorize]
+        [HttpPost("resend-verification")]
+        [EnableRateLimiting("sifre-sifirlama")]
+        public async Task<IActionResult> ResendVerification()
+        {
+            if (!int.TryParse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value, out var userId)) return Unauthorized();
+            var k = await _context.Kullanicilar.FindAsync(userId);
+            if (k == null) return NotFound(new { message = "Kullanıcı bulunamadı." });
+            if (k.EmailDogrulandi) return Ok(new { message = "E-posta adresin zaten doğrulanmış.", dogrulandi = true });
+
+            if (!await DogrulamaEpostasiGonderAsync(k))
+                return StatusCode(StatusCodes.Status502BadGateway, new { message = "E-posta şu an gönderilemedi. Biraz sonra tekrar dene." });
+            return Ok(new { message = $"Doğrulama bağlantısı {k.Email} adresine gönderildi." });
+        }
+
+        private async Task<bool> DogrulamaEpostasiGonderAsync(Kullanici k)
+        {
+            try
+            {
+                var token = EpostaDogrulamaTokeni.Uret(_config, k.Id, k.Email);
+                var site = (_config["Site:Url"] ?? "https://kage95.com").TrimEnd('/');
+                var link = $"{site}/login.html?eposta-dogrula={Uri.EscapeDataString(token)}";
+                var ad = System.Net.WebUtility.HtmlEncode(k.KullaniciAdi);
+                var html = $"<p>Merhaba {ad},</p>" +
+                    "<p>Kage 95'e hoş geldin! E-posta adresini doğrulamak için bağlantıya tıkla (3 gün geçerli):</p>" +
+                    $"<p><a href=\"{link}\">E-postamı doğrula</a></p>" +
+                    "<p>Bu hesabı sen oluşturmadıysan bu e-postayı yok sayabilirsin.</p>";
+                await _eposta.SendEmailAsync(k.Email, "Kage 95 - E-posta doğrulama", html);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _log.LogError(ex, "Doğrulama e-postası gönderilemedi (kullanıcı {Id}).", k.Id);
+                return false;
+            }
         }
 
         /// <summary>
@@ -245,7 +307,8 @@ namespace Kage95.Backend.Controllers
                 Email = kullanici.Email,
                 Rol = kullanici.Rol,
                 ProfilResmiURL = kullanici.ProfilResmiURL,
-                Yetkiler = Izinler.Cozumle(kullanici)
+                Yetkiler = Izinler.Cozumle(kullanici),
+                EmailDogrulandi = kullanici.EmailDogrulandi
             });
         }
 
@@ -317,6 +380,7 @@ namespace Kage95.Backend.Controllers
                         SifreHash = BCrypt.Net.BCrypt.HashPassword(Convert.ToBase64String(System.Security.Cryptography.RandomNumberGenerator.GetBytes(32))),
                         Rol = "User",
                         ProfilResmiURL = profile.Picture,
+                        EmailDogrulandi = true, // sağlayıcı e-postayı doğrulamış
                         KayitTarihi = DateTime.UtcNow,
                         SonGirisTarihi = DateTime.UtcNow
                     };
@@ -420,7 +484,8 @@ namespace Kage95.Backend.Controllers
                 Email = kullanici.Email,
                 Rol = kullanici.Rol,
                 KayitTarihi = kullanici.KayitTarihi,
-                Yetkiler = Izinler.Cozumle(kullanici)
+                Yetkiler = Izinler.Cozumle(kullanici),
+                EmailDogrulandi = kullanici.EmailDogrulandi
             });
         }
     }

@@ -250,6 +250,7 @@ namespace Kage95.Backend.Controllers
                         return BadRequest(new { message = "Bu e-posta adresi ile zaten bir hesap mevcut." });
                     degisiklikler.Add($"email: {k.Email} -> {email}");
                     k.Email = email;
+                    k.EmailDogrulandi = false; // yeni adres yeniden doğrulanmalı
                 }
             }
 
@@ -267,7 +268,8 @@ namespace Kage95.Backend.Controllers
                 email = k.Email,
                 rol = k.Rol,
                 yetkiler = Izinler.Cozumle(k),
-                profilResmiURL = k.ProfilResmiURL
+                profilResmiURL = k.ProfilResmiURL,
+                emailDogrulandi = k.EmailDogrulandi
             });
         }
 
