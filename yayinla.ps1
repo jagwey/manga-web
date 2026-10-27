@@ -28,7 +28,7 @@ if (-not $SadeceOnyuz) {
     curl.exe -s -S --ssl-reqd -k -u $kimlik -T $offFile "$ftpKok/app_offline.htm"
     Start-Sleep -Seconds 3
 
-    foreach ($f in @("backend.dll", "backend.pdb", "backend.exe", "backend.deps.json")) {
+    foreach ($f in @("backend.dll", "backend.pdb", "backend.exe", "backend.deps.json", "MailKit.dll", "MimeKit.dll", "BouncyCastle.Cryptography.dll")) {
         Write-Host "  -> $f yukleniyor..."
         curl.exe -s -S --ssl-reqd -k -u $kimlik -T (Join-Path $pubDir $f) "$ftpKok/$f"
     }

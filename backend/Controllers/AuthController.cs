@@ -63,7 +63,7 @@ namespace Kage95.Backend.Controllers
                 {
                     var token = SifreSifirlamaTokeni.Uret(_config, k.Id, k.SifreHash);
                     var site = (_config["Site:Url"] ?? "https://kage95.com").TrimEnd('/');
-                    var link = $"{site}/?sifre-sifirla={Uri.EscapeDataString(token)}";
+                    var link = $"{site}/login.html?sifre-sifirla={Uri.EscapeDataString(token)}";
                     var ad = System.Net.WebUtility.HtmlEncode(k.KullaniciAdi);
                     var html = $"<p>Merhaba {ad},</p>" +
                         "<p>Kage 95 hesabın için şifre sıfırlama isteği aldık. Yeni şifre belirlemek için bağlantıya tıkla (30 dakika geçerli):</p>" +

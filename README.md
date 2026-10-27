@@ -103,7 +103,7 @@ Kage 95'in çalışması için kullanılan dış hizmetlerin tamamı aşağıdad
 
 | | Hizmet | Ne için kullanılıyor? | Nerede ayarlanıyor? |
 |:-:|---|---|---|
-| 🌍 | **Alan adı: `kage95.com`** | Sitenin adresi. Alan adı DNS yönetimi Cloudflare'e devredilmiştir. | Kayıt firması (registrar): *belirtilmedi — sahibi tarafından eklenecek* |
+| 🌍 | **Alan adı: `kage95.com`** | Sitenin adresi. Alan adı kaydı (registrar) ve DNS yönetimi Cloudflare'dedir. | Cloudflare paneli → Domain Registration |
 | ☁️ | **Cloudflare** | DNS, ters vekil (proxy), CDN önbelleği, DDoS koruması, SSL modu **Full** | Cloudflare paneli → `kage95.com` |
 | 🖥️ | **SmarterASP.NET (SITE4NOW)** | Windows / IIS barındırma, .NET 10 çalışma ortamı, SQL Server veritabanı, FTP | SmarterASP.NET kontrol paneli |
 | 🗄️ | **Microsoft SQL Server** | Kullanıcı, manga, bölüm, yorum, forum verileri (`Kage95DB`) | `ConnectionStrings:DefaultConnection` |
@@ -119,7 +119,7 @@ flowchart LR
     U(["👤 Ziyaretçi<br/>kage95.com"])
 
     subgraph REG["🌍 Alan Adı"]
-        DOM["kage95.com<br/>Kayıt firması: belirtilmedi"]
+        DOM["kage95.com<br/>Registrar: Cloudflare"]
     end
 
     subgraph CFG["☁️ Cloudflare"]
@@ -189,7 +189,7 @@ sequenceDiagram
     A->>E: SendEmailAsync(alıcı, konu, HTML)
     E->>B: STARTTLS :587 + kimlik doğrulama
     B-->>K: 📬 Sıfırlama bağlantısı
-    K->>W: Bağlantıya tıklar (/?sifre-sifirla=...)
+    K->>W: Bağlantıya tıklar (/login.html?sifre-sifirla=...)
     W->>A: POST /api/auth/reset-password
     A->>T: Süre + HMAC imzası doğrula
     A->>A: Yeni şifre (BCrypt), eski oturumlar kapanır
@@ -203,7 +203,7 @@ sequenceDiagram
 - `forgot-password` hesap var olsa da olmasa da aynı cevabı verir (kullanıcı adı/e-posta sızdırmaz).
 - Hız sınırı: `sifre-sifirlama` politikası, IP başına 15 dakikada 5 istek.
 
-> ℹ️ Şifre sıfırlama **arka uç uçları hazırdır**. Giriş sayfasındaki "Şifremi unuttum" formu ve `/?sifre-sifirla=` bağlantısını karşılayan yeni şifre ekranı ön yüzde henüz yapılmamıştır.
+> ✅ Giriş sayfasındaki "Şifremi unuttum" formu ve e-postadaki `/login.html?sifre-sifirla=` bağlantısını karşılayan yeni şifre ekranı hazırdır.
 
 ### 🚀 Yayın (Deploy) Akışı
 

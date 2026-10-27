@@ -276,6 +276,115 @@
 
     <script src="js/config.js?v=20261025c"></script>
     <script type="text/babel">
+        const SifreEkrani = ({ mod, token, geri }) => {
+            const [email, setEmail] = React.useState('');
+            const [yeniSifre, setYeniSifre] = React.useState('');
+            const [sifreGoster, setSifreGoster] = React.useState(false);
+            const [gonderiliyor, setGonderiliyor] = React.useState(false);
+            const [bildirim, setBildirim] = React.useState(null);
+            const [bitti, setBitti] = React.useState(false);
+            const sifirlamaModu = mod === 'sifirla';
+
+            const gonder = async (e) => {
+                e.preventDefault();
+                setBildirim(null);
+                setGonderiliyor(true);
+                try {
+                    const yanit = await fetch(window.KAGE95_API_URL + (sifirlamaModu ? '/auth/reset-password' : '/auth/forgot-password'), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(sifirlamaModu ? { token, yeniSifre } : { email: email.trim() })
+                    });
+                    const veri = await yanit.json().catch(() => ({}));
+                    if (yanit.status === 429) {
+                        setBildirim({ tur: 'hata', mesaj: 'Çok fazla deneme yaptınız. Biraz bekleyip tekrar deneyin.' });
+                        return;
+                    }
+                    if (!yanit.ok) {
+                        setBildirim({ tur: 'hata', mesaj: veri.message || 'İşlem başarısız. Lütfen tekrar deneyin.' });
+                        return;
+                    }
+                    setBildirim({ tur: 'basarili', mesaj: veri.message || 'Tamamlandı.' });
+                    setBitti(true);
+                } catch (err) {
+                    setBildirim({ tur: 'hata', mesaj: 'Sunucuya ulaşılamadı. Lütfen tekrar deneyin.' });
+                } finally {
+                    setGonderiliyor(false);
+                }
+            };
+
+            return (
+                <div className="auth-kapsayici">
+                    <a href="index.html" className="btn-geri-don" aria-label="Ana Sayfaya Dön">
+                        Ana sayfa
+                    </a>
+
+                    <div className="auth-logo">
+                        <h1><img src="logo.svg" alt="" className="auth-logo-img" width="40" height="40" /> KAGE <span>95</span></h1>
+                        <p>{sifirlamaModu ? 'Yeni şifrenizi belirleyin' : 'E-posta adresinize sıfırlama bağlantısı gönderelim'}</p>
+                    </div>
+
+                    {bildirim && (
+                        <div className={`bildirim ${bildirim.tur}`} role="alert">
+                            {bildirim.mesaj}
+                        </div>
+                    )}
+
+                    {!bitti && (
+                        <form onSubmit={gonder}>
+                            {sifirlamaModu ? (
+                                <div className="form-grubu">
+                                    <label htmlFor="yeniSifreInput">Yeni Şifre (en az 8 karakter)</label>
+                                    <div className="input-kapsayici">
+                                        <input
+                                            id="yeniSifreInput"
+                                            type={sifreGoster ? 'text' : 'password'}
+                                            className="form-input"
+                                            placeholder="••••••••"
+                                            value={yeniSifre}
+                                            onChange={(e) => setYeniSifre(e.target.value)}
+                                            required
+                                            minLength={8}
+                                            autoComplete="new-password"
+                                        />
+                                        <button
+                                            type="button"
+                                            className="sifre-goster-btn"
+                                            onClick={() => setSifreGoster(!sifreGoster)}
+                                            aria-label={sifreGoster ? 'Şifreyi gizle' : 'Şifreyi göster'}
+                                        >
+                                            {sifreGoster ? 'Gizle' : 'Göster'}
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="form-grubu">
+                                    <label htmlFor="sifirlaEmailInput">E-Posta Adresi</label>
+                                    <input
+                                        id="sifirlaEmailInput"
+                                        type="email"
+                                        className="form-input"
+                                        placeholder="ornek@kage95.com"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        required
+                                        autoComplete="email"
+                                    />
+                                </div>
+                            )}
+                            <button type="submit" className="btn-gonder" disabled={gonderiliyor}>
+                                {gonderiliyor ? 'Lütfen bekleyin...' : sifirlamaModu ? 'Şifreyi Güncelle' : 'Bağlantı Gönder'}
+                            </button>
+                        </form>
+                    )}
+
+                    <div className="alt-linkler">
+                        <button className="alt-link" onClick={geri}>Girişe dön</button>
+                    </div>
+                </div>
+            );
+        };
+
         const AuthSayfasi = () => {
             const [girisModu, setGirisModu] = React.useState(() => new URLSearchParams(window.location.search).get('kayit') !== '1');
             const [gonderiliyor, setGonderiliyor] = React.useState(false);
@@ -296,6 +405,7 @@
             const [sifre, setSifre] = React.useState('');
             const [sifreGoster, setSifreGoster] = React.useState(false);
             const [bildirim, setBildirim] = React.useState(null);
+            const [sifreMod, setSifreMod] = React.useState(() => new URLSearchParams(window.location.search).get('sifre-sifirla') ? 'sifirla' : null);
             const [sosyalSaglayicilar, setSosyalSaglayicilar] = React.useState({ google: false, discord: false });
             React.useEffect(() => {
                 const hash = new URLSearchParams(window.location.hash.slice(1));
@@ -359,13 +469,14 @@
                 }
             };
 
-            // Şifre sıfırlama henüz yok: yanlış bir "gönderildi" mesajı göstermeyiz.
-            const sifremiUnuttum = () => {
-                setBildirim({
-                    tur: 'hata',
-                    mesaj: 'Şifre sıfırlama henüz kullanılamıyor. Hesabınıza erişemiyorsanız site sahibiyle iletişime geçin.'
-                });
+            const sifreGeri = () => {
+                history.replaceState(null, '', window.location.pathname);
+                setSifreMod(null);
             };
+
+            if (sifreMod) {
+                return <SifreEkrani mod={sifreMod} token={new URLSearchParams(window.location.search).get('sifre-sifirla') || ''} geri={sifreGeri} />;
+            }
 
             return (
                 <div className="auth-kapsayici">
@@ -486,7 +597,7 @@
 
                     <div className="alt-linkler">
                         {girisModu && (
-                            <button className="alt-link" onClick={sifremiUnuttum}>
+                            <button className="alt-link" onClick={() => { setBildirim(null); setSifreMod("unuttum"); }}>
                                 Şifremi Unuttum
                             </button>
                         )}
