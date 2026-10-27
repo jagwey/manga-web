@@ -12,6 +12,7 @@ namespace Kage95.Backend.Controllers
     {
         private const int MaxFiles = 200;
         private const long MaxFileSize = 15L * 1024 * 1024;
+        private const long MaxVideoSize = 60L * 1024 * 1024;
         private const long MaxRequestSize = 150L * 1024 * 1024;
 
         private readonly IWebHostEnvironment _env;
@@ -46,12 +47,13 @@ namespace Kage95.Backend.Controllers
             {
                 if (f.Length == 0)
                     return BadRequest(new { message = "Boş dosya yüklenemez." });
-                if (f.Length > MaxFileSize)
-                    return BadRequest(new { message = "Dosya başına en fazla 15 MB yüklenebilir." });
-
                 var ext = Path.GetExtension(f.FileName ?? "").ToLowerInvariant();
-                if (ext is not (".jpg" or ".jpeg" or ".png" or ".webp" or ".gif"))
-                    return BadRequest(new { message = "Yalnızca .jpg, .jpeg, .png, .webp ve .gif dosyaları yüklenebilir." });
+                if (ext is not (".jpg" or ".jpeg" or ".png" or ".webp" or ".gif" or ".mp4" or ".webm"))
+                    return BadRequest(new { message = "Yalnızca .jpg, .jpeg, .png, .webp, .gif, .mp4 ve .webm dosyaları yüklenebilir." });
+
+                var video = ext is ".mp4" or ".webm";
+                if (f.Length > (video ? MaxVideoSize : MaxFileSize))
+                    return BadRequest(new { message = video ? "Video başına en fazla 60 MB yüklenebilir." : "Dosya başına en fazla 15 MB yüklenebilir." });
 
                 var header = new byte[12];
                 int read;
@@ -67,7 +69,7 @@ namespace Kage95.Backend.Controllers
                 }
 
                 if (!MatchesExtension(header, read, ext))
-                    return BadRequest(new { message = "Dosya içeriği uzantısıyla uyuşmuyor; geçerli bir görsel değil." });
+                    return BadRequest(new { message = "Dosya içeriği uzantısıyla uyuşmuyor; geçerli bir görsel ya da video değil." });
 
                 checkedFiles.Add((f, ext));
             }
@@ -96,7 +98,7 @@ namespace Kage95.Backend.Controllers
                 return StatusCode(500, new { message = "Dosyalar kaydedilirken bir hata oluştu." });
             }
 
-            await _denetim.KaydetAsync(User, "yukleme.dosya", $"{urls.Count} görsel yüklendi",
+            await _denetim.KaydetAsync(User, "yukleme.dosya", $"{urls.Count} dosya yüklendi",
                 string.Join(", ", saved.Select(Path.GetFileName)));
 
             return Ok(new { urls });
@@ -118,6 +120,10 @@ namespace Kage95.Backend.Controllers
                 case ".webp":
                     return len >= 12 && h[0] == 'R' && h[1] == 'I' && h[2] == 'F' && h[3] == 'F'
                         && h[8] == 'W' && h[9] == 'E' && h[10] == 'B' && h[11] == 'P';
+                case ".mp4":
+                    return len >= 12 && h[4] == 'f' && h[5] == 't' && h[6] == 'y' && h[7] == 'p';
+                case ".webm":
+                    return len >= 4 && h[0] == 0x1A && h[1] == 0x45 && h[2] == 0xDF && h[3] == 0xA3;
                 default:
                     return false;
             }

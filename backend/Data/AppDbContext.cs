@@ -65,6 +65,8 @@ namespace Kage95.Backend.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.MangaAdi).HasMaxLength(200).IsRequired();
                 entity.HasIndex(e => e.MangaAdi).IsUnique();
+                entity.Property(e => e.Slug).HasMaxLength(250);
+                entity.HasIndex(e => e.Slug);
                 entity.Property(e => e.KapakResmiURL).HasMaxLength(500);
                 entity.Property(e => e.OneCikanResimURL).HasMaxLength(500);
                 entity.Property(e => e.Yazar).HasMaxLength(100);

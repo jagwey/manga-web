@@ -221,6 +221,7 @@
             border: 1px solid var(--border-renk);
             border-radius: 2px;
         }
+        .kapak-alan.birak { border-color: var(--vurgu-parlak); background: rgba(255, 255, 255, 0.04); outline: 1px dashed var(--vurgu-parlak); outline-offset: -4px; }
         .kapak-onizleme {
             width: 84px;
             height: 118px;
@@ -512,7 +513,8 @@
             .eylemler .btn { flex: 1 1 auto; }
             .satir .eylemler .btn { flex: 1 1 calc(50% - 8px); }
             .sayfa-kart .eylemler .btn { min-width: 0; padding: 0 4px; }
-            .kapak-onizleme { width: 100%; max-width: 160px; height: auto; aspect-ratio: 5 / 7; }
+            .kapak-alan.birak { border-color: var(--vurgu-parlak); background: rgba(255, 255, 255, 0.04); outline: 1px dashed var(--vurgu-parlak); outline-offset: -4px; }
+        .kapak-onizleme { width: 100%; max-width: 160px; height: auto; aspect-ratio: 5 / 7; }
             .grafik { gap: 2px; }
             .grafik-etiket { gap: 2px; }
             .grafik .deger { font-size: 0.875rem; }
@@ -577,6 +579,17 @@
         const kullaniciAl = () => { try { return JSON.parse(localStorage.getItem('kage95_user')); } catch (e) { return null; } };
         const yetkiOlayi = (tur) => window.dispatchEvent(new CustomEvent('kage95-yetki', { detail: tur }));
         const metinCoz = (t) => String(t == null ? '' : t).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&amp;/g, '&');
+        const slugOlustur = (metin) => {
+            if (!metin) return '';
+            let s = String(metin).trim();
+            const trMap = { 'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'I': 'i', 'İ': 'i', 'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u' };
+            s = s.replace(/[çÇğĞıIİöÖşŞüÜ]/g, (c) => trMap[c] || c);
+            s = s.toLowerCase();
+            s = s.replace(/[^a-z0-9\s-]/g, '');
+            s = s.replace(/\s+/g, '-').replace(/-+/g, '-');
+            return s.replace(/^-+|-+$/g, '');
+        };
+        window.slugOlustur = slugOlustur;
 
         async function istek(yol, { method = 'GET', json } = {}) {
             const basliklar = { Authorization: 'Bearer ' + tokenAl() };
@@ -609,23 +622,37 @@
             return null;
         }
 
-        // Öne çıkan resim alanı: "adres#o=X,Y&k=kucuk.webp" (o = odak noktası yüzde, k = küçük/mobil varyant dosya adı)
+        const VIDEO_UZANTI = ['mp4', 'webm'];
+        const MAX_VIDEO = 60 * 1024 * 1024;
+        const videoMu = (f) => VIDEO_UZANTI.includes((f.name.split('.').pop() || '').toLowerCase());
+        function videoDogrula(f) {
+            if (!videoMu(f)) return `"${f.name}" video değil (yalnızca mp4, webm).`;
+            if (f.size > MAX_VIDEO) return `"${f.name}" 60 MB sınırını aşıyor.`;
+            return null;
+        }
+        // Tarayıcı bırakılan dosyayı sayfada açmasın (bırakma alanı dışına düşse bile)
+        window.addEventListener('dragover', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault(); });
+        window.addEventListener('drop', (e) => { if (e.dataTransfer && Array.from(e.dataTransfer.types || []).includes('Files')) e.preventDefault(); });
+
+        // Öne çıkan resim alanı: "adres#o=X,Y&k=kucuk.webp&v=video.mp4" (o = odak noktası yüzde, k = küçük/mobil varyant, v = döngü video dosya adı)
         const OC_VARSAYILAN_ODAK = { x: 50, y: 25 };
-        function ocAyir(v) {
-            const t = String(v || '').trim();
+        function ocAyir(girdi) {
+            const t = String(girdi || '').trim();
             const i = t.indexOf('#');
             const p = new URLSearchParams(i < 0 ? '' : t.slice(i + 1));
             const o = (p.get('o') || '').split(',').map(Number);
             const gecerli = o.length === 2 && o.every(n => Number.isFinite(n) && n >= 0 && n <= 100);
             const k = p.get('k') || '';
-            return { url: i < 0 ? t : t.slice(0, i), odak: gecerli ? { x: o[0], y: o[1] } : OC_VARSAYILAN_ODAK, kucuk: /^[\w.-]+$/.test(k) ? k : '' };
+            const v = p.get('v') || '';
+            return { url: i < 0 ? t : t.slice(0, i), odak: gecerli ? { x: o[0], y: o[1] } : OC_VARSAYILAN_ODAK, kucuk: /^[\w.-]+$/.test(k) ? k : '', video: /^[\w.-]+$/.test(v) ? v : '' };
         }
-        function ocBirlestir(url, odak, kucuk) {
+        function ocBirlestir(url, odak, kucuk, video) {
             url = (url || '').trim();
             if (!url) return '';
             const p = [];
             if (odak.x !== OC_VARSAYILAN_ODAK.x || odak.y !== OC_VARSAYILAN_ODAK.y) p.push('o=' + odak.x + ',' + odak.y);
             if (kucuk) p.push('k=' + kucuk);
+            if (video) p.push('v=' + video);
             return p.length ? url + '#' + p.join('&') : url;
         }
 
@@ -926,6 +953,7 @@
                                         </div>
                                     </div>
                                     <div className="eylemler">
+                                        <a className="btn" href={`index.html#/manga/${m.slug || slugOlustur(m.mangaAdi) || m.id}`} target="_blank" rel="noopener noreferrer" title="Sitede görüntüle">Sitede gör</a>
                                         {can('manga.yaz') && <button className="btn" disabled={mesgul} onClick={() => hizli(m, 'yayinda')}>{m.yayinda === false ? 'Yayına al' : 'Taslağa çek'}</button>}
                                         {can('manga.yaz') && <button className="btn" disabled={mesgul} onClick={() => hizli(m, 'oneCikan')}>{m.oneCikan ? 'Öne çıkarmayı kaldır' : 'Öne çıkar'}</button>}
                                         {can('manga.yaz') && <button className="btn" disabled={mesgul} onClick={() => git({ ekran: 'form', id: m.id })}>Düzenle</button>}
@@ -982,6 +1010,9 @@
             const [ocHata, setOcHata] = useState(false);
             const [ocOdak, setOcOdak] = useState(OC_VARSAYILAN_ODAK);
             const [ocKucuk, setOcKucuk] = useState('');
+            const [ocVideo, setOcVideo] = useState('');
+            const [ocVideoOran, setOcVideoOran] = useState(null);
+            const [birakHedef, setBirakHedef] = useState('');
             const [ocBilgi, setOcBilgi] = useState('');
             const ocOdakSec = (e) => {
                 const r = e.currentTarget.getBoundingClientRect();
@@ -999,7 +1030,7 @@
                         setAd(m.mangaAdi || ''); setAciklama(m.aciklama || ''); setYazar(m.yazar || ''); setCizer(m.cizer || '');
                         setDurum(m.durum === 'Tamamlandi' ? 'Tamamlandi' : 'DevamEdiyor');
                         setKapak(m.kapakResmiURL || ''); setSecili(m.kategoriler || []);
-                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan); { const a = ocAyir(m.oneCikanResimURL); setOcResim(a.url); setOcOdak(a.odak); setOcKucuk(a.kucuk); }
+                        setYayinda(m.yayinda !== false); setOneCikan(!!m.oneCikan); { const a = ocAyir(m.oneCikanResimURL); setOcResim(a.url); setOcOdak(a.odak); setOcKucuk(a.kucuk); setOcVideo(a.video); }
                         setYuklendi(true);
                     }
                 } catch (err) {
@@ -1043,6 +1074,7 @@
                 const f = e.target.files && e.target.files[0];
                 e.target.value = '';
                 if (!f) return;
+                if (videoMu(f)) { ocVideoYukle({ target: { files: [f], value: '' } }); return; }
                 const h = dosyaDogrula(f);
                 if (h) { setBildirim({ tur: 'hata', mesaj: h }); return; }
                 setBildirim(null);
@@ -1061,6 +1093,37 @@
                 }
             };
 
+            const ocVideoYukle = async (e) => {
+                const f = e.target.files && e.target.files[0];
+                e.target.value = '';
+                if (!f) return;
+                const h = videoDogrula(f);
+                if (h) { setBildirim({ tur: 'hata', mesaj: h }); return; }
+                if (!ocResim) { setBildirim({ tur: 'hata', mesaj: 'Önce öne çıkan resmi ekleyin; video yüklenene kadar o görünür.' }); return; }
+                setBildirim(null);
+                setMesgul(true); setOcVideoOran(0);
+                try {
+                    await yukle([f], setOcVideoOran, (_, urls) => setOcVideo(urls[0].split('/').pop()));
+                } catch (err) {
+                    setBildirim(hataBildirimi(err, () => ocVideoYukle({ target: { files: [f], value: '' } })));
+                } finally {
+                    setMesgul(false); setOcVideoOran(null);
+                }
+            };
+
+            // Dosya gezgininden sürükle-bırak: hedefe göre ilk dosyayı ilgili yükleyiciye verir
+            const birakProps = (hedef, isle) => ({
+                onDragEnter: (e) => { if (!mesgul) { e.preventDefault(); setBirakHedef(hedef); } },
+                onDragOver: (e) => { e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = mesgul ? 'none' : 'copy'; if (!mesgul) setBirakHedef(hedef); },
+                onDragLeave: (e) => { if (!e.currentTarget.contains(e.relatedTarget)) setBirakHedef(''); },
+                onDrop: (e) => {
+                    e.preventDefault(); e.stopPropagation(); setBirakHedef('');
+                    if (mesgul) return;
+                    const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+                    if (f) isle({ target: { files: [f], value: '' } });
+                }
+            });
+
             const kaydet = async (e) => {
                 if (e) e.preventDefault();
                 if (!ad.trim()) { setBildirim({ tur: 'hata', mesaj: 'Seri adı zorunludur.' }); return; }
@@ -1068,7 +1131,7 @@
                 const govde = {
                     mangaAdi: ad.trim(), aciklama: aciklama.trim() || null, kapakResmiURL: kapak.trim() || null,
                     yazar: yazar.trim() || null, cizer: cizer.trim() || null, durum, kategoriler: secili, yayinda, oneCikan,
-                    oneCikanResimURL: ocBirlestir(ocResim, ocOdak, ocKucuk)
+                    oneCikanResimURL: ocBirlestir(ocResim, ocOdak, ocKucuk, ocVideo)
                 };
                 try {
                     await (id ? istek(`/mangas/${id}`, { method: 'PUT', json: govde }) : istek('/mangas', { method: 'POST', json: govde }));
@@ -1091,6 +1154,11 @@
                         <div className="form-grubu tam">
                             <label htmlFor="ad">Seri adı *</label>
                             <input id="ad" className="form-input" value={ad} onChange={(e) => setAd(e.target.value)} placeholder="Örn: Wind Breaker" required />
+                            {ad.trim() && (
+                                <span style={{ display: 'block', marginTop: '6px', fontSize: '0.8rem', color: 'var(--text-ikincil)' }}>
+                                    🔗 Site adresi: <code style={{ color: 'var(--vurgu-parlak, #e53e3e)' }}>/manga/{slugOlustur(ad)}</code>
+                                </span>
+                            )}
                         </div>
 
                         <div className="form-grubu">
@@ -1140,7 +1208,7 @@
 
                         <div className="form-grubu tam">
                             <span className="etiket">Kapak görseli</span>
-                            <div className="kapak-alan">
+                            <div className={'kapak-alan' + (birakHedef === 'kapak' ? ' birak' : '')} {...birakProps('kapak', kapakYukle)}>
                                 {kapak && !kapakHata
                                     ? <img className="kapak-onizleme" src={gorselUrl(kapak)} alt="Kapak önizlemesi" onError={() => setKapakHata(true)} />
                                     : <div className="kapak-onizleme">{kapak ? 'Görsel açılamadı' : 'Kapak yok'}</div>}
@@ -1148,6 +1216,7 @@
                                     <div>
                                         <input id="kapakDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={kapakYukle} disabled={mesgul} />
                                         <label htmlFor="kapakDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>Dosyadan yükle</label>
+                                        <span className="not" style={{ marginLeft: 8 }}>ya da dosyayı buraya sürükleyip bırakın</span>
                                     </div>
                                     <input className="form-input" aria-label="Kapak görseli adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
                                         value={kapak} onChange={(e) => setKapak(e.target.value)} />
@@ -1158,16 +1227,24 @@
 
                         <div className="form-grubu tam">
                             <span className="etiket">Öne çıkan resmi (isteğe bağlı)</span>
-                            <div className="kapak-alan">
+                            <div className={'kapak-alan' + (birakHedef === 'oc' ? ' birak' : '')} {...birakProps('oc', (ev) => (videoMu(ev.target.files[0]) ? ocVideoYukle(ev) : ocYukle(ev)))}>
                                 {ocResim && !ocHata
                                     ? <img className="kapak-onizleme oc-onizleme" src={gorselUrl(ocResim)} alt="Öne çıkan resmi önizlemesi" onError={() => setOcHata(true)} />
                                     : <div className="kapak-onizleme oc-onizleme">{ocResim ? 'Görsel açılamadı' : 'Yok, kapak kullanılır'}</div>}
                                 <div className="kapak-yan">
                                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                                        <input id="ocDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,image/*" onChange={ocYukle} disabled={mesgul} />
+                                        <input id="ocDosya" type="file" className="dosya-gizli" accept=".jpg,.jpeg,.png,.webp,.gif,.mp4,.webm,image/*,video/mp4,video/webm" onChange={ocYukle} disabled={mesgul} />
                                         <label htmlFor="ocDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>Dosyadan yükle</label>
-                                        {ocResim && <button type="button" className="btn" disabled={mesgul} onClick={() => { setOcResim(''); setOcKucuk(''); setOcOdak(OC_VARSAYILAN_ODAK); setOcBilgi(''); }}>Kaldır</button>}
+                                        {ocResim && <button type="button" className="btn" disabled={mesgul || !!ocVideo} title={ocVideo ? 'Önce videoyu kaldırın; video resimsiz kaydedilemez.' : ''} onClick={() => { setOcResim(''); setOcKucuk(''); setOcOdak(OC_VARSAYILAN_ODAK); setOcBilgi(''); }}>Resmi kaldır</button>}
                                     </div>
+                                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }}>
+                                        <input id="ocVideoDosya" type="file" className="dosya-gizli" accept=".mp4,.webm,video/mp4,video/webm" onChange={ocVideoYukle} disabled={mesgul} />
+                                        <label htmlFor="ocVideoDosya" className="btn" style={{ cursor: mesgul ? 'default' : 'pointer', opacity: mesgul ? 0.5 : 1 }}>{ocVideo ? 'Videoyu değiştir' : 'Video ekle (mp4/webm)'}</label>
+                                        {ocVideo && <button type="button" className="btn" disabled={mesgul} onClick={() => setOcVideo('')}>Videoyu kaldır</button>}
+                                        {ocVideo && <span className="not">{ocVideo} (PC'de video, telefonda resim gösterilir)</span>}
+                                    </div>
+                                    {ocVideoOran !== null && <Ilerleme oran={ocVideoOran} etiket="Video yükleniyor" />}
+                                    <div className="not">Video: 3-4 sn döngü, sessiz, en fazla 60 MB (4K için H.264/H.265 mp4 ya da VP9 webm). Masaüstünde video oynar; video yüklenene kadar ve mobilde/tasarruf modunda resim gösterilir. Görsel ve videoyu bu alana sürükleyip bırakabilirsiniz.</div>
                                     <input className="form-input" aria-label="Öne çıkan resmi adresi" type="url" placeholder="veya görsel adresini yapıştırın (https://...)"
                                         value={ocResim} onChange={(e) => { setOcResim(e.target.value); setOcKucuk(''); }} />
                                     {ocOran !== null && <Ilerleme oran={ocOran} etiket="Öne çıkan resmi yükleniyor" />}

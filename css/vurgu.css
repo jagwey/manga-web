@@ -234,12 +234,15 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 .oc-gorsel img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; display: block; filter: brightness(.8) saturate(1.1); }
 /* Dikey kapak zemin olunca: çok hafif bulanık, belirgin */
 .oc-gorsel.oc-bulanik img { filter: blur(1.5px) brightness(.7) saturate(1.25); transform: scale(1.04); }
+.oc-gorsel .oc-video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 25%; opacity: 0; transition: opacity .6s ease; filter: brightness(.8) saturate(1.1); pointer-events: none; }
+.oc-gorsel .oc-video.hazir { opacity: 1; }
+.oc-gorsel.oc-bulanik .oc-video { filter: blur(1.5px) brightness(.7) saturate(1.25); transform: scale(1.04); }
 .oc-karart { position: absolute; inset: 0; pointer-events: none;
     background:
         linear-gradient(to bottom, rgba(10,8,8,.7) 0%, transparent 80px),
         linear-gradient(to top, #0a0808 0%, rgba(10,8,8,.5) 70px, transparent 150px),
         linear-gradient(to right, rgba(10,8,8,.9) 0%, rgba(10,8,8,.6) 35%, rgba(10,8,8,.1) 65%, transparent 100%); }
-.oc-parilti { position: absolute; width: 600px; height: 600px; left: 35%; top: 20%; pointer-events: none; filter: blur(60px);
+.oc-parilti { position: absolute; width: 520px; height: 520px; left: 35%; top: 20%; pointer-events: none;
     background: radial-gradient(circle, color-mix(in srgb, var(--oc-parlak) 22%, transparent) 0%, color-mix(in srgb, var(--vurgu-rengi) 8%, transparent) 45%, transparent 70%); }
 .oc-govde { position: relative; height: 100%; max-width: 1400px; margin: 0 auto; padding: 0 clamp(56px, 5vw, 88px) 24px; display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, .9fr); align-items: center; gap: 40px; }
 .oc-icerik { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; animation: oc-yuksel .6s ease-out both; }
@@ -268,7 +271,7 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 /* Kapağın arkasında kapaktan gelen renkli parıltı ve zemine düşen gölge */
 .oc-vitrin::before { content: ""; position: absolute; width: clamp(120px, 10vw, 170px); aspect-ratio: 1 / 1.48; background: var(--afis) center / cover; filter: blur(46px) saturate(1.6); opacity: .35; transform: scale(1.12); border-radius: 50%; pointer-events: none; animation: oc-parla 1s .25s ease both; }
 .oc-vitrin::after { content: ""; position: absolute; bottom: -4px; width: clamp(100px, 8vw, 140px); height: 26px; background: radial-gradient(ellipse at center, rgba(0,0,0,.75), transparent 70%); filter: blur(6px); pointer-events: none; }
-.oc-afis { position: relative; display: block; width: clamp(120px, 10vw, 170px); aspect-ratio: 1 / 1.48; border-radius: 10px; opacity: .72; overflow: hidden; background: #141111;
+.oc-afis { position: relative; display: block; width: clamp(120px, 10vw, 170px); aspect-ratio: 1 / 1.48; border-radius: 10px; opacity: .92; overflow: hidden; background: #141111;
     border: 1px solid color-mix(in srgb, var(--oc-parlak) 35%, transparent);
     box-shadow: 0 24px 60px rgba(0,0,0,.85), 0 0 35px color-mix(in srgb, var(--oc-parlak) 30%, transparent);
     transform: perspective(1000px) rotateY(var(--ry, -8deg)) rotateX(var(--rx, 2deg)); transition: transform .9s cubic-bezier(.22, 1, .36, 1), box-shadow .9s ease, opacity .5s ease;
@@ -304,7 +307,7 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 :root[data-tema="mono"] .oc-gorsel-yok { background: linear-gradient(135deg, #4a4a4a, #000); }
 
 /* Tablet (dikey ve 12" yatay dahil): kapak ve yazı ekrana göre büyür */
-@media (min-width: 681px) and (max-width: 1100px) {
+@media (min-width: 769px) and (max-width: 1100px) {
     .oc-govde { padding: 0 64px 24px; gap: 32px; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); }
     .oc-afis, .oc-vitrin::before { width: clamp(120px, 16vw, 160px); }
     .oc-baslik { font-size: clamp(1.6rem, 1rem + 1.5vw, 2.1rem); }
@@ -312,11 +315,11 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
     .oc-btn, .oc-btn-ikincil { min-height: 42px; padding: 0 18px; font-size: .88rem; }
 }
 /* Dikey tablette yükseklik ekranla uzar */
-@media (min-width: 681px) and (orientation: portrait) {
+@media (min-width: 769px) and (orientation: portrait) {
     .oc-kutu { height: clamp(560px, 54vh, 760px); }
 }
 
-@media (max-width: 680px) {
+@media (max-width: 768px) {
     .oc-kutu { height: auto; min-height: 520px; }
     .oc-slayt { position: relative; min-height: 520px; display: flex; align-items: flex-end; }
     .oc-gorsel img, .oc-gorsel.oc-bulanik img { object-position: center 20%; filter: brightness(.85) saturate(1.1); transform: none; }
@@ -332,7 +335,7 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
     .oc-btn, .oc-btn-ikincil { min-height: 44px; padding: 0 16px; gap: 6px; font-size: .86rem; justify-content: center; }
     .oc-btn { flex: 1 1 auto; }
     /* Oklar metnin üstüne binmesin: sağ üstte ikili */
-    .oc-ok { top: 14px; transform: none; width: 36px; height: 36px; font-size: 1.3rem; }
+    .oc-ok { top: 14px; transform: none; width: 40px; height: 40px; font-size: 1.3rem; }
     .oc-ok-sol { left: auto; right: 56px; }
     .oc-ok-sag { right: 14px; }
     .oc-noktalar { display: flex; justify-content: center; gap: 6px; position: absolute; left: 0; right: 0; bottom: 14px; z-index: 2; pointer-events: none; }
@@ -342,6 +345,8 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 
 /* Tam ekran düzen: tüm bölümler kenardan kenara; yan boşluk ekran genişliğiyle büyür */
 .header-ic, .tur-bolum, .ana-icerik, .duyuru-serit, .footer-ic { padding-left: clamp(16px, 3vw, 56px); padding-right: clamp(16px, 3vw, 56px); }
+/* Geniş ekranda içerik 1600px ile sınırlı ve ortalı */
+.header-ic, .tur-bolum, .ana-icerik, .duyuru-serit, .footer-ic { max-width: 1600px; margin-left: auto; margin-right: auto; }
 /* Yan boşluk .footer-ic'te; dış kapta ikinci kez verilmesin */
 :root .site-footer { padding-left: 0; padding-right: 0; }
 @media (max-width: 600px) { :root .footer-ic nav a { padding: 12px 4px; } }
@@ -519,7 +524,7 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
 .atla-link { position: absolute; left: 8px; top: -80px; z-index: 10000; background: #8e0e15; color: #fff; padding: 10px 16px; border-radius: 4px; text-decoration: none; font-weight: 700; }
 .atla-link:focus, .atla-link:focus-visible { top: 8px; outline: 2px solid #fff; outline-offset: 2px; }
 #ana-icerik:focus { outline: none; }
-.yukari-btn { position: fixed; right: 16px; bottom: 16px; z-index: 900; min-height: 40px; padding: 0 14px; background: #8e0e15; color: #fff; border: 1px solid #e0343c; border-radius: 999px; font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.45); }
+.yukari-btn { position: fixed; right: 16px; bottom: 16px; z-index: 900; width: 42px; height: 42px; min-height: 0; padding: 0; line-height: 1; font-size: 1.25rem; background: #8e0e15; color: #fff; border: 1px solid #e0343c; border-radius: 999px; font-family: inherit; font-weight: 600; cursor: pointer; box-shadow: 0 6px 18px rgba(0,0,0,.45); display: flex; align-items: center; justify-content: center; }
 .sayfa-index .yukari-btn { bottom: 72px; }
 .yukari-btn:hover, .yukari-btn:focus-visible { background: #a8121a; }
 @media (max-width: 768px) {
@@ -889,7 +894,7 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
 .oc-dur:hover, .oc-dur:focus-visible { background: rgba(142,14,21,.85); color: #fff; border-color: var(--oc-parlak, #e0343c); }
 .oc-dur:active { transform: scale(.92); }
 .oc-dur.durdu { border-color: var(--oc-parlak, #e0343c); color: #fff; }
-@media (max-width: 720px) { .oc-dur { right: 14px; bottom: 8px; width: 26px; height: 26px; } }
+@media (max-width: 720px) { .oc-dur { right: 14px; bottom: 8px; width: 36px; height: 36px; } }
 
 /* Topluluk: forum, sohbet, yardim cilasi */
 :root:root .fr-kart { transition: border-color var(--k95-hizli) var(--k95-ease), transform var(--k95-hizli) var(--k95-ease), box-shadow var(--k95-hizli) var(--k95-ease), background var(--k95-hizli); }
@@ -1700,3 +1705,73 @@ a.yr-yazar:hover, a.lider-ad:hover { text-decoration: underline; }
 
 /* Yan menu gibi ekran disi ogeler yatay kaydirma yaratmasin */
 :root:root { overflow-x: clip; }
+
+/* Performans: sekme arka plandayken sonsuz animasyonlar durur (CPU/GPU boşa harcanmasın) */
+html.k95-arka *, html.k95-arka *::before, html.k95-arka *::after { animation-play-state: paused !important; }
+/* Skeleton dalgası: ekran dışı kartlarda boyama maliyeti yaratmasın */
+:root:root .kart-kapak:not(.yuklendi) { contain: paint; }
+@media (prefers-reduced-motion: reduce) {
+    :root:root .iskelet-blok, :root:root img.webtoon-sayfasi:not(.yuklendi), :root:root .manga-sayfasi:not(.yuklendi), :root:root .kart-kapak:not(.yuklendi) { animation: none !important; }
+    .duyuru-iz, .logo-muhur, .as-ef-nabiz { animation: none !important; }
+}
+
+/* Uzun seri açıklaması: 3 satır, devamı düğmeyle */
+.detay-aciklama-metin.kisa { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.detay-devam { margin-top: 6px; padding: 4px 0; background: none; border: 0; color: var(--vurgu-parlak); font: inherit; font-size: .85rem; font-weight: 600; cursor: pointer; }
+.detay-devam:hover { text-decoration: underline; }
+
+/* Liderlik ilk üç: altın, gümüş, bronz hafif halka (tek seferlik gölge, animasyon yok) */
+:root:root .lider-satir.t1 { border-left-color: #d4af37; box-shadow: inset 3px 0 0 #d4af37, 0 0 14px rgba(212, 175, 55, .18); }
+:root:root .lider-satir.t2 { border-left-color: #b8bec6; box-shadow: 0 0 12px rgba(184, 190, 198, .14); }
+:root:root .lider-satir.t3 { border-left-color: #b87333; box-shadow: 0 0 12px rgba(184, 115, 51, .14); }
+:root:root .lider-satir.t1 .lider-sira { background: #d4af37; color: #1a1400; }
+:root:root .lider-satir.t2 .lider-sira { background: #b8bec6; color: #15171a; }
+:root:root .lider-satir.t3 .lider-sira { background: #b87333; color: #1a0e04; }
+
+/* ===== Kâğıt (açık) tema: sabit koyu zeminli bileşenlerin açık karşılıkları ===== */
+:root[data-tema="kagit"] .iletisim-kart,
+:root[data-tema="kagit"] .iletisim-rehber-panel,
+:root[data-tema="kagit"] .iletisim-kunye-serit,
+:root[data-tema="kagit"] .iletisim-rehber-kart {
+    background: linear-gradient(180deg, rgba(235, 228, 216, 0.92) 0%, rgba(226, 218, 203, 0.98) 100%);
+    border-color: var(--border-belirgin);
+    color: var(--text-ana);
+    box-shadow: 0 6px 18px rgba(60, 45, 30, 0.12);
+}
+:root[data-tema="kagit"] .iletisim-kart-deger { background: rgba(31, 26, 23, 0.07); color: var(--text-ana); border-color: var(--border-renk); }
+:root[data-tema="kagit"] .iletisim-kopyala-btn { background: rgba(31, 26, 23, 0.06); border-color: var(--border-belirgin); color: var(--text-ana); }
+
+:root[data-tema="kagit"] .detay-ust,
+:root[data-tema="kagit"] .detay-meta-kart,
+:root[data-tema="kagit"] .detay-aciklama-panel,
+:root[data-tema="kagit"] .detay-ikincil-btn,
+:root[data-tema="kagit"] .detay-geri-buton {
+    background: var(--bg-kart);
+    border-color: var(--border-belirgin);
+    color: var(--text-ana);
+}
+:root[data-tema="kagit"] .detay-meta-kart,
+:root[data-tema="kagit"] .detay-aciklama-panel { background: var(--bg-yuzey); }
+:root[data-tema="kagit"] .detay-aciklama-panel { border-left-color: var(--vurgu-parlak); }
+:root[data-tema="kagit"] .detay-baslik,
+:root[data-tema="kagit"] .detay-aciklama-metin,
+:root[data-tema="kagit"] .dmk-deger { color: var(--text-ana); }
+:root[data-tema="kagit"] .dmk-etiket { color: var(--text-ikincil); }
+:root[data-tema="kagit"] .detay-rozet.notr { background: rgba(31, 26, 23, 0.07); color: var(--text-ana); border-color: var(--border-belirgin); }
+:root[data-tema="kagit"] .detay-kapak { box-shadow: 0 12px 28px rgba(60, 45, 30, 0.28); }
+
+:root[data-tema="kagit"] .menu-dropdown-menu,
+:root[data-tema="kagit"] .profil-menu,
+:root[data-tema="kagit"] .arama-oneri,
+:root[data-tema="kagit"] .bildirim-panel,
+:root[data-tema="kagit"] .yan-menu,
+:root[data-tema="kagit"] .ayar-modal,
+:root[data-tema="kagit"] .okuyucu-hizli-alt-bar,
+:root[data-tema="kagit"] .okuyucu-yuzen-sayfa,
+:root[data-tema="kagit"] .k95-bs-kart,
+:root[data-tema="kagit"] .k95-bs-ikinci-btn {
+    background: rgba(243, 237, 227, 0.96);
+    border-color: var(--border-belirgin);
+    color: var(--text-ana);
+    box-shadow: 0 12px 28px rgba(60, 45, 30, 0.22);
+}

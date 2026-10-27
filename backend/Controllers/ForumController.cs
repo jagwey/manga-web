@@ -48,6 +48,7 @@ namespace Kage95.Backend.Controllers
         public string Ozet { get; set; } = string.Empty;
         public int? MangaId { get; set; }
         public string? MangaAdi { get; set; }
+        public string? MangaSlug { get; set; }
         public string? MangaKapak { get; set; }
         public decimal? BolumNo { get; set; }
         public bool Spoiler { get; set; }
@@ -167,6 +168,7 @@ namespace Kage95.Backend.Controllers
             Ozet = k.Icerik.Length > 220 ? k.Icerik.Substring(0, 220) : k.Icerik,
             MangaId = k.MangaId,
             MangaAdi = _context.Mangalar.Where(m => m.Id == k.MangaId).Select(m => m.MangaAdi).FirstOrDefault(),
+            MangaSlug = _context.Mangalar.Where(m => m.Id == k.MangaId).Select(m => m.Slug).FirstOrDefault(),
             MangaKapak = _context.Mangalar.Where(m => m.Id == k.MangaId).Select(m => m.KapakResmiURL).FirstOrDefault(),
             BolumNo = k.BolumNo, Spoiler = k.Spoiler, Sabit = k.Sabit, Kilitli = k.Kilitli,
             Okudu = uid > 0 && k.MangaId != null && k.BolumNo != null && _context.OkumaGecmisi

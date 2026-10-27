@@ -31,7 +31,7 @@ h1 span{color:var(--vp)}
 .sekmeler button:hover{color:var(--t);background:rgba(255,255,255,.03)}
 .sekmeler button[aria-selected=true]{color:var(--t)}
 .sekmeler button[aria-selected=true]::after{content:"";position:absolute;left:18%;right:18%;bottom:-1px;height:2px;background:var(--vp);border-radius:2px}
-.sekmeler{overflow-x:auto;scrollbar-width:none}.sekmeler::-webkit-scrollbar{display:none}.sekmeler button{flex:1 0 auto;padding:14px 14px;white-space:nowrap}
+.sekmeler{overflow-x:auto;scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent);mask-image:linear-gradient(90deg,#000 calc(100% - 28px),transparent)}@media(max-width:640px){.sekmeler button{padding:12px 10px}}.sekmeler::-webkit-scrollbar{display:none}.sekmeler button{flex:1 0 auto;padding:14px 14px;white-space:nowrap}
 #yc{display:block;width:100%;max-width:320px;aspect-ratio:1;margin:0 auto;border:1px dashed var(--bb);border-radius:12px;background:#120e0e;touch-action:none}
 .dpad{display:grid;grid-template-columns:repeat(3,52px);grid-template-rows:repeat(2,46px);gap:6px;justify-content:center;margin-top:12px}
 .dpad button{border:1px solid var(--bb);background:#1a1414;color:var(--t);border-radius:10px;font-size:1.1rem;cursor:pointer;touch-action:manipulation}

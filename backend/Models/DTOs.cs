@@ -43,6 +43,7 @@ namespace Kage95.Backend.Models
     {
         public int Id { get; set; }
         public string MangaAdi { get; set; } = string.Empty;
+        public string? Slug { get; set; }
         public string? Aciklama { get; set; }
         public string? KapakResmiURL { get; set; }
         public string? Yazar { get; set; }
@@ -69,6 +70,7 @@ namespace Kage95.Backend.Models
     {
         public int Id { get; set; }
         public string MangaAdi { get; set; } = string.Empty;
+        public string? Slug { get; set; }
         public string? Aciklama { get; set; }
         public string? KapakResmiURL { get; set; }
         public string? Yazar { get; set; }

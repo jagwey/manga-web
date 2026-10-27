@@ -74,7 +74,7 @@ namespace Kage95.Backend.Controllers
                     id = y.Id,
                     tur = "manga",
                     hedefBaslik = y.Manga.MangaAdi,
-                    baglanti = "#/manga/" + y.MangaId,
+                    baglanti = "#/manga/" + (y.Manga.Slug ?? Kage95.Backend.Services.SlugServisi.Olustur(y.Manga.MangaAdi)),
                     metin = y.Metin,
                     tarih = y.Tarih
                 })

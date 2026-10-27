@@ -1350,7 +1350,11 @@
                 .then(function (v) { clearTimeout(sure); return v && Array.isArray(v.sonuclar) ? v.sonuclar : null; });
         }
 
-        function mangaUrl(m) { return 'index.html#/manga/' + encodeURIComponent(m.id); }
+        function mangaUrl(m) {
+            if (!m) return 'index.html#/';
+            var slug = m.slug || (window.slugOlustur ? window.slugOlustur(m.mangaAdi) : null) || m.id;
+            return 'index.html#/manga/' + encodeURIComponent(slug);
+        }
 
         // Bulursa cevabı yazar ve true döner; bulamazsa hiçbir şey yazmaz, false döner.
         function mangaCevapla(terim) {
@@ -1442,7 +1446,7 @@
                             var aciklama = secilen.aciklama ? ' — ' + secilen.aciklama.slice(0, 90) + '...' : '';
                             botYaz('Senin için "' + mNiyet.kategori + '" türünde bir seri önerisi: ' + secilen.mangaAdi + aciklama, {
                                 ad: secilen.mangaAdi + ' – Sayfasına git',
-                                url: 'index.html#/manga/' + secilen.id
+                                url: mangaUrl(secilen)
                             });
                             if (liste.length > 1) {
                                 oneriTemizle(mNiyet.kategori + ' serileri');
@@ -1464,7 +1468,7 @@
                         if (veri && veri.id) {
                             botYaz('Sana rastgele bir seri önerisi: ' + veri.mangaAdi + '. Hemen okumaya başlayabilirsin!', {
                                 ad: veri.mangaAdi + ' sayfasına git',
-                                url: 'index.html#/manga/' + veri.id
+                                url: mangaUrl(veri)
                             });
                         } else {
                             botYaz('Şu an rastgele seri önerilemedi. Keşfet sayfasındaki güncel serilere göz atabilirsin.', {

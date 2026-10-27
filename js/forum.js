@@ -129,7 +129,8 @@
     function SeriEtiketi(p) {
         var k = p.konu;
         if (!k.mangaId) return null;
-        return h('a', { className: 'fr-seri', href: '#/manga/' + k.mangaId, onClick: function (e) { e.stopPropagation(); } },
+        var slug = k.mangaSlug || (window.slugOlustur ? window.slugOlustur(k.mangaAdi) : null) || k.mangaId;
+        return h('a', { className: 'fr-seri', href: '#/manga/' + encodeURIComponent(slug), onClick: function (e) { e.stopPropagation(); } },
             k.mangaKapak ? h('img', { src: k.mangaKapak, alt: '', loading: 'lazy' }) : null,
             h('span', null, k.mangaAdi || 'Seri'),
             k.bolumNo != null ? h('b', null, 'Bl. ' + bolumYaz(k.bolumNo)) : null);
@@ -339,7 +340,8 @@
 
         return h('section', { className: 'fr-ana fr-konu' },
             h('nav', { className: 'fr-iz', 'aria-label': 'Konum' },
-                h('a', { href: '#/forum' }, 'Forum'), h('span', { 'aria-hidden': 'true' }, '/'),
+                h('a', { className: 'fr-geri-dugme', href: '#/forum' }, '← Foruma dön'),
+                h('span', { className: 'fr-iz-ayrac', 'aria-hidden': 'true' }, '·'),
                 h('a', { href: '#/forum/k/' + k.kategori }, kat.ad || k.kategori)),
             h('article', { className: 'fr-gonderi ana' },
                 h('h1', { className: 'fr-konu-baslik' }, htmlCoz(k.baslik)),
@@ -450,7 +452,10 @@
         };
 
         return h('section', { className: 'fr-ana fr-yeni' },
-            h('nav', { className: 'fr-iz', 'aria-label': 'Konum' }, h('a', { href: '#/forum' }, 'Forum'), h('span', { 'aria-hidden': 'true' }, '/'), h('span', null, 'Yeni konu')),
+            h('nav', { className: 'fr-iz', 'aria-label': 'Konum' },
+                h('a', { className: 'fr-geri-dugme', href: '#/forum' }, '← Foruma dön'),
+                h('span', { className: 'fr-iz-ayrac', 'aria-hidden': 'true' }, '·'),
+                h('span', null, 'Yeni konu aç')),
             h('h1', { className: 'fr-konu-baslik' }, h('span', { className: 'fr-ana-kanji', 'aria-hidden': 'true' }, '筆'), 'Yeni konu aç'),
             h('form', { className: 'fr-form', onSubmit: gonder },
                 h('fieldset', { className: 'fr-kat-sec' },
@@ -515,7 +520,7 @@
             h('div', { className: 'fr-kafa' },
                 h('span', { className: 'fr-kafa-kanji', 'aria-hidden': 'true' }, '影'),
                 h('div', null, h('h1', null, 'Gölge Meclisi'), h('p', null, 'Kage 95 forumu. Seriye bağla, bölümü işaretle, spoiler derdi olmadan konuş.'))),
-            h('div', { className: 'fr-duzen' }, h(YanPanel, { liste: liste, secili: yol.kategori, seri: yol.seri, kullanici: p.kullanici }), icerik));
+            h('div', { className: 'fr-duzen fr-duzen-' + (yol.gorunum || 'liste') }, h(YanPanel, { liste: liste, secili: yol.kategori, seri: yol.seri, kullanici: p.kullanici }), icerik));
     }
 
     // ---- Seri sayfası kutusu ----

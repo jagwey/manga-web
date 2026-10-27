@@ -3,7 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Kage 95 - Modern Manga Arşivi ve Kütüphanesi</title>
+    <title>Kage 95 - Türkçe Manga Oku | Karanlık Temalı Manga Arşivi</title>
+    <meta name="description" content="Kage 95'te Türkçe manga oku: güncel bölümler, kişisel kütüphane, favoriler, okuma geçmişi ve manga severlerle forum-sohbet. Üyeliksiz göz at, karanlık temayla rahat oku.">
+    <meta name="robots" content="index, follow, max-image-preview:large">
+    <link rel="canonical" href="https://www.kage95.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Kage 95">
+    <meta property="og:locale" content="tr_TR">
+    <meta property="og:title" content="Kage 95 - Türkçe Manga Oku">
+    <meta property="og:description" content="Güncel Türkçe manga bölümleri, kişisel kütüphane, forum ve canlı sohbet. Karanlık temalı manga arşivi.">
+    <meta property="og:url" content="https://www.kage95.com/">
+    <meta property="og:image" content="https://www.kage95.com/icon-512.png">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Kage 95 - Türkçe Manga Oku">
+    <meta name="twitter:description" content="Güncel Türkçe manga bölümleri, kişisel kütüphane, forum ve canlı sohbet.">
+    <meta name="twitter:image" content="https://www.kage95.com/icon-512.png">
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebSite","name":"Kage 95","alternateName":"Kage95","url":"https://www.kage95.com/","inLanguage":"tr","description":"Türkçe manga arşivi, kütüphane, forum ve sohbet."}</script>
     <base href="/">
     <script src="js/yol.js"></script>
     <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -12,8 +27,8 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
-    <link rel="stylesheet" href="css/vurgu.css?v=20261026k">
-    <link rel="stylesheet" href="css/forum.css?v=20261025a">
+    <link rel="stylesheet" href="css/vurgu.css?v=20261027e">
+    <link rel="stylesheet" href="css/forum.css?v=20261027b">
 
     <!-- Tipografi: Noto Serif (başlık), Noto Serif JP (kanji), Noto Sans (metin) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -75,7 +90,7 @@
         }
 
         .header-ic {
-            max-width: none;
+            max-width: 1600px;
             margin: 0 auto;
             padding: var(--bosluk-2) var(--bosluk-3);
             display: flex;
@@ -496,7 +511,7 @@
 
         /* --- TÜR SEKMELERİ (altı çizgili metin) --- */
         .tur-bolum {
-            max-width: none;
+            max-width: 1600px;
             margin: 0 auto;
             padding: 0 var(--bosluk-3) var(--bosluk-3);
             display: flex;
@@ -704,7 +719,7 @@
         .site-footer { border-top: 1px solid var(--border-renk); padding: var(--bosluk-4) var(--bosluk-3); }
 
         .footer-ic {
-            max-width: none;
+            max-width: 1600px;
             margin: 0 auto;
             display: flex;
             flex-wrap: wrap;
@@ -723,12 +738,10 @@
         .arka-plan-karartici {
             position: fixed; inset: 0;
             background: rgba(0, 0, 0, .75);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             z-index: 998;
             opacity: 0;
             pointer-events: none;
-            transition: opacity .32s cubic-bezier(0.16, 1, 0.3, 1), backdrop-filter .32s ease;
+            transition: opacity .32s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .arka-plan-karartici.acik { opacity: 1; pointer-events: auto; }
@@ -739,8 +752,6 @@
             background: linear-gradient(180deg, rgba(22, 16, 17, 0.98) 0%, rgba(12, 10, 10, 0.99) 100%);
             border-left: 1px solid rgba(224, 52, 60, 0.28);
             box-shadow: -14px 0 40px rgba(0, 0, 0, 0.8), 0 0 24px rgba(224, 52, 60, 0.12);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
             z-index: 999;
             transform: translateX(100%);
             visibility: hidden;
@@ -839,6 +850,12 @@
 
         /* --- ARAMA İKONU (yalnız mobil) + ALT GEZİNME --- */
         .arama-ac-btn, .mobil-arama, .alt-gezinme { display: none; }
+        @media (max-width: 960px) {
+            .arama-ac-btn { display: flex; }
+            .ust-arama { display: none; }
+            .mobil-arama { display: block; border-bottom: 1px solid var(--border-renk); background: var(--bg-ana); padding: var(--bosluk-1) var(--bosluk-2) var(--bosluk-2); }
+            .mobil-arama .arama-kapsayici { margin-top: 0; max-width: none; }
+        }
         .link-btn {
             min-height: 40px;
             padding: 0 var(--bosluk-1);
@@ -910,11 +927,11 @@
             position: absolute; right: 6px; background: none; border: 0; color: var(--text-ikincil);
             cursor: pointer; font-size: .75rem; padding: 4px;
         }
-        .siralama-btn, .mod-toggle-btn {
+        .siralama-btn, .mod-toggle-btn, .toplu-okundu-btn {
             font-size: .82rem; color: var(--text-ikincil); text-decoration: none; padding: 6px 10px;
             border: 1px solid var(--border-renk); border-radius: 6px; background: var(--bg-kart); cursor: pointer;
         }
-        .siralama-btn:hover, .mod-toggle-btn:hover { color: var(--vurgu-parlak); border-color: var(--vurgu-parlak); }
+        .siralama-btn:hover, .mod-toggle-btn:hover, .toplu-okundu-btn:hover { color: var(--vurgu-parlak); border-color: var(--vurgu-parlak); }
         .bolum-izgara {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
@@ -967,6 +984,9 @@
         .bolum-ad { min-width: 0; overflow-wrap: anywhere; }
         .bolum-ad strong { font-weight: 500; }
         .bolum-sag { display: flex; align-items: center; gap: var(--bosluk-2); flex-shrink: 0; font-size: .82rem; color: var(--text-ikincil); }
+        .renk-cipler { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .renk-cipi { width: 32px; height: 32px; border-radius: 50%; border: 2px solid var(--border-renk); cursor: pointer; padding: 0; }
+        .renk-cipi.aktif { border-color: #fff; box-shadow: 0 0 0 2px var(--vurgu-parlak); }
         .okundu-rozet { font-size: .8rem; color: var(--text-ikincil); }
 
         /* --- MOBİL --- */
@@ -1026,8 +1046,6 @@
                 left: 0; right: 0; bottom: 0;
                 z-index: 90;
                 background: rgba(14, 12, 12, 0.95);
-                backdrop-filter: blur(14px);
-                -webkit-backdrop-filter: blur(14px);
                 border-top: 1px solid var(--border-renk);
                 padding-bottom: env(safe-area-inset-bottom, 0px);
             }
@@ -1142,7 +1160,7 @@
         .avatar-satiri { display: flex; align-items: center; gap: var(--bosluk-2); flex-wrap: wrap; }
         .avatar-satiri .profil-avatar { width: 64px; height: 64px; font-size: 1.6rem; }
         .duyuru-bandi { display: flex; align-items: center; justify-content: center; gap: var(--bosluk-2); padding: 10px var(--bosluk-2); border-bottom: 1px solid var(--border-renk); font-size: .9rem; text-align: center; overflow-wrap: anywhere; }
-        .duyuru-bandi button { background: none; border: 0; color: var(--text-ikincil); font: inherit; font-size: .85rem; cursor: pointer; min-height: 44px; }
+        .duyuru-bandi button { background: none; border: 0; color: var(--text-ikincil); font: inherit; font-size: .85rem; cursor: pointer; min-height: 44px; flex-shrink: 0; min-width: 44px; padding: 0 8px; }
         @media (hover: hover) { .duyuru-bandi button:hover { color: var(--vurgu-parlak); } }
         .bakim-ekrani { min-height: 100vh; min-height: 100dvh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--bosluk-2); padding: var(--bosluk-3); text-align: center; }
         .bakim-ekrani h1 { font-family: var(--font-baslik); font-weight: 500; font-size: var(--yazi-h1); }
@@ -1276,6 +1294,7 @@
             input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=file]), select, textarea { font-size: 16px !important; }
         }
     </style>
+<script>document.addEventListener('visibilitychange',function(){document.documentElement.classList.toggle('k95-arka',document.visibilityState==='hidden');});</script>
 </head>
 <body class="sayfa-index">
     <div id="root"></div>
@@ -1287,7 +1306,7 @@
     <script src="js/adstili.js"></script>
     <script src="js/yorum.js"></script>
     <script src="js/forum.js?v=20261025b"></script>
-    <script src="js/sohbet.js?v=20261025d"></script>
+    <script src="js/sohbet.js?v=20261027a"></script>
     <script type="text/babel">
         const VARSAYILAN_RENK = '#8e0e15';
         const API_URL = (window.KAGE95_API_URL || '').replace(/\/$/, '');
@@ -1318,6 +1337,20 @@
                 const liste = new Set((tum[mangaId] || []).map(String));
                 liste.delete(String(bolumId)); liste.add(String(bolumId));
                 tum[mangaId] = Array.from(liste);
+                localStorage.setItem(OKUNAN_ANAHTAR, JSON.stringify(tum));
+            } catch (e) {}
+        };
+
+        // Toplu isaret: idler eskiden yeniye verilir, boylece "kaldigi bolum" en yeni isaretlenen olur. bos liste = hepsini temizle.
+        const topluOkunduYaz = (mangaId, idler) => {
+            try {
+                const tum = JSON.parse(localStorage.getItem(OKUNAN_ANAHTAR) || '{}');
+                if (!idler.length) { delete tum[mangaId]; }
+                else {
+                    const yeni = new Set(idler.map(String));
+                    const eskiler = (tum[mangaId] || []).map(String).filter(x => !yeni.has(x));
+                    tum[mangaId] = eskiler.concat(idler.map(String));
+                }
                 localStorage.setItem(OKUNAN_ANAHTAR, JSON.stringify(tum));
             } catch (e) {}
         };
@@ -1357,7 +1390,7 @@
             el.scrollIntoView({ behavior: azalt ? 'auto' : 'smooth', block: 'start' });
         };
 
-        const DURUM_ADLARI = { DevamEdiyor: 'Devam ediyor', Tamamlandi: 'Tamamlandı', Ara: 'Ara verildi' };
+        const DURUM_ADLARI = { DevamEdiyor: 'Devam ediyor', Tamamlandi: 'Tamamlandı', Ara: 'Ara verildi', AraVerdi: 'Ara verildi' };
         const durumMetni = (d) => DURUM_ADLARI[d] || d || 'Bilinmiyor';
         const bolumNoYaz = (n) => String(Number(n));
         const tarihYaz = (t) => {
@@ -1365,10 +1398,41 @@
             return isNaN(d) ? '' : d.toLocaleDateString('tr-TR');
         };
 
+        const slugOlustur = (metin) => {
+            if (!metin) return '';
+            return String(metin).trim()
+                .replace(/İ/g, 'i').replace(/I/g, 'i').replace(/ı/g, 'i')
+                .replace(/ğ/g, 'g').replace(/Ğ/g, 'g')
+                .replace(/ü/g, 'u').replace(/Ü/g, 'u')
+                .replace(/ş/g, 's').replace(/Ş/g, 's')
+                .replace(/ö/g, 'o').replace(/Ö/g, 'o')
+                .replace(/ç/g, 'c').replace(/Ç/g, 'c')
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+        };
+        window.slugOlustur = slugOlustur;
+
+        const mangaSlug = (m) => {
+            if (!m) return '';
+            if (typeof m === 'string') return slugOlustur(m);
+            if (m.slug) return m.slug;
+            if (m.mangaAdi) return slugOlustur(m.mangaAdi);
+            return String(m.id || '');
+        };
+        window.mangaSlug = mangaSlug;
+
+        const mangaLink = (m) => `#/manga/${mangaSlug(m)}`;
+        window.mangaLink = mangaLink;
+
         const rotaOku = () => {
             const h = (window.K95Yol ? window.K95Yol.hash() : window.location.hash) || '';
-            const m = h.match(/^#\/manga\/(\d+)/);
-            if (m) return { sayfa: 'manga', id: parseInt(m[1], 10) };
+            const m = h.match(/^#\/manga\/([^/?#]+)/);
+            if (m) {
+                const parca = decodeURIComponent(m[1]);
+                const num = /^\d+$/.test(parca) ? parseInt(parca, 10) : null;
+                return { sayfa: 'manga', id: num || parca, slug: parca };
+            }
             const ku = h.match(/^#\/kullanici\/([^/?#]+)/);
             if (ku) {
                 try { return { sayfa: 'kullanici', ad: decodeURIComponent(ku[1]) }; }
@@ -1473,6 +1537,17 @@
         };
 
         // Bağımsız yıldız bileşeni (js/puan.js) için ince React sarmalayıcı.
+        const KisaMetin = ({ metin }) => {
+            const [acik, setAcik] = React.useState(false);
+            const uzun = metin.length > 180;
+            return (
+                <>
+                    <p className={'detay-aciklama-metin' + (uzun && !acik ? ' kisa' : '')}>{metin}</p>
+                    {uzun && <button type="button" className="detay-devam" aria-expanded={acik} onClick={() => setAcik(!acik)}>{acik ? 'Daha az göster' : 'Devamını oku'}</button>}
+                </>
+            );
+        };
+
         const PuanKutu = ({ url, etiket }) => {
             const ref = React.useRef(null);
             React.useEffect(() => {
@@ -1546,7 +1621,7 @@
             const ilkKategori = m.kategoriler && m.kategoriler[0] ? m.kategoriler[0] : '';
             const kartPuan = typeof m.ortalamaPuan === 'number' ? m.ortalamaPuan : (typeof m.puan === 'number' && m.puan > 0 && m.puan <= 5 ? m.puan : null);
             return (
-                <a className="manga-kart" href={`#/manga/${m.id}`}
+                <a className="manga-kart" href={mangaLink(m)}
                    aria-label={`${m.mangaAdi}, ${m.bolumSayisi || 0} bölüm${yeni ? ', yeni' : ''}${tamam ? ', tamamlandı' : ''}`}>
                     <div className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                         <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
@@ -2902,14 +2977,47 @@
         const ocGorselCoz = (u) => {
             const t = ocGorselGuvenli(u);
             const i = t.indexOf('#');
-            if (i < 0) return { url: t, odak: '', kucuk: '' };
+            if (i < 0) return { url: t, odak: '', kucuk: '', video: '' };
             const p = new URLSearchParams(t.slice(i + 1));
             const url = t.slice(0, i);
             const o = (p.get('o') || '').split(',').map(Number);
             const odak = o.length === 2 && o.every(n => Number.isFinite(n) && n >= 0 && n <= 100) ? o[0] + '% ' + o[1] + '%' : '';
             const k = p.get('k') || '';
             const kucuk = /^[\w.-]+$/.test(k) ? url.slice(0, url.lastIndexOf('/') + 1) + k : '';
-            return { url, odak, kucuk };
+            const v = p.get('v') || '';
+            const video = /^[\w.-]+$/.test(v) ? url.slice(0, url.lastIndexOf('/') + 1) + v : '';
+            return { url, odak, kucuk, video };
+        };
+        // Döngü video yalnız geniş ekranda, tasarruf/azaltılmış hareket/yavaş ağ yokken oynar; yoksa resim kalır
+        const ocVideoUygun = () => {
+            try {
+                if (!window.matchMedia('(min-width: 769px)').matches) return false;
+                if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+                const c = navigator.connection;
+                if (c && (c.saveData || /(^|-)2g$|3g/.test(c.effectiveType || ''))) return false;
+                return true;
+            } catch (e) { return false; }
+        };
+        const OcVideo = ({ src, odak, oynat }) => {
+            const ref = React.useRef(null);
+            const [hazir, setHazir] = React.useState(false);
+            const [hata, setHata] = React.useState(false);
+            React.useEffect(() => {
+                const v = ref.current;
+                if (!v) return;
+                if (oynat) { const pr = v.play(); if (pr && pr.catch) pr.catch(() => {}); }
+                else v.pause();
+            }, [oynat, hazir]);
+            // Slayt değişince eleman sökülür; indirmeyi ve çözücüyü bırak
+            React.useEffect(() => () => {
+                const v = ref.current;
+                if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
+            }, []);
+            if (hata) return null;
+            return <video ref={ref} className={`oc-video ${hazir ? 'hazir' : ''}`} src={src} muted loop playsInline preload="auto"
+                aria-hidden="true" tabIndex={-1} disablePictureInPicture disableRemotePlayback
+                style={odak ? { objectPosition: odak } : undefined}
+                onCanPlay={() => setHazir(true)} onError={() => setHata(true)} />;
         };
         const OC_SURE = 8500;
         // Slaytın bağlı olduğu manga: seri kaydı ("m12") ya da "/#/manga/12" bağlantısı
@@ -3017,12 +3125,13 @@
                             <div className={`oc-gorsel ${gorsel ? '' : 'oc-gorsel-yok'} ${bulanik ? 'oc-bulanik' : ''}`}>
                                 {/* Dar dikey ekranda yatay afiş aşırı büyür; orada dikey kapak zemin olur */}
                                 {gorsel && <picture>
-                                    {afis && afis !== gorsel && <source media="(max-width: 680px)" srcSet={afis} />}
+                                    {afis && afis !== gorsel && <source media="(max-width: 768px)" srcSet={afis} />}
                                     <img src={gorsel} alt="" decoding="async"
                                         srcSet={gorselCoz.kucuk ? `${gorselCoz.kucuk} 960w, ${gorsel} 1920w` : undefined}
                                         sizes={gorselCoz.kucuk ? '100vw' : undefined}
                                         style={gorselCoz.odak ? { objectPosition: gorselCoz.odak } : undefined} onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                                 </picture>}
+                                {gorsel && gorselCoz.video && ocVideoUygun() && <OcVideo src={gorselCoz.video} odak={gorselCoz.odak} oynat={gorunur && !dur} />}
                             </div>
                             <div className="oc-karart" aria-hidden="true"></div>
                             <div className="oc-parilti" aria-hidden="true"></div>
@@ -3096,14 +3205,14 @@
                     <ol className="populer-liste">
                         {liste.map((m, i) => (
                             <li key={m.id} className="populer-kart">
-                                <a className="populer-kapak" href={`#/manga/${m.id}`} aria-label={`${i + 1}. ${m.mangaAdi}`}>
+                                <a className="populer-kapak" href={mangaLink(m)} aria-label={`${i + 1}. ${m.mangaAdi}`}>
                                     <span className="populer-sira" aria-hidden="true">{i + 1}</span>
                                     <span className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                                         <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
                                         <HizliOku m={m} />
                                     </span>
                                 </a>
-                                <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
+                                <a className="populer-ad" href={mangaLink(m)}>{m.mangaAdi}</a>
                                 {m.bolumSayisi != null && <span className="manga-meta">{m.bolumSayisi > 0 ? `${m.bolumSayisi} Bölüm` : 'Yakında'}</span>}
                             </li>
                         ))}
@@ -3149,14 +3258,14 @@
                             const yeni = m.sonBolumTarihi && Date.now() - new Date(m.sonBolumTarihi).getTime() < 3 * 864e5;
                             return (
                                 <li key={m.id} className="populer-kart">
-                                    <a className="populer-kapak" href={`#/manga/${m.id}`} aria-label={m.mangaAdi}>
+                                    <a className="populer-kapak" href={mangaLink(m)} aria-label={m.mangaAdi}>
                                         {sirala === 'guncel' && yeni && <span className="populer-sira serit-rozet" aria-hidden="true">Yeni</span>}
                                         <span className={`kart-kapak desen-${(m.id || 0) % 5} ${m.kapakResmiURL ? '' : 'kapak-yok'}`}>
                                             <img src={m.kapakResmiURL || YER_TUTUCU} alt={`${m.mangaAdi} kapak görseli`} loading="lazy" decoding="async" onError={gorselHata} />
                                             <HizliOku m={m} />
                                         </span>
                                     </a>
-                                    <a className="populer-ad" href={`#/manga/${m.id}`}>{m.mangaAdi}</a>
+                                    <a className="populer-ad" href={mangaLink(m)}>{m.mangaAdi}</a>
                                     {sirala === 'guncel'
                                         ? <a className="serit-bolum" href={`read.html?chapter=${m.sonBolumId}`}>
                                             <span>Bölüm {Number(m.sonBolumNo)}</span>
@@ -3218,7 +3327,7 @@
             }, [acik]);
 
             // Öneriden seçilen mangaya gidince arama temizlenir; yoksa Seriler listesi o aramayla süzülü kalır.
-            const git = (m) => { setAcik(false); degistir(''); window.location.hash = `#/manga/${m.id}`; };
+            const git = (m) => { setAcik(false); degistir(''); window.location.hash = mangaLink(m); };
             const tumunuGor = () => { setAcik(false); if (onAra) onAra(); };
 
             const tus = (e) => {
@@ -3307,7 +3416,7 @@
             const [yukleniyor, setYukleniyor] = React.useState(true);
             const [hata, setHata] = React.useState(null);
             const istekNo = React.useRef(0);
-            const [sirala, setSirala] = React.useState('yeni');
+            const [sirala, setSirala] = React.useState('puan');
             const [devam] = React.useState(() => {
                 try {
                     const v = JSON.parse(localStorage.getItem('kage95_son_okunan') || 'null');
@@ -3332,16 +3441,16 @@
                 fetch(`${API_URL}/mangas/rastgele`)
                     .then(r => r.ok ? r.json() : null)
                     .then(v => {
-                        if (v && v.id) { window.location.hash = `#/manga/${v.id}`; return; }
+                        if (v && (v.slug || v.id)) { window.location.hash = mangaLink(v); return; }
                         if (mangalar.length > 0) {
                             const m = mangalar[Math.floor(Math.random() * mangalar.length)];
-                            window.location.hash = `#/manga/${m.id}`;
+                            window.location.hash = mangaLink(m);
                         }
                     })
                     .catch(() => {
                         if (mangalar.length > 0) {
                             const m = mangalar[Math.floor(Math.random() * mangalar.length)];
-                            window.location.hash = `#/manga/${m.id}`;
+                            window.location.hash = mangaLink(m);
                         }
                     })
                     .finally(() => setRastgeleBusy(false));
@@ -3384,14 +3493,7 @@
             const dahaVar = mangalar.length < toplam;
             const ilkYukleme = yukleniyor && mangalar.length === 0;
             const tumKategoriler = ['', ...kategoriler];
-            // Mobilde öne çıkan seri ekranı dolduruyor; sohbet ilk manga şeritlerinin altına iner ki mangalar önce görünsün.
-            const [mobil, setMobil] = React.useState(() => window.matchMedia('(max-width: 600px)').matches);
-            React.useEffect(() => {
-                const mq = window.matchMedia('(max-width: 600px)');
-                const degis = () => setMobil(mq.matches);
-                mq.addEventListener('change', degis);
-                return () => mq.removeEventListener('change', degis);
-            }, []);
+            // Sohbet, ilk manga şeritlerinin altına iner ki mangalar önce görünsün.
             const sohbetSeridi = <div className="ana-icerik sohbet-ust"><SohbetKap mod="serit" /></div>;
 
             return (
@@ -3449,7 +3551,7 @@
                                     <option value="">Tüm durumlar</option>
                                     <option value="DevamEdiyor">Devam ediyor</option>
                                     <option value="Tamamlandi">Tamamlandı</option>
-                                    <option value="AraVerdi">Ara verdi</option>
+                                    <option value="Ara">Ara verdi</option>
                                 </select>
                                 <label className="sr-only" htmlFor="siralamaSec">Sırala</label>
                                 <select id="siralamaSec" className="siralama" value={sirala} onChange={(e) => setSirala(e.target.value)}>
@@ -3541,35 +3643,53 @@
             React.useEffect(() => {
                 let iptal = false;
                 setYukleniyor(true); setHata(null); setManga(null);
-                setOkunan(okunanlariAl(id));
-                fetch(`${API_URL}/mangas/${id}`)
+                fetch(`${API_URL}/mangas/${encodeURIComponent(id)}`)
                     .then(r => {
                         if (r.status === 404) throw new Error('404');
                         if (!r.ok) throw new Error('HTTP');
                         return r.json();
                     })
-                    .then(v => { if (!iptal) setManga(v); })
+                    .then(v => {
+                        if (!iptal && v) {
+                            setManga(v);
+                            setOkunan(okunanlariAl(v.id));
+                            setOkumaDurumu(kutuphaneDurumuAl(v.id));
+
+                            // Adres çubuğu optimizasyonu: slug varsa /manga/chainsaw-man olarak göster
+                            const hedefSlug = v.slug || slugOlustur(v.mangaAdi);
+                            if (hedefSlug) {
+                                const beklenenYol = '/manga/' + hedefSlug;
+                                if (window.location.pathname !== beklenenYol) {
+                                    try {
+                                        history.replaceState(history.state, '', beklenenYol + (window.location.search || ''));
+                                    } catch (e) {}
+                                }
+                            }
+
+                            const token = tokenAl();
+                            if (token) {
+                                fetch(`${API_URL}/user/library/check/${v.id}`, { headers: { Authorization: `Bearer ${token}` } })
+                                    .then(r => r.ok ? r.json() : null)
+                                    .then(res => { if (!iptal && res) setKayitli(!!res.isSaved); })
+                                    .catch(() => {});
+                            }
+                        }
+                    })
                     .catch(e => { if (!iptal) setHata(e.message === '404' ? 'Bu manga bulunamadı.' : 'Manga yüklenemedi. Sunucu çalışmıyor olabilir.'); })
                     .finally(() => { if (!iptal) setYukleniyor(false); });
 
-                const token = tokenAl();
-                if (token) {
-                    fetch(`${API_URL}/user/library/check/${id}`, { headers: { Authorization: `Bearer ${token}` } })
-                        .then(r => r.ok ? r.json() : null)
-                        .then(v => { if (!iptal && v) setKayitli(!!v.isSaved); })
-                        .catch(() => {});
-                }
                 return () => { iptal = true; };
             }, [id, dene]);
 
             const kutuphaneDegistir = () => {
                 const token = tokenAl();
                 if (!token) { setKutuphaneMesaj('GIRIS'); return; }
+                const gercekId = manga ? manga.id : id;
                 setKutuphaneBusy(true);
                 fetch(`${API_URL}/user/library/toggle`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                    body: JSON.stringify({ mangaId: id })
+                    body: JSON.stringify({ mangaId: gercekId })
                 })
                     .then(r => {
                         if (r.status === 401) { setKutuphaneMesaj('GIRIS'); return null; }
@@ -3644,10 +3764,10 @@
                         </div>
                         <div className="detay-bilgi">
                             <div className="detay-rozet-serit">
-                                {manga.durum === 'tamamlandi' ? (
+                                {manga.durum === 'Tamamlandi' ? (
                                     <span className="detay-rozet yesil">● Tamamlandı</span>
-                                ) : manga.durum === 'yakinda' ? (
-                                    <span className="detay-rozet altin">⏳ Yakında</span>
+                                ) : (manga.durum === 'Ara' || manga.durum === 'AraVerdi') ? (
+                                    <span className="detay-rozet altin">⏳ Ara Verildi</span>
                                 ) : (
                                     <span className="detay-rozet kizil">● Devam Ediyor</span>
                                 )}
@@ -3678,7 +3798,7 @@
                                 </div>
                             </div>
 
-                            <div className="detay-puan"><PuanKutu url={`${API_URL}/mangas/${id}/puan`} etiket="Bu seriyi puanla" /></div>
+                            <div className="detay-puan"><PuanKutu url={`${API_URL}/mangas/${manga.id}/puan`} etiket="Bu seriyi puanla" /></div>
 
                             <div className="detay-aciklama-panel">
                                 <span className="detay-aciklama-baslik">
@@ -3688,17 +3808,17 @@
                                     </svg>
                                     Özet
                                 </span>
-                                <p className="detay-aciklama-metin">{manga.aciklama || 'Bu seri için henüz bir açıklama eklenmemiş.'}</p>
+                                <KisaMetin metin={manga.aciklama || 'Bu seri için henüz bir açıklama eklenmemiş.'} />
                             </div>
 
                             <div className="detay-eylemler">
                                 {devamBolum ? (
-                                    <a className="detay-ana-btn" href={`read.html?chapter=${devamBolum.id}`} onClick={() => okunduIsaretle(id, devamBolum.id)}>
+                                    <a className="detay-ana-btn" href={`read.html?chapter=${devamBolum.id}`} onClick={() => okunduIsaretle(manga.id, devamBolum.id)}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                                         <span>Bölüm {bolumNoYaz(devamBolum.bolumNo)}'ten Devam Et</span>
                                     </a>
                                 ) : ilkBolum ? (
-                                    <a className="detay-ana-btn" href={`read.html?chapter=${ilkBolum.id}`} onClick={() => okunduIsaretle(id, ilkBolum.id)}>
+                                    <a className="detay-ana-btn" href={`read.html?chapter=${ilkBolum.id}`} onClick={() => okunduIsaretle(manga.id, ilkBolum.id)}>
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                                         <span>İlk Bölümü Oku</span>
                                     </a>
@@ -3709,7 +3829,7 @@
                                     </span>
                                 )}
                                 {devamBolum && ilkBolum && devamBolum.id !== ilkBolum.id && (
-                                    <a className="detay-ikincil-btn" href={`read.html?chapter=${ilkBolum.id}`} onClick={() => okunduIsaretle(id, ilkBolum.id)}>
+                                    <a className="detay-ikincil-btn" href={`read.html?chapter=${ilkBolum.id}`} onClick={() => okunduIsaretle(manga.id, ilkBolum.id)}>
                                         <span>1. Bölüm</span>
                                     </a>
                                 )}
@@ -3726,7 +3846,7 @@
                             {kayitli && (
                                 <div className="durum-secici">
                                     <label htmlFor="okumaDurumu">Okuma durumu</label>
-                                    <select id="okumaDurumu" value={okumaDurumu} onChange={(e) => { setOkumaDurumu(e.target.value); kutuphaneDurumuYaz(id, e.target.value); }}>
+                                    <select id="okumaDurumu" value={okumaDurumu} onChange={(e) => { setOkumaDurumu(e.target.value); kutuphaneDurumuYaz(manga.id, e.target.value); }}>
                                         {KUTUPHANE_DURUMLARI.map(([k, ad]) => <option key={k} value={k}>{ad}</option>)}
                                     </select>
                                 </div>
@@ -3766,6 +3886,19 @@
                                         <button type="button" className="link-btn mod-toggle-btn" onClick={() => setGorunumModu(gorunumModu === 'liste' ? 'izgara' : 'liste')} title="Görünüm Değiştir">
                                             {gorunumModu === 'liste' ? '☵ Izgara' : '☰ Liste'}
                                         </button>
+                                        <button type="button" className="link-btn toplu-okundu-btn" onClick={() => {
+                                            const hepsiOkundu = bolumler.every(b => okunan.has(String(b.id)));
+                                            if (hepsiOkundu) {
+                                                if (!window.confirm('Bu serideki tüm bölümlerin okundu işareti kaldırılsın mı?')) return;
+                                                topluOkunduYaz(manga.id, []);
+                                            } else {
+                                                const sirali = bolumler.slice().sort((a, b) => (Number(a.bolumNo) || 0) - (Number(b.bolumNo) || 0));
+                                                topluOkunduYaz(manga.id, sirali.map(b => b.id));
+                                            }
+                                            setOkunan(okunanlariAl(manga.id));
+                                        }}>
+                                            {bolumler.every(b => okunan.has(String(b.id))) ? '✕ Okundu işaretlerini kaldır' : '✓ Tümünü okundu say'}
+                                        </button>
                                         <button className="link-btn siralama-btn" onClick={() => setYeniFirst(!yeniFirst)} aria-label="Bölüm sıralamasını değiştir">
                                             {yeniFirst ? '↓ Yeniden eskiye' : '↑ Eskiden yeniye'}
                                         </button>
@@ -3788,11 +3921,13 @@
                             <ul className="bolum-izgara">
                                 {filtreliBolumler.map(b => {
                                     const okundu = okunan.has(String(b.id));
+                                    let kayitliSayfa = 0;
+                                    try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
                                             <a className={`bolum-cip ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
-                                               onClick={() => { okunduIsaretle(id, b.id); }}
+                                               onClick={() => { okunduIsaretle(manga.id, b.id); }}
                                                title={`Bölüm ${bolumNoYaz(b.bolumNo)}${b.bolumAdi ? ' · ' + b.bolumAdi : ''}`}>
                                                 <span>Bl. {bolumNoYaz(b.bolumNo)}</span>
                                                 {okundu && <span className="cip-nokta" aria-hidden="true"></span>}
@@ -3809,13 +3944,14 @@
                                         <li key={b.id}>
                                             <a className={`bolum-satir ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
-                                               onClick={() => { okunduIsaretle(id, b.id); }}>
+                                               onClick={() => { okunduIsaretle(manga.id, b.id); }}>
                                                 <span className="bolum-ad">
                                                     <strong>Bölüm {bolumNoYaz(b.bolumNo)}</strong>
                                                     {b.bolumAdi ? <span> · {b.bolumAdi}</span> : null}
                                                 </span>
                                                 <span className="bolum-sag">
                                                     {okundu && <span className="okundu-rozet">Okundu</span>}
+                                                    {kayitliSayfa > 0 && <span className="okundu-rozet">Sayfa {kayitliSayfa}</span>}
                                                     <span className="bolum-tarih">{tarihYaz(b.yayinTarihi)}</span>
                                                 </span>
                                             </a>
@@ -3826,7 +3962,7 @@
                         )}
                     </section>
 
-                    <MangaYorumlari mangaId={id} />
+                    <MangaYorumlari mangaId={manga.id} />
                 </div>
             );
         };
@@ -4229,8 +4365,13 @@
             }, []);
 
             React.useEffect(() => {
-                if (temaRengi && temaRengi !== VARSAYILAN_RENK) document.documentElement.style.setProperty('--vurgu-rengi', temaRengi);
-                else document.documentElement.style.removeProperty('--vurgu-rengi');
+                if (temaRengi && temaRengi !== VARSAYILAN_RENK) {
+                    document.documentElement.style.setProperty('--vurgu-rengi', temaRengi);
+                    document.documentElement.style.setProperty('--vurgu-parlak', 'color-mix(in srgb, var(--vurgu-rengi) 75%, white)');
+                } else {
+                    document.documentElement.style.removeProperty('--vurgu-rengi');
+                    document.documentElement.style.removeProperty('--vurgu-parlak');
+                }
                 try {
                     localStorage.setItem('kage95_v2_temaRengi', temaRengi);
                     localStorage.setItem('kage95_v2_bgMod', bgMod);
@@ -4409,6 +4550,11 @@
                                     <label htmlFor="renkSecici">Buton ve başlık vurgusu</label>
                                     <input id="renkSecici" type="color" value={temaRengi} onChange={(e) => setTemaRengi(e.target.value)} />
                                 </div>
+                                    <div className="renk-cipler" role="group" aria-label="Hazır vurgu renkleri">
+                                        {[['Kan Kızılı', '#8e0e15'], ['Gece Mavisi', '#1f5f8b'], ['Zümrüt', '#146c43'], ['Kehribar', '#b45309'], ['Sahura', '#9d174d'], ['Mor Gölge', '#5b21b6']].map(([ad, renk]) => (
+                                            <button key={renk} type="button" className={`renk-cipi ${temaRengi.toLowerCase() === renk ? 'aktif' : ''}`} style={{ background: renk }} title={ad} aria-label={ad} aria-pressed={temaRengi.toLowerCase() === renk} onClick={() => setTemaRengi(renk)}></button>
+                                        ))}
+                                    </div>
                             </div>
 
                             <div className="ayar-kutu">
@@ -4486,7 +4632,7 @@
                     </footer>
 
                     {yukariGoster && (
-                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>↑</button>
                     )}
                     <nav className="alt-gezinme" aria-label="Mobil gezinme">
                         <a href="#/" className={rota.sayfa === 'ana' || rota.sayfa === 'manga' ? 'aktif' : ''}

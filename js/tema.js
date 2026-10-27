@@ -12,7 +12,7 @@
             '--vurgu-rengi': '#8e0e15', '--vurgu-parlak': '#a3121a',
             '--bg-ana': '#f3ede3', '--bg-kart': '#ebe4d8', '--bg-yuzey': '#e2dacb', '--bg-kaplama': 'rgba(243,237,227,.82)',
             '--border-renk': '#d6cdbd', '--border-belirgin': '#b9ad9a',
-            '--text-ana': '#1f1a17', '--text-ikincil': '#6a5f56',
+            '--text-ana': '#1f1a17', '--text-ikincil': '#554b42',
             '--bg-okuyucu': '#f3ede3', '--bg-kutu': '#ebe4d8', '--kaydirma': '#b9ad9a' } },
         { id: 'mono', ad: 'Mono', not: 'Siyah beyaz, yüksek kontrast', renk: '#ffffff', zemin: '#000000', vars: {
             'color-scheme': 'dark',

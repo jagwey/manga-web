@@ -194,6 +194,28 @@ kage95/
 
 ## 🚀 Kurulum ve Çalıştırma
 
+### Otomatik doğrulama
+
+Her `main` push'unda ve pull request'te `.github/workflows/ci.yml` şu iki kontrolü
+çalıştırır:
+
+- .NET 10 backend restore ve Release build
+- Frontend Babel/esbuild derleme ve küçültme
+
+Yerelde frontend derlemesini tekrarlamak için:
+
+```powershell
+npm ci --prefix deploy/araclar
+node deploy/araclar/derle.mjs
+```
+
+Backend build'i için .NET SDK 10 gerekir:
+
+```powershell
+dotnet restore backend/backend.csproj
+dotnet build backend/backend.csproj --configuration Release --no-restore
+```
+
 ### Gereksinimler
 * [.NET 10 SDK](https://dotnet.microsoft.com/)
 * [SQL Server](https://www.microsoft.com/sql-server/) veya [SQL Server Express](https://www.microsoft.com/sql-server/sql-server-downloads) (`.\SQLEXPRESS`)
@@ -217,6 +239,12 @@ sqlcmd -S .\SQLEXPRESS -E -i backend/Veritabani_Kurulumu.sql
   }
 }
 ```
+
+`backend/appsettings.Local.json` Git tarafından yok sayılır. JWT secret'ı
+en az 32 karakterlik rastgele bir değer yapın; production ortamında secret'ı
+dosyaya yazmak yerine `JwtSettings__Secret` ortam değişkeni veya sunucu secret
+store kullanın. `deploy/appsettings.Production.json` bilerek boş secret ile
+gelir; uygulama eksik secret ile başlarsa açıkça hata verir.
 
 ### 3. Backend'i Başlatma
 ```powershell

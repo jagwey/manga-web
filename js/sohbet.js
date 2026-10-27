@@ -134,7 +134,7 @@
         '.ks-ikincil{background:transparent;color:var(--text-ana,#ede7e2);border-color:var(--border-belirgin,#3a3030)}',
         '.ks-alt{display:flex;justify-content:space-between;gap:12px;font-size:.8125rem;color:var(--text-ikincil,#a79d96);min-height:18px}',
         '.ks-hata{color:var(--vurgu-parlak,#e0343c)}',
-        '.ks-panel{border:1px solid var(--border-renk,#2a2323);background:var(--bg-kart,#141111);border-radius:2px;padding:10px}',
+        '.ks-panel{border:1px solid var(--border-renk,#2a2323);background:var(--bg-kart,#141111);border-radius:2px;padding:10px;max-height:35vh;max-height:35dvh;overflow-y:auto;overscroll-behavior:contain}',
         '.ks-panel h4{margin:8px 0 6px;font-size:.875rem;font-weight:600}',
         '.ks-panel h4:first-child{margin-top:0}',
         '.ks-izgara{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}',
@@ -680,6 +680,7 @@
         kok.appendChild(liste);
 
         var giris, gonderBtn, stBtn, sayac, hataEl, panel, form;
+        var gorunumDinle = null, gorunumAyarlaRef = null;
         if (girisli) {
             form = el('form', 'ks-form');
             form.setAttribute('autocomplete', 'off');
@@ -862,6 +863,16 @@
 
             giris.addEventListener('input', function () { sayac.textContent = giris.value.length + '/' + MAKS_UZUNLUK; });
 
+            // Mobil klavye: görünür alan küçülünce çekmece görünür yüksekliğin %35'iyle sınırlanır, giriş kutusu görünür kalır.
+            var vv = window.visualViewport;
+            var gorunumAyarla = function () {
+                var h = vv ? vv.height : window.innerHeight;
+                panel.style.maxHeight = Math.round(h * 0.35) + 'px';
+                if (vv && document.activeElement === giris) giris.scrollIntoView({ block: 'nearest' });
+            };
+            if (vv) { vv.addEventListener('resize', gorunumAyarla); gorunumAyarla(); gorunumDinle = vv; gorunumAyarlaRef = gorunumAyarla; }
+            giris.addEventListener('focus', function () { setTimeout(gorunumAyarla, 300); });
+
             var yolluyor = false;
             var yolla = function (metin, stickerId) {
                 if (yolluyor) return;
@@ -888,6 +899,7 @@
         return {
             yoksay: function () {
                 iptal = true;
+                if (gorunumDinle) gorunumDinle.removeEventListener('resize', gorunumAyarlaRef);
                 birak();
                 kullanimKapat();
                 if (kok.parentNode) kok.parentNode.removeChild(kok);

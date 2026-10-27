@@ -13,7 +13,7 @@ namespace Kage95.Backend.Services
     public static class UploadDosyaServisi
     {
         private static readonly Regex UrlDeseni = new(
-            @"^(?:https?://[^/\s]+)?/uploads/(?<ad>[0-9a-f]{32}\.(?:jpg|jpeg|png|webp|gif))\z",
+            @"^(?:https?://[^/\s]+)?/uploads/(?<ad>[0-9a-f]{32}\.(?:jpg|jpeg|png|webp|gif|mp4|webm))\z",
             RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
         private static readonly Regex GuvenliHostDeseni = new(
@@ -36,8 +36,38 @@ namespace Kage95.Backend.Services
         public static string? DosyaAdi(string? url)
         {
             if (string.IsNullOrWhiteSpace(url)) return null;
-            var m = UrlDeseni.Match(url.Trim());
+            var t = url.Trim();
+            var i = t.IndexOf('#');
+            if (i >= 0) t = t.Substring(0, i); // öne çıkan resimdeki "#o=..&k=..&v=.." üst verisi dosya adına dahil değil
+            var m = UrlDeseni.Match(t);
             return m.Success ? m.Groups["ad"].Value : null;
+        }
+
+        /// <summary>
+        /// "adres#o=X,Y&amp;k=kucuk.webp&amp;v=video.mp4" biçimindeki üst verideki küçük varyant ve video dosyalarını
+        /// ana adresle aynı klasörde tam URL olarak döner; ana adresin kendisi de dahildir.
+        /// </summary>
+        public static IEnumerable<string> EkDosyalarlaBirlikte(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) yield break;
+            var t = url.Trim();
+            yield return t;
+            var i = t.IndexOf('#');
+            if (i < 0) yield break;
+            var temel = t.Substring(0, i);
+            var son = temel.LastIndexOf('/');
+            if (son < 0) yield break;
+            var klasor = temel.Substring(0, son + 1);
+            foreach (var parca in t.Substring(i + 1).Split('&'))
+            {
+                var e = parca.IndexOf('=');
+                if (e <= 0) continue;
+                var anahtar = parca.Substring(0, e);
+                if (anahtar != "k" && anahtar != "v") continue;
+                var ad = parca.Substring(e + 1);
+                if (ad.Length > 0 && ad.All(c => char.IsAsciiLetterOrDigit(c) || c == '.' || c == '_' || c == '-'))
+                    yield return klasor + ad;
+            }
         }
 
         /// <summary>Görsel URL'sinin yalnızca http://, https:// veya /uploads/ ile başladığını doğrular.</summary>
@@ -67,7 +97,7 @@ namespace Kage95.Backend.Services
         {
             try
             {
-                var adlar = urller.Select(DosyaAdi).Where(a => a != null).Select(a => a!).Distinct().ToList();
+                var adlar = urller.SelectMany(EkDosyalarlaBirlikte).Select(DosyaAdi).Where(a => a != null).Select(a => a!).Distinct().ToList();
                 if (adlar.Count == 0) return;
 
                 var kok = env.WebRootPath ?? Path.Combine(env.ContentRootPath, "wwwroot");

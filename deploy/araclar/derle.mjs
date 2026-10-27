@@ -40,7 +40,7 @@ for (const ad of ['index.html', 'admin.html', 'read.html', 'login.html']) {
     const kucuk = (await transform(js, { minify: true, target: 'es2019' })).code;
     const hash = crypto.createHash('sha1').update(kucuk).digest('hex').slice(0, 8);
     fs.writeFileSync(path.join(dist, 'js', `uygulama-${ad0}.js`), kucuk);
-    html = html.replace(m[0], `<script src="js/uygulama-${ad0}.js?v=${hash}"></script>`);
+    html = html.replace(m[0], () => `<script src="js/uygulama-${ad0}.js?v=${hash}"></script>`);
     fs.writeFileSync(path.join(dist, ad), html);
     console.log(ad, 'kaynak', m[1].length, '->', kucuk.length, 'bayt');
 }

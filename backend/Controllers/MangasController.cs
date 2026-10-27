@@ -92,7 +92,7 @@ namespace Kage95.Backend.Controllers
             // Varsayılan ilk sayfa listesini 45 saniye önbellekte tutarak SQL Server yükünü minimize et
             var varsayilanIstekMi = page == 1 && string.IsNullOrWhiteSpace(search) && string.IsNullOrWhiteSpace(category) 
                 && !onecikan && string.IsNullOrWhiteSpace(durum) && (string.IsNullOrWhiteSpace(sirala) || sirala == "yeni");
-            const string varsayilanAnahtar = "manga:katalog:varsayilan";
+            var varsayilanAnahtar = $"manga:katalog:varsayilan:{pageSize}";
             if (varsayilanIstekMi && _onbellek.TryGetValue(varsayilanAnahtar, out (List<MangaListDto> list, int count) cached))
             {
                 Response.Headers.Append("X-Total-Count", cached.count.ToString());
@@ -118,6 +118,7 @@ namespace Kage95.Backend.Controllers
                 {
                     Id = m.Id,
                     MangaAdi = m.MangaAdi,
+                    Slug = m.Slug,
                     Aciklama = m.Aciklama,
                     KapakResmiURL = m.KapakResmiURL,
                     Yazar = m.Yazar,
@@ -194,6 +195,7 @@ namespace Kage95.Backend.Controllers
                 {
                     id = m.Id,
                     mangaAdi = m.MangaAdi,
+                    slug = m.Slug,
                     kapakResmiURL = m.KapakResmiURL,
                     yazar = m.Yazar,
                     durum = m.Durum,
@@ -211,10 +213,10 @@ namespace Kage95.Backend.Controllers
         [HttpGet("rastgele")]
         public async Task<IActionResult> Rastgele()
         {
-            var idler = await _context.Mangalar.AsNoTracking().Where(m => m.Yayinda).Select(m => new { m.Id, m.MangaAdi }).ToListAsync();
+            var idler = await _context.Mangalar.AsNoTracking().Where(m => m.Yayinda).Select(m => new { m.Id, m.MangaAdi, m.Slug }).ToListAsync();
             if (idler.Count == 0) return NotFound(new { message = "Henüz yayında seri yok." });
             var secilen = idler[System.Security.Cryptography.RandomNumberGenerator.GetInt32(idler.Count)];
-            return Ok(new { id = secilen.Id, mangaAdi = secilen.MangaAdi });
+            return Ok(new { id = secilen.Id, mangaAdi = secilen.MangaAdi, slug = secilen.Slug });
         }
 
         /// <summary>
@@ -247,6 +249,7 @@ namespace Kage95.Backend.Controllers
                 {
                     Id = x.M.Id,
                     MangaAdi = x.M.MangaAdi,
+                    Slug = x.M.Slug,
                     Aciklama = x.M.Aciklama,
                     KapakResmiURL = x.M.KapakResmiURL,
                     Yazar = x.M.Yazar,
@@ -272,19 +275,35 @@ namespace Kage95.Backend.Controllers
         }
 
         /// <summary>
-        /// Tekil manga detayları ve bölümler listesi
+        /// Tekil manga detayları ve bölümler listesi (ID veya slug ile çağrılabilir)
         /// </summary>
         [HttpGet("{id}")]
-        public async Task<ActionResult<MangaDetailDto>> GetById(int id)
+        public async Task<ActionResult<MangaDetailDto>> GetById(string id)
         {
             var gizliGorur = await IcerikErisimi.GizliGorebilirMiAsync(HttpContext, _context);
-            var result = await _context.Mangalar
+            var idStr = (id ?? "").Trim();
+            var isNumeric = int.TryParse(idStr, out var numId);
+            var cleanSlug = SlugServisi.Olustur(idStr);
+
+            var query = _context.Mangalar
                 .AsNoTracking()
-                .Where(m => m.Id == id && (m.Yayinda || gizliGorur))
+                .Where(m => m.Yayinda || gizliGorur);
+
+            if (isNumeric)
+            {
+                query = query.Where(m => m.Id == numId || m.Slug == idStr);
+            }
+            else
+            {
+                query = query.Where(m => m.Slug == idStr || m.Slug == cleanSlug || m.MangaAdi.ToLower() == idStr.ToLower());
+            }
+
+            var result = await query
                 .Select(m => new MangaDetailDto
                 {
                     Id = m.Id,
                     MangaAdi = m.MangaAdi,
+                    Slug = m.Slug,
                     Aciklama = m.Aciklama,
                     KapakResmiURL = m.KapakResmiURL,
                     Yazar = m.Yazar,
@@ -314,7 +333,7 @@ namespace Kage95.Backend.Controllers
 
             if (result == null)
             {
-                return NotFound(new { message = $"ID {id} ile eşleşen manga bulunamadı." });
+                return NotFound(new { message = $"'{id}' ile eşleşen manga bulunamadı." });
             }
 
             if (result.Puan.HasValue) result.Puan = Math.Round(result.Puan.Value, 1, MidpointRounding.AwayFromZero);
@@ -377,6 +396,7 @@ namespace Kage95.Backend.Controllers
             var yeniManga = new Manga
             {
                 MangaAdi = request.MangaAdi.Trim(),
+                Slug = SlugServisi.Benzersiz(request.MangaAdi, a => _context.Mangalar.IgnoreQueryFilters().Any(x => x.Slug == a)),
                 Aciklama = request.Aciklama,
                 KapakResmiURL = request.KapakResmiURL,
                 Yazar = request.Yazar,
@@ -422,6 +442,7 @@ namespace Kage95.Backend.Controllers
             {
                 Id = yeniManga.Id,
                 MangaAdi = yeniManga.MangaAdi,
+                Slug = yeniManga.Slug,
                 Aciklama = yeniManga.Aciklama,
                 KapakResmiURL = yeniManga.KapakResmiURL,
                 Yazar = yeniManga.Yazar,
@@ -486,6 +507,7 @@ namespace Kage95.Backend.Controllers
             var eskiKapak = manga.KapakResmiURL;
             var eskiOneCikanResim = manga.OneCikanResimURL;
             manga.MangaAdi = yeniAd;
+            manga.Slug = SlugServisi.Benzersiz(yeniAd, a => _context.Mangalar.IgnoreQueryFilters().Any(x => x.Slug == a && x.Id != manga.Id));
             manga.Aciklama = request.Aciklama;
             manga.KapakResmiURL = request.KapakResmiURL;
             if (request.OneCikanResimURL != null)
@@ -530,7 +552,7 @@ namespace Kage95.Backend.Controllers
 
             await _denetim.KaydetAsync(User, "manga.guncelle", $"Manga #{manga.Id} {manga.MangaAdi}");
 
-            return await GetById(id);
+            return await GetById(id.ToString());
         }
 
         /// <summary>

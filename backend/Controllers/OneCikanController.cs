@@ -25,7 +25,7 @@ namespace Kage95.Backend.Controllers
                 .Take(8)
                 .Select(m => new
                 {
-                    m.Id, m.MangaAdi, m.Aciklama, m.KapakResmiURL, m.OneCikanResimURL,
+                    m.Id, m.MangaAdi, m.Slug, m.Aciklama, m.KapakResmiURL, m.OneCikanResimURL,
                     Kategori = m.MangaKategorileri.Select(mk => mk.Kategori.KategoriAdi).FirstOrDefault(),
                     BolumSayisi = m.Bolumler.Count(),
                     IlkBolumId = m.Bolumler.OrderBy(b => b.BolumNo).Select(b => (int?)b.Id).FirstOrDefault()
@@ -36,10 +36,11 @@ namespace Kage95.Backend.Controllers
             {
                 id = "m" + m.Id,
                 baslik = m.MangaAdi,
+                slug = m.Slug ?? Kage95.Backend.Services.SlugServisi.Olustur(m.MangaAdi),
                 ozet = Kisalt(m.Aciklama, 200),
                 etiket = m.Kategori ?? "Manga",
                 gorselUrl = m.OneCikanResimURL ?? m.KapakResmiURL,
-                baglanti = $"#/manga/{m.Id}",
+                baglanti = $"#/manga/{m.Slug ?? Kage95.Backend.Services.SlugServisi.Olustur(m.MangaAdi)}",
                 kapakUrl = m.KapakResmiURL,
                 bolumSayisi = m.BolumSayisi,
                 ilkBolumId = m.IlkBolumId,

@@ -187,6 +187,7 @@ using (var kapsam = app.Services.CreateScope())
         kapsam.ServiceProvider.GetRequiredService<AppDbContext>().Database.ExecuteSqlRaw(
             "IF COL_LENGTH(N'dbo.Mangalar', N'OneCikanResimURL') IS NULL ALTER TABLE dbo.Mangalar ADD OneCikanResimURL NVARCHAR(500) NULL;" +
             "IF COL_LENGTH(N'dbo.Mangalar', N'SilinmeTarihi') IS NULL ALTER TABLE dbo.Mangalar ADD SilinmeTarihi DATETIME2 NULL;" +
+            "IF COL_LENGTH(N'dbo.Mangalar', N'Slug') IS NULL ALTER TABLE dbo.Mangalar ADD Slug NVARCHAR(250) NULL;" +
             "IF OBJECT_ID(N'dbo.KullaniciTercihleri') IS NOT NULL AND COL_LENGTH(N'dbo.KullaniciTercihleri', N'AdEfekti') IS NULL ALTER TABLE dbo.KullaniciTercihleri ADD AdEfekti NVARCHAR(20) NULL;" +
             // Eski ayrı öne çıkanlar tablosu kaldırıldı; öne çıkanlar artık mangadaki OneCikan bayrağından gelir.
             "IF OBJECT_ID(N'dbo.OneCikanlar', N'U') IS NOT NULL DROP TABLE dbo.OneCikanlar;" +
@@ -208,6 +209,17 @@ using (var kapsam = app.Services.CreateScope())
     try
     {
         var db = kapsam.ServiceProvider.GetRequiredService<AppDbContext>();
+        var bosSluglar = db.Mangalar.IgnoreQueryFilters().Where(m => string.IsNullOrEmpty(m.Slug)).ToList();
+        if (bosSluglar.Count > 0)
+        {
+            foreach (var m in bosSluglar)
+            {
+                var kullanilan = db.Mangalar.IgnoreQueryFilters().Where(x => x.Slug != null && x.Slug != "").Select(x => x.Slug!).ToHashSet();
+                m.Slug = Kage95.Backend.Services.SlugServisi.Benzersiz(m.MangaAdi, a => kullanilan.Contains(a));
+                kullanilan.Add(m.Slug);
+                db.SaveChanges();
+            }
+        }
         const string karsilamaBaslik = "Gölge Meclisi'ne hoş geldin: Kage 95 nedir, neden var?";
         if (!db.ForumKonulari.Any(k => k.Baslik == karsilamaBaslik))
         {

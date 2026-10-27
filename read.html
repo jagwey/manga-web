@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <script src="js/pwa.js"></script>
     <script src="js/tema.js"></script>
-    <link rel="stylesheet" href="css/vurgu.css?v=20261026k">
+    <link rel="stylesheet" href="css/vurgu.css?v=20261027e">
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -161,6 +161,8 @@
             padding: var(--s2);
             animation: perdeAc 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        @media (max-width: 640px) { .btn-tam-ekran { display: none; } }
+        @media (min-width: 641px) { .ayar-tam-ekran { display: none; } }
         .ayar-modal {
             width: 100%;
             max-width: 480px;
@@ -815,7 +817,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const API = (window.KAGE95_API_URL || 'http://localhost:5034/api').replace(/\/$/, '');
+        const API = (window.KAGE95_API_URL || 'http://localhost:5035/api').replace(/\/$/, '');
         const KAYMA_ORANI = 0.45;       // tek dokunuşta kayma miktarı
 
         // --- Yardımcılar ---
@@ -887,6 +889,18 @@
             );
         };
 
+        const slugOlustur = (metin) => {
+            if (!metin) return '';
+            let s = String(metin).trim();
+            const trMap = { 'ç': 'c', 'Ç': 'c', 'ğ': 'g', 'Ğ': 'g', 'ı': 'i', 'I': 'i', 'İ': 'i', 'ö': 'o', 'Ö': 'o', 'ş': 's', 'Ş': 's', 'ü': 'u', 'Ü': 'u' };
+            s = s.replace(/[çÇğĞıIİöÖşŞüÜ]/g, (c) => trMap[c] || c);
+            s = s.toLowerCase();
+            s = s.replace(/[^a-z0-9\s-]/g, '');
+            s = s.replace(/\s+/g, '-').replace(/-+/g, '-');
+            return s.replace(/^-+|-+$/g, '');
+        };
+        window.slugOlustur = slugOlustur;
+
         const OkumaSayfasi = () => {
             const params = new URLSearchParams(window.location.search);
             const mangaIdParam = parseInt(params.get('id') || '', 10);
@@ -894,6 +908,7 @@
 
             const [bolumId, setBolumId] = React.useState(Number.isFinite(bolumIdParam) ? bolumIdParam : null);
             const [veri, setVeri] = React.useState(null);          // /chapters/{id}/pages yanıtı
+            const [mangaSlug, setMangaSlug] = React.useState(null);
             const [bolumler, setBolumler] = React.useState([]);     // bölüm seçici
             const [durum, setDurum] = React.useState('yukleniyor'); // yukleniyor | hata | hazir | bos | demo
             const [hataMesaji, setHataMesaji] = React.useState('');
@@ -956,6 +971,7 @@
                 apiGet('/mangas/' + veri.mangaId).then((m) => {
                     if (iptal) return;
                     setBolumler((m.bolumler || []).slice().sort((a, b) => a.bolumNo - b.bolumNo));
+                    if (m) setMangaSlug(m.slug || slugOlustur(m.mangaAdi) || String(veri.mangaId));
                 }).catch(() => {});
                 return () => { iptal = true; };
             }, [veri && veri.mangaId]);
@@ -1157,8 +1173,11 @@
 
             // Klasik / çift sayfa modunda sonraki sayfayı önceden yükle
             React.useEffect(() => {
-                if ((okumaModu === 'klasik' || okumaModu === 'cift') && !yerTutucuMu && sayfalar[sayfaIndex + sayfaAdimi]) {
-                    const im = new Image(); im.src = sayfalar[sayfaIndex + sayfaAdimi];
+                if ((okumaModu === 'klasik' || okumaModu === 'cift') && !yerTutucuMu) {
+                    for (let k = 0; k < 2; k++) {
+                        const adres = sayfalar[sayfaIndex + sayfaAdimi + k * sayfaAdimi];
+                        if (adres) { const im = new Image(); im.src = adres; }
+                    }
                 }
             }, [okumaModu, sayfaIndex, sayfalar, sayfaAdimi]);
 
@@ -1232,6 +1251,10 @@
                 return () => { clearTimeout(t); if (t2) clearTimeout(t2); };
             }, [sayfaIndex, durum, veri && veri.bolumId]);
 
+            // Webtoon'da dokununca aşağı kaydırma varsayılan kapalı; yalnız ayardan açılır
+            const [dokunKaydir, setDokunKaydir] = React.useState(() => lsGet('kage95_dokunKaydir') === '1');
+            React.useEffect(() => { lsSet('kage95_dokunKaydir', dokunKaydir ? '1' : '0'); }, [dokunKaydir]);
+
             // --- Tam ekran ---
             const tamEkranVar = !!document.documentElement.requestFullscreen;
             const toggleTamEkran = () => {
@@ -1241,7 +1264,7 @@
 
             // --- ÖZEL: yalnızca webtoon modunda sayfa görseline tek dokunuşla %30 aşağı kaydır ---
             React.useEffect(() => {
-                if (okumaModu !== 'webtoon') return;
+                if (okumaModu !== 'webtoon' || !dokunKaydir) return;
                 let zamanlayici = null;
                 const tikla = (e) => {
                     if (e.button !== undefined && e.button !== 0) return;
@@ -1264,7 +1287,7 @@
                     document.removeEventListener('dblclick', ciftTik);
                     clearTimeout(zamanlayici);
                 };
-            }, [okumaModu]);
+            }, [okumaModu, dokunKaydir]);
 
             // --- Yorumlar --- (js/yorum.js ortak aracı çizer)
             const yorumBolumId = veri ? veri.bolumId : null;
@@ -1372,7 +1395,7 @@
                                     </button>
                                 )}
                                 {mangaId && (
-                                    <a href={`manga.html?id=${mangaId}`} className="k95-bs-ikinci-btn">
+                                    <a href={`index.html#/manga/${mangaSlug || (veri && veri.mangaAdi ? slugOlustur(veri.mangaAdi) : null) || mangaId}`} className="k95-bs-ikinci-btn">
                                         <Ikon ad="kitap" /> Seri Detayı
                                     </a>
                                 )}
@@ -1410,7 +1433,7 @@
 
                         <div className="header-sag">
                             {tamEkranVar && (
-                                <button className="btn-aksiyon" onClick={toggleTamEkran} title="Tam Ekran" aria-label="Tam Ekran Aç/Kapat">Tam ekran</button>
+                                <button className="btn-aksiyon btn-tam-ekran" onClick={toggleTamEkran} title="Tam Ekran" aria-label="Tam Ekran Aç/Kapat">Tam ekran</button>
                             )}
                             <button
                                 ref={ayarDugmeRef}
@@ -1432,6 +1455,17 @@
                                     <button type="button" className="btn-aksiyon" onClick={() => setAyarAcik(false)} aria-label="Ayarları kapat" autoFocus>Kapat</button>
                                 </div>
                                 <div className="ayar-modal-govde">
+                                    <section className="ayar-bolum">
+                                        <span className="ayar-grup-etiket">Dokunma ve ekran</span>
+                                        <div className="ayar-buton-satir">
+                                            {okumaModu === 'webtoon' && (
+                                                <button type="button" className={`ayar-kucuk-btn ${dokunKaydir ? 'aktif' : ''}`} aria-pressed={dokunKaydir} onClick={() => setDokunKaydir(v => !v)}>Dokunarak aşağı kaydır (Webtoon)</button>
+                                            )}
+                                            {tamEkranVar && (
+                                                <button type="button" className="ayar-kucuk-btn ayar-tam-ekran" onClick={toggleTamEkran}>Tam ekran</button>
+                                            )}
+                                        </div>
+                                    </section>
                                     <section className="ayar-bolum">
                                         <span className="ayar-grup-etiket">Okuma yönü</span>
                                         <div className="ayar-buton-satir">
@@ -1637,7 +1671,7 @@
                     </main>
 
                     {yukariGoster && (
-                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>Yukarı çık</button>
+                        <button type="button" className="yukari-btn" aria-label="Sayfanın başına çık" onClick={() => window.scrollTo({ top: 0, behavior: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? 'auto' : 'smooth' })}>↑</button>
                     )}
 
                     {sayfalar.length > 0 && (

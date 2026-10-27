@@ -131,12 +131,16 @@ namespace Kage95.Backend.Controllers
                 if (ustYazarId != null && ustYazarId.Value != userId.Value)
                 {
                     var yazarAdi = dto?.KullaniciAdi ?? User.Identity?.Name ?? "Bir kullanıcı";
+                    var mangaSlug = await _context.Mangalar.AsNoTracking()
+                        .Where(m => m.Id == id)
+                        .Select(m => m.Slug ?? Kage95.Backend.Services.SlugServisi.Olustur(m.MangaAdi))
+                        .FirstOrDefaultAsync() ?? id.ToString();
                     await BildirimController.BildirimKaydetAsync(
                         _context,
                         new[] { ustYazarId.Value },
                         "yanit",
                         $"{yazarAdi} seri yorumuna yanıt verdi",
-                        $"#/manga/{id}");
+                        $"#/manga/{mangaSlug}");
                 }
             }
             return Ok(dto);

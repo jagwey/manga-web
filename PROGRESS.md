@@ -127,3 +127,18 @@ Mobil uyumlu Türkçe manga sitesi. ASP.NET Core net10 + EF Core SqlServer (DB `
 - Temiz adresler: js/yol.js (/forum, /manga/12), index <base href=/>, backend MapFallbackToFile, sw v44
 - Bakim sayfasi: Yilan, Hiz, Iletisim sekmeleri; refleks kombo; hafiza zorluk+sure; takili app_offline FTP'den silindi; sw v45
 - Topluluk dropdown: tikladiktan sonra acik kalma (focus-within) duzeltildi: :has(:focus-visible) + tikta blur; sw v46
+
+- Temiz manga adresleri: /manga/<slug> (örn. /manga/the-quintessential-quintuplets). Backend Slug kolonu + SlugServisi.Benzersiz (çakışmada -2), eski /manga/25 slug adresine yönlenir. Yeni manga eklenince slug otomatik. Canlıda doğrulandı.
+- Mobil forum tasma fix (grid minmax(0,1fr)), forum.css v20261027a, sw v49 - canli dogrulandi (390px, kart tiklama calisiyor)
+- Kutuphane kopya manga fix: varsayilan liste onbellek anahtarina pageSize eklendi (14'luk cache 12'lik sayfalamayla cakisiyordu)
+- Banner video (mp4/webm, 60MB): admin yukleme + #v= meta, index OcVideo (mobil/tasarruf/reduced-motion'da resim), UploadController magic byte, silme/degisimde k=/v= dosya temizligi (UploadDosyaServisi.EkDosyalarlaBirlikte)
+- Admin dosya gezgininden surukle-birak (kapak + one cikan resim/video alani, .kapak-alan.birak)
+- Performans: oc-parilti blur(60px) kalkti, karartici/yan menu/alt cubuk backdrop-filter kalkti, sekme gizliyken animasyonlar durur (html.k95-arka), reduced-motion'da sonsuz animasyonlar kapali, vurgu.css ?v=20261027c, sw v51
+- Oneri listesi: detay ozeti 3 satir + Devamini oku (KisaMetin), okuyucu sonraki 2 sayfa onyukleme, liderlik ilk 3 altin/gumus/bronz, Kagit tema ikincil metin #554b42; vurgu.css ?v=20261027d, sw v52. Zaten vardi: webtoon sonraki bolum paneli
+- Video yukleme duzeltmesi: one cikan 'Dosyadan yukle' secicisi artik mp4/webm de kabul eder ve videoyu ocVideoYukle'ye yonlendirir (ocDosya accept + ocYukle)
+- Sohbet: sticker cekmecesi gorunur yuksekligin %35'i (visualViewport ile klavyede de), giris kutusu klavye acilinca gorunur kalir; sohbet.js
+- Detay: 'Tumunu okundu say' / 'Okundu isaretlerini kaldir' (topluOkunduYaz, ayni kage95_okunan deposu); sw v53
+- Admin derleme hatasi duzeltildi: ocAyir(v) parametresi ile const v cakisiyordu, derle.mjs admin.html'de cokuyordu ve onceki yayinlarda admin/read/login dist'e yansimamisti; parametre girdi olarak yeniden adlandirildi, tekrar yayinlandi, canli admin'de mp4 yukleme /api/upload 200 dondu
+- (Bitti, 27.10) SEO: index.html'e meta description, canonical, OG/Twitter, JSON-LD WebSite; robots.txt + sitemap.xml eklendi (yayinla.ps1 listesinde). Admin: 'Kaldir' artik 'Resmi kaldir' (video varken pasif, once videoyu kaldir); resim ve video ayri kaldirilir. Banner zaten PC'de video, <=680px'de resim gosterir (ocVideoUygun).
+
+- 4 fazlı düzeltme turu: durum rozeti/filtre eşitlendi, derle.mjs replace fonksiyonu, sw KABUK css/js (SURUM v54), Kâğıt temasında iletişim/detay/menü/okuyucu kontrastı, forum mobil taşma, ≤960px arama ikonu, hero 768px, 1600px genişlik sınırı, dokunma hedefleri, bakım sekme maskesi, okuyucuda "Dokunarak aşağı kaydır" ayarı (varsayılan kapalı) ve mobilde Tam ekran ayara taşındı, yukarı butonu yuvarlak ↑, ana sayfada ölü mobil state silindi, vurgu rengi hazır çipleri, bölüm listesinde "Sayfa X".

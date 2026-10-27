@@ -51,7 +51,7 @@ foreach ($f in $htmlDosyalar) {
     curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
 }
 
-$digerKokDosyalar = @("bakim.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png")
+$digerKokDosyalar = @("bakim.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png", "robots.txt", "sitemap.xml")
 foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
