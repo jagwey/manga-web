@@ -29,7 +29,7 @@ namespace Kage95.Backend.Services
                 throw new InvalidOperationException("EmailSettings ayarlanmamış (Server, Username, Password).");
 
             var mesaj = new MimeMessage();
-            mesaj.From.Add(new MailboxAddress(s["SenderName"] ?? "Kage 95", s["SenderEmail"] ?? kullanici));
+            mesaj.From.Add(new MailboxAddress(s["SenderName"] ?? "Kage", s["SenderEmail"] ?? kullanici));
             mesaj.To.Add(MailboxAddress.Parse(alici));
             mesaj.Subject = konu;
             mesaj.Body = new BodyBuilder { HtmlBody = htmlIcerik }.ToMessageBody();

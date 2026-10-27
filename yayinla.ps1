@@ -25,12 +25,12 @@ if (-not $SadeceOnyuz) {
     Write-Host "[2/4] IIS kilidini acmak icin app_offline.htm gonderiliyor..."
     $offFile = Join-Path $pubDir "app_offline.htm"
     Copy-Item (Join-Path $kokDizin "bakim.html") $offFile -Force
-    curl.exe -s -S --ssl-reqd -k -u $kimlik -T $offFile "$ftpKok/app_offline.htm"
+    curl.exe -s -S --ssl-reqd -u $kimlik -T $offFile "$ftpKok/app_offline.htm"
     Start-Sleep -Seconds 3
 
     foreach ($f in @("backend.dll", "backend.pdb", "backend.exe", "backend.deps.json", "MailKit.dll", "MimeKit.dll", "BouncyCastle.Cryptography.dll")) {
         Write-Host "  -> $f yukleniyor..."
-        curl.exe -s -S --ssl-reqd -k -u $kimlik -T (Join-Path $pubDir $f) "$ftpKok/$f"
+        curl.exe -s -S --ssl-reqd -u $kimlik -T (Join-Path $pubDir $f) "$ftpKok/$f"
     }
 } else {
     Write-Host "[1/2] Sadece on yuz (HTML/CSS/JS) guncelleniyor..."
@@ -48,7 +48,7 @@ foreach ($f in $htmlDosyalar) {
     $distYol = Join-Path $kokDizin "dist\$f"
     $tamYol = if (Test-Path $distYol) { $distYol } else { Join-Path $kokDizin $f }
     Write-Host "  -> wwwroot/$f ($tamYol)"
-    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
+    curl.exe -s -S --ssl-reqd --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
 }
 
 $digerKokDosyalar = @("bakim.html", "logo.svg", "favicon.svg", "favicon.ico", "manifest.webmanifest", "sw.js", "icon-192.png", "icon-512.png", "robots.txt", "sitemap.xml")
@@ -56,30 +56,30 @@ foreach ($f in $digerKokDosyalar) {
     $tamYol = Join-Path $kokDizin $f
     if (Test-Path $tamYol) {
         Write-Host "  -> wwwroot/$f"
-        curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
+        curl.exe -s -S --ssl-reqd --retry 3 --retry-delay 2 -u $kimlik -T $tamYol "$ftpKok/wwwroot/$f"
     }
 }
 
 Get-ChildItem (Join-Path $kokDizin "css") -File | ForEach-Object {
     Write-Host "  -> wwwroot/css/$($_.Name)"
-    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/css/$($_.Name)"
+    curl.exe -s -S --ssl-reqd --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/css/$($_.Name)"
 }
 
 Get-ChildItem (Join-Path $kokDizin "js") -File | ForEach-Object {
     Write-Host "  -> wwwroot/js/$($_.Name)"
-    curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
+    curl.exe -s -S --ssl-reqd --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
 }
 
 $distJs = Join-Path $kokDizin "dist\js"
 if (Test-Path $distJs) {
     Get-ChildItem $distJs -File | ForEach-Object {
         Write-Host "  -> wwwroot/js/$($_.Name) [dist]"
-        curl.exe -s -S --ssl-reqd -k --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
+        curl.exe -s -S --ssl-reqd --retry 3 --retry-delay 2 -u $kimlik -T $_.FullName "$ftpKok/wwwroot/js/$($_.Name)"
     }
 }
 
 if (-not $SadeceOnyuz) {
-    curl.exe -s -S --ssl-reqd -k -u $kimlik "$ftpKok/" -Q "-DELE app_offline.htm" | Out-Null
+    curl.exe -s -S --ssl-reqd -u $kimlik "$ftpKok/" -Q "-DELE app_offline.htm" | Out-Null
 }
 
 Write-Host "[4/4] Canli site kontrol ediliyor ($($j.siteAdresi))..."

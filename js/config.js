@@ -20,6 +20,6 @@ window.KAGE95_SOSYAL = {
     discord: 'https://discord.gg/yxZZ7m2x8a',
     instagram: 'https://www.instagram.com/kage95.dev/',
     instagramAd: 'kage95.dev',
-    eposta: 'jagweyy@gmail.com'
+    eposta: 'noreply@kage95.com'
 };
 })();
