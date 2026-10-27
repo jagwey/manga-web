@@ -11,7 +11,7 @@
 
   <p align="center">
     <a href="https://kage95.com"><img src="https://img.shields.io/badge/Canlı_Site-kage95.com-e0343c?style=for-the-badge&logo=google-chrome&logoColor=white" alt="Live Site" /></a>
-    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Sürüm-v2.5.0-8e0e15?style=for-the-badge&logo=git&logoColor=white" alt="Version 2.5.0" /></a>
+    <a href="CHANGELOG.md"><img src="https://img.shields.io/badge/Sürüm-v2.6.0-8e0e15?style=for-the-badge&logo=git&logoColor=white" alt="Version 2.6.0" /></a>
     <a href="https://dotnet.microsoft.com/"><img src="https://img.shields.io/badge/.NET_10.0-512BD4?style=for-the-badge&logo=dotnet&logoColor=white" alt=".NET 10" /></a>
     <a href="https://react.dev"><img src="https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React 18" /></a>
     <a href="https://dotnet.microsoft.com/apps/aspnet/signalr"><img src="https://img.shields.io/badge/SignalR-Realtime_WebSockets-e0343c?style=for-the-badge&logo=signal&logoColor=white" alt="SignalR" /></a>
@@ -41,48 +41,58 @@
 
 ## 🏛️ Mimari Yapı (System Architecture)
 
-KAGE 95, yüksek verimli mikro-servis esintili monolit bir ASP.NET Core (.NET 10) REST API ve gerçek zamanlı SignalR WebSocket omurgası üzerine inşa edilmiştir. Ön yüz katmanı, ağır istemci bağımlılıklarından arındırılmış saf React 18, SPA Fallback mekanizması ve kurşun geçirmez bir Service Worker mimarisi ile çalışır.
+KAGE 95 tek parça (modüler monolit) bir uygulamadır: aynı ASP.NET Core (.NET 10) süreci hem statik ön yüzü, hem REST API'yi, hem de SignalR sohbetini sunar. Ayrı mikro-servis, kuyruk veya önbellek sunucusu yoktur; bu sayede tek bir IIS uygulaması ve tek bir SQL Server veritabanıyla çalışır.
 
 ```mermaid
-flowchart TD
-    subgraph Client["📱 İstemci Katmanı (Frontend & PWA)"]
-        UI["Tek Sayfalı Web UI (React 18 + Vanilla JS)"]
-        ROUTER["Temiz URL Yönlendiricisi (js/yol.js)"]
-        PWA["PWA Servis Çalışanı (Service Worker v48 Zırhlı)"]
-        READER["Okuma Motoru (Webtoon + Klasik Mod)"]
-        ADMIN["Yönetim Portalı (admin.html)"]
+flowchart LR
+    subgraph C["📱 İstemci"]
+        direction TB
+        PAGES["4 sayfa · React 18 UMD<br/>index · read · login · admin"]
+        SW["Service Worker v48<br/>çevrimdışı kabuk"]
     end
 
-    subgraph Edge["🌐 Dağıtım & Önbellek Katmanı"]
-        CF["Cloudflare CDN & SSL / Reverse Proxy"]
-        FALLBACK["ASP.NET Core SPA Fallback Motoru"]
-        HASH["SHA-1 Otomatik İçerik Özeti (derle.mjs)"]
+    CF["☁️ Cloudflare<br/>DNS · CDN · SSL · DDoS"]
+
+    subgraph S["🖥️ ASP.NET Core .NET 10 · IIS"]
+        direction TB
+        MW["Ara katman zinciri<br/>ForwardedHeaders → RateLimiter<br/>→ JWT → [Yetki] filtresi"]
+        STATIC["Statik dosyalar<br/>+ SPA fallback"]
+        API["REST Controllers<br/>Auth · Hesap · Manga · Bölüm<br/>Yorum · Forum · Admin"]
+        HUB["SignalR<br/>/hub/sohbet"]
+        SVC["Servisler<br/>Puan · Ödül · Denetim · Dosya<br/>E-posta · HMAC belirteçleri"]
     end
 
-    subgraph Core["⚡ Çekirdek Backend Katmanı (.NET 10 ASP.NET Web API)"]
-        API["REST API Uçları (Controllers)"]
-        HUB["SignalR Hub (/hub/sohbet)"]
-        AUTH["Güvenlik (JWT + Timing-Attack Proof BCrypt + Yetki ACL)"]
-        RATELIMIT["IP & Kullanıcı Bazlı Hız Sınırı (Rate Limiter)"]
-        SVC["Puan, Ödül & Seviye Hesaplama Motoru"]
-    end
+    DB[("🗄️ SQL Server<br/>Kage95DB")]
+    FILES["🖼️ Görsel deposu<br/>WebP / JPG"]
+    BREVO["✉️ Brevo SMTP"]
+    OAUTH["🔑 Google · Discord<br/>OAuth"]
 
-    subgraph Storage["🗄️ Veri & Depolama Katmanı"]
-        DB[("Microsoft SQL Server (Kage95DB)")]
-        MEDIA["Optimize WebP / JPG Görsel Deposu"]
-    end
-
-    UI --> ROUTER --> CF
-    PWA --> CF
-    ADMIN --> CF
-    CF --> FALLBACK --> HASH --> API
-    CF --> HUB
-    API --> RATELIMIT --> AUTH
+    PAGES --> CF
+    SW -.önbellek.-> PAGES
+    CF --> MW
+    MW --> STATIC
+    MW --> API
+    MW --> HUB
     API --> SVC
+    HUB --> SVC
     SVC --> DB
-    AUTH --> DB
-    API --> MEDIA
+    SVC --> FILES
+    SVC --> BREVO
+    API <--> OAUTH
+
+    style CF fill:#fff3e6,stroke:#F38020
+    style S fill:#e8f1fb,stroke:#0A66C2
+    style DB fill:#fdeceb,stroke:#CC2927
+    style BREVO fill:#e6f6f0,stroke:#0B996E
 ```
+
+| Katman | Sorumluluk | Neden böyle? |
+|---|---|---|
+| **İstemci** | Sayfa başına tek HTML dosyası; React UMD + Babel, `derle.mjs` ile önceden derlenip küçültülür ve SHA-1 özetli adla `dist/` altına yazılır | Paketleyici (webpack/vite) bağımlılığı yok; özetli dosya adı önbelleği güvenle uzun tutar |
+| **Kenar** | Cloudflare statik dosyaları önbellekler, SSL ve DDoS korumasını üstlenir | Paylaşımlı barındırmadaki sunucu yükü düşer |
+| **Uygulama** | Ara katman zinciri her isteği sırayla süzer; controller'lar ince kalır, iş kuralları servislerdedir | Hız sınırı ve yetki kontrolü tek yerde, atlanamaz |
+| **Belirteçler** | Şifre sıfırlama ve e-posta doğrulama bağlantıları HMAC-SHA256 ile imzalanır, veritabanında tutulmaz | Ek tablo ve temizlik işi gerekmez; şifre/e-posta değişince bağlantı kendiliğinden geçersizleşir |
+| **Veri** | EF Core + SQL Server; şema değişiklikleri açılışta idempotent SQL ile uygulanır ve `Veritabani_Kurulumu.sql` ile eşlenir | Paylaşımlı sunucuda migration aracı çalıştırmadan güvenli şema güncellemesi |
 
 ---
 
@@ -107,7 +117,7 @@ Kage 95'in çalışması için kullanılan dış hizmetlerin tamamı aşağıdad
 | ☁️ | **Cloudflare** | DNS, ters vekil (proxy), CDN önbelleği, DDoS koruması, SSL modu **Full** | Cloudflare paneli → `kage95.com` |
 | 🖥️ | **SmarterASP.NET (SITE4NOW)** | Windows / IIS barındırma, .NET 10 çalışma ortamı, SQL Server veritabanı, FTP | SmarterASP.NET kontrol paneli |
 | 🗄️ | **Microsoft SQL Server** | Kullanıcı, manga, bölüm, yorum, forum verileri (`Kage95DB`) | `ConnectionStrings:DefaultConnection` |
-| ✉️ | **Brevo (eski adıyla Sendinblue)** | Şifre sıfırlama ve sistem e-postaları (SMTP) | `EmailSettings` bölümü |
+| ✉️ | **Brevo (eski adıyla Sendinblue)** | Şifre sıfırlama, e-posta doğrulama ve sistem e-postaları (SMTP) | `EmailSettings` bölümü |
 | 🔐 | **Let's Encrypt** | Kaynak sunucuda (origin) ücretsiz SSL sertifikası | SmarterASP.NET paneli, `.well-known/web.config` |
 | 📦 | **FTP + `yayinla.ps1`** | Tek komutla canlıya yayın | `deploy/yayin.Local.json` (git'e girmez) |
 | 💬 | **Discord** | Topluluk sunucusu ve iletişim | `discord.gg/yxZZ7m2x8a` |
@@ -205,6 +215,30 @@ sequenceDiagram
 
 > ✅ Giriş sayfasındaki "Şifremi unuttum" formu ve e-postadaki `/login.html?sifre-sifirla=` bağlantısını karşılayan yeni şifre ekranı hazırdır.
 
+### 📨 E-posta Doğrulama Akışı
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor K as Kullanıcı
+    participant W as login.html
+    participant A as AuthController
+    participant T as EpostaDogrulamaTokeni
+    participant B as Brevo SMTP
+
+    K->>W: Kayıt formu (şifre + şifre tekrarı)
+    W->>A: POST /api/auth/register
+    A->>A: Kullanıcı adı / e-posta çakışıyor mu?<br/>(çakışan alan açıkça söylenir)
+    A->>T: 3 gün geçerli imzalı belirteç
+    A->>B: Doğrulama maili
+    A-->>W: JWT ile oturum açılır (giriş engellenmez)
+    B-->>K: 📬 "E-postanı doğrula" bağlantısı
+    K->>W: /login.html?eposta-dogrula=...
+    W->>A: POST /api/auth/verify-email
+    A->>A: EmailDogrulandi = true
+    Note over W: Doğrulanana kadar sitede uyarı bandı görünür,<br/>"Tekrar gönder" ile yeni mail istenebilir
+```
+
 ### 🚀 Yayın (Deploy) Akışı
 
 ```mermaid
@@ -248,6 +282,41 @@ flowchart TD
 ---
 
 ## ✨ Temel Özellikler
+
+### 🔐 0. Hesap & Kimlik *(v2.6 Yeni)*
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <b>📨 E-posta doğrulama</b><br/>
+      Kayıttan sonra doğrulama maili gider. Giriş engellenmez; doğrulanana kadar sitede uyarı bandı ve <i>"Tekrar gönder"</i> düğmesi görünür.
+    </td>
+    <td width="50%" valign="top">
+      <b>🔁 Şifre tekrarı</b><br/>
+      Kayıt ve şifre sıfırlama formlarında ikinci şifre alanı; eşleşmezse istek sunucuya hiç gitmez.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <b>✉️ Mail ile şifre sıfırlama</b><br/>
+      <code>noreply@kage95.com</code> adresinden Brevo SMTP ile gönderilen, 30 dakika geçerli, tek kullanımlık bağlantı.
+    </td>
+    <td valign="top">
+      <b>🔑 Google & Discord ile giriş</b><br/>
+      OAuth sağlayıcısı yapılandırıldığında düğmeler kendiliğinden görünür; mevcut şifreli hesaplar otomatik birleştirilmez.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top">
+      <b>🎯 Açık kayıt hataları</b><br/>
+      <i>"Kayıt oluşturulamadı"</i> yerine sorunun kullanıcı adında mı e-postada mı olduğu söylenir. Deneme sayısını <code>kayit</code> hız sınırı kısar.
+    </td>
+    <td valign="top">
+      <b>🛡️ Durumsuz belirteçler</b><br/>
+      Sıfırlama ve doğrulama bağlantıları HMAC-SHA256 ile imzalanır, veritabanında saklanmaz.
+    </td>
+  </tr>
+</table>
 
 ### 📖 1. Akıllı Okuma Deneyimi
 - **Çift Okuma Modu:** Geleneksel sayfa çevirmeli **Klasik Mod** (çift sayfa & tek sayfa) ve mobil uyumlu kesintisiz dikey **Webtoon Modu**.
@@ -304,7 +373,8 @@ Projenin tüm geçmiş sürümleri, yenilikleri ve teknik detayları **[CHANGELO
 
 | Sürüm | Yayın Tarihi | Önemli Yenilikler | Durum |
 | :--- | :---: | :--- | :---: |
-| **v2.5.0** | 26 Ekim 2026 | **Kusursuz SPA Routing (`/manga/:id`, F5 fallback), Service Worker v48 (sıfır çökme), Taşmayan Cam Manga Vitrini, Akıllı Okuma Şeridi, Modern İletişim Portalı** | 🟢 **Son Sürüm (Mevcut)** |
+| **v2.6.0** | 28 Ekim 2026 | **E-posta doğrulama, şifre tekrarı alanı, Brevo ile mail şifre sıfırlama, Google/Discord girişi, alana özel kayıt hataları, SEO (sitemap, OG, JSON-LD)** | 🟢 **Son Sürüm (Mevcut)** |
+| **v2.5.0** | 26 Ekim 2026 | Kusursuz SPA Routing (`/manga/:id`, F5 fallback), Service Worker v48 (sıfır çökme), Taşmayan Cam Manga Vitrini, Akıllı Okuma Şeridi, Modern İletişim Portalı | ⚪ Tamamlandı |
 | **v2.4.0** | 26 Ekim 2026 | Akıcı mikro-etkileşimler, 3 çizgi hamburger morphing animasyonu, kayan çekmece ve modal süzülmeleri | ⚪ Tamamlandı |
 | **v2.3.0** | 26 Ekim 2026 | Kapsamlı siber güvenlik zırhı (Rate limiting, RAM doyurma engeli, SignalR taşkın koruması, Timing attack proof şifreleme) | ⚪ Tamamlandı |
 | **v2.2.0** | 25 Ekim 2026 | Birleşik Topluluk Ekosistemi (Forum + Sohbet), Masaüstü Topluluk dropdown'ı, 100+ bölümlü seriler için anlık arama ve Izgara/Liste modu | ⚪ Tamamlandı |

@@ -6,7 +6,24 @@ Proje [SemVer (Semantic Versioning)](https://semver.org/lang/tr/) standartların
 
 ---
 
-## [2.5.0] - 2026-10-26 *(Mevcut Son Sürüm)*
+## [2.6.0] - 2026-10-28 *(Mevcut Son Sürüm)*
+
+### 🔐 Hesap & Kimlik
+- **E-posta Doğrulama:** Kayıttan sonra 3 gün geçerli HMAC imzalı doğrulama bağlantısı gönderilir (`/login.html?eposta-dogrula=`). Giriş engellenmez; doğrulanana kadar sitede uyarı bandı ve "Tekrar gönder" düğmesi (`POST /api/auth/resend-verification`) görünür.
+- **Şifre Tekrarı:** Kayıt ve yeni şifre formlarına ikinci şifre alanı eklendi; eşleşmeyen şifre istemcide engellenir.
+- **Mail ile Şifre Sıfırlama:** Brevo SMTP üzerinden `noreply@kage95.com` göndericisiyle, 30 dakika geçerli tek kullanımlık bağlantı.
+- **Google & Discord ile Giriş:** OAuth sağlayıcıları yapılandırıldığında giriş sayfasında görünür.
+- **Açık Kayıt Hataları:** Çakışma durumunda hatanın kullanıcı adında mı e-postada mı olduğu belirtilir (`409`, `alan` alanı ile).
+
+### 🔎 SEO
+- Meta description, canonical, Open Graph/Twitter etiketleri, JSON-LD `WebSite`, `robots.txt` ve `sitemap.xml` eklendi.
+
+### 🐛 Düzeltmeler
+- Sosyal giriş sonrası 500 hatası: açılış SQL'inde yeni kolon üzerindeki `CREATE INDEX` komutları `EXEC(N'...')` ile ertelendi.
+
+---
+
+## [2.5.0] - 2026-10-26
 
 ### 🛡️ Kusursuz SPA Routing & Fallback
 - **Doğrudan Link Desteği:** Artık doğrudan girilen temiz URL bağlantıları (`/manga/18`, `/iletisim`, `/kutuphane`, `/forum`, `/sohbet`, `/liderlik`, `/profil`) tarayıcıda doğrudan hedeflenen sayfayı açar.
