@@ -17,6 +17,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500&display=swap" rel="stylesheet">
 
     <script src="js/config.js?v=20261025c"></script>
+    <script src="js/hata-siniri.js"></script>
     <script src="js/liderlik.js"></script>
     <script src="js/puan.js"></script>
     <script src="js/adstili.js"></script>
@@ -817,6 +818,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        const HataSiniri = window.K95HataSiniri || React.Fragment;
         const API = (window.KAGE95_API_URL || 'http://localhost:5035/api').replace(/\/$/, '');
         const KAYMA_ORANI = 0.45;       // tek dokunuşta kayma miktarı
 
@@ -1744,7 +1746,7 @@
             );
         };
 
-        ReactDOM.createRoot(document.getElementById('root')).render(<OkumaSayfasi />);
+        ReactDOM.createRoot(document.getElementById('root')).render(<HataSiniri><OkumaSayfasi /></HataSiniri>);
     </script>
 </body>
 </html>
