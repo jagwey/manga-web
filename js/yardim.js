@@ -236,51 +236,51 @@
         // Asıl yetki kontrolü sunucudadır; buradaki kontrol yalnızca gereksiz istek ve yanıltıcı düğme olmasın diyedir.
         { konu: 'yonetim', soru: 'Asistanla neler yapabilirim?', anahtar: ['komutlar', 'neler yapabilirsin', 'ne yapabilirim', 'yonetici komut', 'admin komut', 'yardim komut'],
           cevap: 'Yönetici olarak bana şunları yazabilirsin: "özet", "istatistik", "kullanıcı ara ahmet", "banla ahmet 7 gün spam", "ban kaldır ahmet", "oturumlarını kapat ahmet", "son yorumlar", "son kayıtlar", "ayarlar", "bakımı aç/kapat", "kayıtları aç/kapat", "yorumları aç/kapat", "sohbeti aç/kapat", "duyuruyu aç/kapat", "duyuru yaz <metin>". Değişiklik yapan her komut önce onay ister.',
-          baglanti: { ad: 'Yönetim paneli', url: 'admin.html' } },
+          baglanti: { ad: 'Yönetim paneli', url: '/admin.html' } },
         { konu: 'yonetim', soru: 'Site özeti', niyet: 'y_ozet', takip: 'Son 7 günde neler oldu?',
           anahtar: ['ozet', 'site ozeti', 'site durumu', 'kac manga', 'kac seri var', 'kac kullanici', 'kac uye', 'toplam seri', 'toplam bolum', 'genel durum'],
           cevap: 'Özet şu an alınamadı. Yönetim panelindeki "Özet" bölümüne bakabilirsin.',
-          baglanti: { ad: 'Özet', url: 'admin.html#ozet' } },
+          baglanti: { ad: 'Özet', url: '/admin.html#ozet' } },
         { konu: 'yonetim', soru: 'Son 7 günde neler oldu?', niyet: 'y_istatistik', takip: 'Son yorumlar',
           anahtar: ['istatistik', 'son 7 gun', 'son bir hafta', 'bu hafta', 'haftalik', 'yeni uye', 'kac kisi kayit', 'son gunler', 'aktivite'],
           cevap: 'İstatistik şu an alınamadı. Yönetim panelinin "Özet" bölümünde son 14 günün grafiği var.',
-          baglanti: { ad: 'Özet', url: 'admin.html#ozet' } },
+          baglanti: { ad: 'Özet', url: '/admin.html#ozet' } },
         { konu: 'yonetim', soru: 'Son yorumlar', niyet: 'y_yorumlar',
           anahtar: ['son yorumlar', 'yorumlari goster', 'yeni yorumlar', 'yorum listesi', 'yorumlara bak', 'yorum denetle'],
           cevap: 'Yorumları görmek için "yorum.sil" yetkisi gerekiyor ya da liste şu an alınamadı.',
-          baglanti: { ad: 'Yorumlar', url: 'admin.html#yorumlar' } },
+          baglanti: { ad: 'Yorumlar', url: '/admin.html#yorumlar' } },
         { konu: 'yonetim', soru: 'Son yönetim kayıtları', niyet: 'y_kayitlar',
           anahtar: ['son kayitlar', 'denetim kaydi', 'kim ne yapti', 'islem gecmisi', 'yonetim kaydi', 'log', 'loglar'],
           cevap: 'Kayıtları görmek için "kayit.gor" yetkisi gerekiyor ya da liste şu an alınamadı.',
-          baglanti: { ad: 'Kayıtlar', url: 'admin.html#kayitlar' } },
+          baglanti: { ad: 'Kayıtlar', url: '/admin.html#kayitlar' } },
         { konu: 'yonetim', soru: 'Site ayarları ne durumda?', niyet: 'y_ayarlar',
           anahtar: ['ayarlar', 'site ayarlari', 'ayarlar ne durumda', 'bakim modu acik mi', 'kayit acik mi', 'yorumlar acik mi', 'sohbet acik mi'],
           cevap: 'Ayarları görmek için "ayar.yonet" yetkisi gerekiyor ya da ayarlar şu an alınamadı.',
-          baglanti: { ad: 'Ayarlar', url: 'admin.html#ayarlar' } },
+          baglanti: { ad: 'Ayarlar', url: '/admin.html#ayarlar' } },
         { konu: 'yonetim', soru: 'Kullanıcı nasıl banlanır?', anahtar: ['banla', 'ban at', 'kullanici banla', 'engelle', 'yasakla', 'ban kaldir', 'uzaklastir'],
           cevap: 'Bana "banla KULLANICIADI 7 gün NEDEN" yaz (süre isteğe bağlı, yazmazsan süresiz). Onaylayınca ban uygulanır ve kişinin oturumları kapanır. Kaldırmak için "ban kaldır KULLANICIADI". Panelde: Kullanıcılar, kişiyi seç, "Banla". Bunun için "kullanici.engelle" yetkisi gerekir.',
-          baglanti: { ad: 'Kullanıcılar', url: 'admin.html#kullanicilar' } },
+          baglanti: { ad: 'Kullanıcılar', url: '/admin.html#kullanicilar' } },
         { konu: 'yonetim', soru: 'Yeni bölüm nasıl eklenir?', anahtar: ['bolum ekle', 'bolum yukle', 'yeni bolum', 'sayfa yukle', 'sayfa ekle', 'chapter ekle', 'resim yukle'],
           cevap: 'Seriler, seriyi seç, Bölümler, "Yeni bölüm". Bölüm numarasını (12 ya da 12.5) ve istersen adını yaz. Sayfaları "Dosyadan yükle" sekmesinde sürükleyip bırak (dosya adına göre sıralanır, Yukarı/Aşağı ile düzeltilir) ya da "URL ile ekle" sekmesine her satıra bir adres yaz. Aynı numaralı bölüm varsa sayfalar o bölümün sonuna eklenir.',
-          baglanti: { ad: 'Seriler', url: 'admin.html#seriler' } },
+          baglanti: { ad: 'Seriler', url: '/admin.html#seriler' } },
         { konu: 'yonetim', soru: 'Yeni seri nasıl eklenir?', anahtar: ['seri ekle', 'manga ekle', 'yeni seri', 'yeni manga', 'seri olustur', 'kapak yukle'],
           cevap: 'Seriler bölümünde "Yeni seri" düğmesine bas. Seri adı zorunlu; yazar, çizer, durum, açıklama ve kategoriler isteğe bağlı. "Yayında" kapalıysa seri taslak kalır, ziyaretçiler görmez. "Öne çıkan" işaretlersen ana sayfada öne çıkar.',
-          baglanti: { ad: 'Seriler', url: 'admin.html#seriler' } },
+          baglanti: { ad: 'Seriler', url: '/admin.html#seriler' } },
         { konu: 'yonetim', soru: 'Bakım modu ve site ayarları', anahtar: ['bakim modu', 'bakima al', 'siteyi kapat', 'kayitlari kapat', 'yorumlari kapat', 'sohbeti kapat', 'bakim mesaji'],
           cevap: 'Bana "bakımı aç", "kayıtları kapat", "yorumları kapat", "sohbeti kapat" gibi yazabilirsin; onaylayınca uygulanır. Panelde Ayarlar bölümünde: yeni kayıtlara izin ver, yorumlara izin ver, sohbete izin ver, bakım modu (ve bakım mesajı), duyuru (ve duyuru metni). "ayar.yonet" yetkisi gerekir.',
-          baglanti: { ad: 'Ayarlar', url: 'admin.html#ayarlar' } },
+          baglanti: { ad: 'Ayarlar', url: '/admin.html#ayarlar' } },
         { konu: 'yonetim', soru: 'Duyuru ve öne çıkanlar nerede?', anahtar: ['duyuru', 'duyuru ekle', 'kayan yazi', 'one cikan', 'slider', 'vitrin', 'ana sayfa kapak'],
           cevap: 'Duyurular: ana sayfadaki kayan duyuru şeridi. Öne çıkanlar: ana sayfanın üstündeki büyük kapak kaydırıcısı. İkisi de panelde ayrı bölümlerdir ve "duyuru.yonet" yetkisi ister. Bana "duyuru yaz <metin>" dersen ayarlardaki duyuru metnini değiştirip açarım.',
-          baglanti: { ad: 'Duyurular', url: 'admin.html#duyurular' } },
+          baglanti: { ad: 'Duyurular', url: '/admin.html#duyurular' } },
         { konu: 'yonetim', soru: 'Yorum ve şikayetler nasıl yönetilir?', anahtar: ['yorum sil', 'sikayet', 'sikayetler', 'raporlanan', 'kotu yorum', 'kufur'],
           cevap: 'Bana "son yorumlar" yaz; listede her yorumun altında "Sil" düğmesi çıkar, onaylayınca silinir. Panelde Yorumlar ve Şikayetler bölümleri var ("yorum.sil" yetkisi). Sohbet mesajları için Sohbet bölümü ("sohbet.yonet").',
-          baglanti: { ad: 'Yorumlar', url: 'admin.html#yorumlar' } },
+          baglanti: { ad: 'Yorumlar', url: '/admin.html#yorumlar' } },
         { konu: 'yonetim', soru: 'Yönetici ve yetki nasıl verilir?', anahtar: ['yonetici ekle', 'admin ekle', 'yetki ver', 'yetkiler', 'moderator', 'yetki kaldir'],
           cevap: 'Yalnızca site sahibi (Owner) yapabilir: panelde Yöneticiler bölümünde kişiyi seçip yetkilerini tek tek işaretlersin (seri, bölüm, kategori, yorum, sohbet, kullanıcı, duyuru, kayıt, ayar). Her yönetim işlemi Kayıtlar bölümünde tutulur.',
-          baglanti: { ad: 'Yöneticiler', url: 'admin.html#yoneticiler' } },
+          baglanti: { ad: 'Yöneticiler', url: '/admin.html#yoneticiler' } },
         { konu: 'yonetim', soru: 'Kullanıcı silme ve şifre sıfırlama', anahtar: ['kullanici sil', 'hesap sil', 'sifre sifirla', 'sifresini degistir', 'puanlarini sil', 'rol degistir'],
           cevap: 'Geri alınamayan bu işlemleri güvenlik için asistandan yapmıyorum. Panelde Kullanıcılar bölümünde kişiyi seç: şifre belirleme, puanları silme ve hesabı silme orada.',
-          baglanti: { ad: 'Kullanıcılar', url: 'admin.html#kullanicilar' } }
+          baglanti: { ad: 'Kullanıcılar', url: '/admin.html#kullanicilar' } }
     ];
 
     var KARSILAMA = 'Merhaba! Bir konu seç ya da sorunu kendi cümlelerinle yaz.';
@@ -1109,7 +1109,7 @@
         function araCevap(ad, liste) {
             if (!liste.length) { botYaz('"' + ad + '" ile eşleşen kullanıcı yok.'); return; }
             botYaz(liste.length + ' kullanıcı buldum:\n' + liste.slice(0, 5).map(kullaniciSatir).join('\n') + (liste.length > 5 ? '\n…ve ' + (liste.length - 5) + ' kullanıcı daha.' : ''),
-                { ad: 'Kullanıcılar', url: 'admin.html#kullanicilar' });
+                { ad: 'Kullanıcılar', url: '/admin.html#kullanicilar' });
             if (!can('kullanici.engelle')) return;
             oneriTemizle('Kullanıcı işlemleri');
             geriYonetim();
@@ -1129,7 +1129,7 @@
             mesgulYap(true);
             kullaniciBul(k.ad).then(function (s) {
                 mesgulYap(false);
-                if (!s) { botYaz('Kullanıcı listesi şu an alınamadı.', { ad: 'Kullanıcılar', url: 'admin.html#kullanicilar' }); return; }
+                if (!s) { botYaz('Kullanıcı listesi şu an alınamadı.', { ad: 'Kullanıcılar', url: '/admin.html#kullanicilar' }); return; }
                 if (k.tur === 'ara') { araCevap(k.ad, s.liste); return; }
                 var u = s.tam;
                 if (!u) {
@@ -1149,7 +1149,7 @@
                     onayIste(u.kullaniciAdi + (bitis ? ' ' + sureMetni(k.gun) + ' (' + tarihSaat(bitis) + ' tarihine kadar)' : ' süresiz') + ' banlanacak. Neden: ' + k.neden + '.', function () {
                         return istekGonder('POST', adres + '/ban', { neden: k.neden, bitis: bitis ? bitis.toISOString() : null }).then(function (r) {
                             return { metin: r.ok ? u.kullaniciAdi + ' banlandı.' + (r.veri && r.veri.banBitis ? ' Ban ' + tarihSaat(r.veri.banBitis) + ' tarihinde biter.' : ' Ban süresiz.') : 'Ban uygulanamadı: ' + r.mesaj,
-                                baglanti: { ad: 'Kullanıcılar', url: 'admin.html#kullanicilar' } };
+                                baglanti: { ad: 'Kullanıcılar', url: '/admin.html#kullanicilar' } };
                         });
                     });
                 } else if (k.tur === 'banKaldir') {
@@ -1173,7 +1173,7 @@
             mesgulYap(true);
             getir('/admin/ayarlar').then(function (a) {
                 mesgulYap(false);
-                if (!a) { botYaz('Ayarlar şu an alınamadı.', { ad: 'Ayarlar', url: 'admin.html#ayarlar' }); return; }
+                if (!a) { botYaz('Ayarlar şu an alınamadı.', { ad: 'Ayarlar', url: '/admin.html#ayarlar' }); return; }
                 var ad = AYAR_ADLARI[k.alan];
                 if (!!a[k.alan] === k.deger) { botYaz(ad + ' zaten ' + (k.deger ? 'açık.' : 'kapalı.')); return; }
                 if (k.alan === 'duyuruAcik' && k.deger && !String(a.duyuruMetni || '').trim()) {
@@ -1186,7 +1186,7 @@
                     var govde = {};
                     govde[k.alan] = k.deger;
                     return istekGonder('PUT', '/admin/ayarlar', govde).then(function (r) {
-                        return { metin: r.ok ? ad + ' ' + (k.deger ? 'açıldı.' : 'kapatıldı.') : 'Ayar kaydedilemedi: ' + r.mesaj, baglanti: { ad: 'Ayarlar', url: 'admin.html#ayarlar' } };
+                        return { metin: r.ok ? ad + ' ' + (k.deger ? 'açıldı.' : 'kapatıldı.') : 'Ayar kaydedilemedi: ' + r.mesaj, baglanti: { ad: 'Ayarlar', url: '/admin.html#ayarlar' } };
                     });
                 });
             });
@@ -1196,7 +1196,7 @@
             onayIste('#' + y.id + ' numaralı yorum silinecek: ' + y.kullaniciAdi + ', ' + y.mangaAdi + (y.bolumNo != null ? ' bölüm ' + y.bolumNo : '') +
                 ': "' + kisalt(y.metin, 80) + '". Bu geri alınamaz.', function () {
                 return istekGonder('DELETE', '/admin/yorumlar/' + encodeURIComponent(y.id) + '?tur=' + y.tur).then(function (r) {
-                    return { metin: r.ok ? 'Yorum silindi.' : 'Yorum silinemedi: ' + r.mesaj, baglanti: { ad: 'Yorumlar', url: 'admin.html#yorumlar' } };
+                    return { metin: r.ok ? 'Yorum silindi.' : 'Yorum silinemedi: ' + r.mesaj, baglanti: { ad: 'Yorumlar', url: '/admin.html#yorumlar' } };
                 });
             });
         }
@@ -1207,7 +1207,7 @@
             Promise.all([getir('/admin/yorumlar?tur=bolum&pageSize=100'), getir('/admin/yorumlar?tur=manga&pageSize=100')]).then(function (v) {
                 mesgulYap(false);
                 var bulunan = [].concat(v[0] || [], v[1] || []).filter(function (y) { return y.id === id; });
-                if (!bulunan.length) { botYaz('#' + id + ' numaralı yorumu son yorumlar arasında bulamadım. Eski yorumları panelden silebilirsin.', { ad: 'Yorumlar', url: 'admin.html#yorumlar' }); return; }
+                if (!bulunan.length) { botYaz('#' + id + ' numaralı yorumu son yorumlar arasında bulamadım. Eski yorumları panelden silebilirsin.', { ad: 'Yorumlar', url: '/admin.html#yorumlar' }); return; }
                 if (bulunan.length === 1) { yorumSor(bulunan[0]); return; }
                 botYaz('#' + id + ' numarasıyla hem bölüm hem seri yorumu var. Hangisi?');
                 oneriTemizle('Yorum seç');
@@ -1225,7 +1225,7 @@
             if (k.tur === 'duyuruYaz') {
                 onayIste('Duyuru metni "' + k.metin + '" olacak ve duyuru şeridi açılacak.', function () {
                     return istekGonder('PUT', '/admin/ayarlar', { duyuruMetni: k.metin, duyuruAcik: true }).then(function (r) {
-                        return { metin: r.ok ? 'Duyuru yayında.' : 'Duyuru kaydedilemedi: ' + r.mesaj, baglanti: { ad: 'Ayarlar', url: 'admin.html#ayarlar' } };
+                        return { metin: r.ok ? 'Duyuru yayında.' : 'Duyuru kaydedilemedi: ' + r.mesaj, baglanti: { ad: 'Ayarlar', url: '/admin.html#ayarlar' } };
                     });
                 });
                 return;
@@ -1243,7 +1243,7 @@
                     var son = (o.sonMangalar || []).slice(0, 3).map(function (m) { return m.mangaAdi; });
                     return { metin: 'Sitede ' + sayi(o.mangaSayisi) + ' seri, ' + sayi(o.bolumSayisi) + ' bölüm, ' + sayi(o.sayfaSayisi) + ' sayfa, ' +
                         sayi(o.kullaniciSayisi) + ' kullanıcı ve ' + sayi((o.yorumSayisi || 0) + (o.mangaYorumSayisi || 0)) + ' yorum var.' +
-                        (son.length ? ' Son eklenen seriler: ' + son.join(', ') + '.' : ''), baglanti: { ad: 'Özet', url: 'admin.html#ozet' } };
+                        (son.length ? ' Son eklenen seriler: ' + son.join(', ') + '.' : ''), baglanti: { ad: 'Özet', url: '/admin.html#ozet' } };
                 });
             } else if (niyet === 'y_istatistik') {
                 is = getir('/admin/istatistik?gun=7').then(function (s) {
@@ -1251,7 +1251,7 @@
                     var t = s.toplam, bugun = (s.gunler || [])[(s.gunler || []).length - 1];
                     return { metin: 'Son 7 günde ' + sayi(t.yeniKullanici) + ' yeni üye, ' + sayi(t.yeniYorum) + ' yorum ve ' + sayi(t.yeniBolum) + ' yeni bölüm.' +
                         (bugun ? ' Bugün: ' + sayi(bugun.yeniKullanici) + ' üye, ' + sayi(bugun.yeniYorum) + ' yorum, ' + sayi(bugun.yeniBolum) + ' bölüm.' : ''),
-                        baglanti: { ad: 'Özet', url: 'admin.html#ozet' } };
+                        baglanti: { ad: 'Özet', url: '/admin.html#ozet' } };
                 });
             } else if (niyet === 'y_yorumlar') {
                 if (!can('yorum.sil')) return Promise.resolve(null);
@@ -1263,7 +1263,7 @@
                         metin: 'Son yorumlar:\n' + liste.map(function (y) {
                             return '#' + y.id + ' ' + y.kullaniciAdi + ' → ' + y.mangaAdi + (y.bolumNo != null ? ' B' + y.bolumNo : '') + ': "' + kisalt(y.metin, 70) + '"';
                         }).join('\n') + '\nSilmek için aşağıdaki düğmeye bas ya da "yorum sil <numara>" yaz.',
-                        baglanti: { ad: 'Yorumlar', url: 'admin.html#yorumlar' },
+                        baglanti: { ad: 'Yorumlar', url: '/admin.html#yorumlar' },
                         sonra: function () {
                             oneriTemizle('Yorum işlemleri');
                             geriYonetim();
@@ -1279,7 +1279,7 @@
                     if (!v.length) return { metin: 'Henüz yönetim kaydı yok.' };
                     return { metin: 'Son yönetim işlemleri:\n' + v.map(function (d) {
                         return '• ' + tarihSaat(d.tarih) + ' – ' + d.yapanAdi + ': ' + d.eylem + (d.hedef ? ' (' + kisalt(d.hedef, 40) + ')' : '');
-                    }).join('\n'), baglanti: { ad: 'Kayıtlar', url: 'admin.html#kayitlar' } };
+                    }).join('\n'), baglanti: { ad: 'Kayıtlar', url: '/admin.html#kayitlar' } };
                 });
             } else if (niyet === 'y_ayarlar') {
                 if (!can('ayar.yonet')) return Promise.resolve(null);
@@ -1289,7 +1289,7 @@
                     return {
                         metin: alanlar.map(function (k) { return AYAR_ADLARI[k] + ': ' + (a[k] ? 'açık' : 'kapalı'); }).join('\n') +
                             (a.duyuruMetni ? '\nDuyuru metni: "' + kisalt(a.duyuruMetni, 120) + '"' : '') + '\nDeğiştirmek için aşağıdan seç ya da "bakımı aç" gibi yaz.',
-                        baglanti: { ad: 'Ayarlar', url: 'admin.html#ayarlar' },
+                        baglanti: { ad: 'Ayarlar', url: '/admin.html#ayarlar' },
                         sonra: function () {
                             oneriTemizle('Ayar işlemleri');
                             geriYonetim();
@@ -1514,7 +1514,7 @@
             if (kimlik === 'misafir') { botYaz(KARSILAMA + ' ' + GIRIS_NOTU, { ad: 'Giriş yap', url: 'login.html' }); return; }
             if (kimlik === 'yonetici') {
                 botYaz('Merhaba ' + yonetici.kullaniciAdi + '! Yönetici modundasın. "Site özeti", "son yorumlar", "kullanıcı ara ahmet", "banla ahmet 7 gün spam", "bakımı aç" ya da "duyuru yaz …" gibi komutlar verebilirsin; değiştiren her işlem önce onayını ister.',
-                    { ad: 'Yönetim paneli', url: 'admin.html' });
+                    { ad: 'Yönetim paneli', url: '/admin.html' });
                 sorulariGoster('yonetim', false);
                 return;
             }
