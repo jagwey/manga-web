@@ -2868,7 +2868,7 @@
                             <nav className="hp-hizli" aria-label="Hızlı bağlantılar">
                                 <a href={`#/kullanici/${encodeURIComponent(kullanici.kullaniciAdi)}`}><Ikon ad="kisi" boyut={18} />Profilimi gör</a>
                                 <a href="#/kutuphane"><Ikon ad="kitap" boyut={18} />Kütüphanem</a>
-                                {panelYetkisiVar(kullanici) && <a href="admin.html"><Ikon ad="panel" boyut={18} />Yönetim paneli</a>}
+                                {panelYetkisiVar(kullanici) && <a href="/admin.html"><Ikon ad="panel" boyut={18} />Yönetim paneli</a>}
                                 <button type="button" onClick={cikisYap}><Ikon ad="cikis" boyut={18} />Çıkış yap</button>
                             </nav>
                         </section>
@@ -4336,7 +4336,7 @@
                             {kullanici && <a href="#/kutuphane" role="menuitem" onClick={() => setAcik(false)}>Kütüphanem</a>}
                             <a href="#/iletisim" role="menuitem" onClick={() => setAcik(false)}>İletişim</a>
                             <button role="menuitem" onClick={gorunum}>Görünüm ve temalar</button>
-                            {panelYetkisiVar(kullanici) && <a href="admin.html" role="menuitem">Yönetim paneli</a>}
+                            {panelYetkisiVar(kullanici) && <a href="/admin.html" role="menuitem">Yönetim paneli</a>}
                             {kullanici
                                 ? <button role="menuitem" className="menu-ayrac" onClick={cikisYap}>Çıkış yap</button>
                                 : <a href="login.html" role="menuitem" className="menu-ayrac">Giriş yap</a>}

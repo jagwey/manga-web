@@ -1,6 +1,6 @@
 // Kage 95 - basit servis çalışanı: uygulama kabuğu önbelleği.
 // /api ve /hub istekleri asla önbelleğe alınmaz, doğrudan ağa gider.
-const SURUM = 'kage95-v54';
+const SURUM = 'kage95-v55';
 const KABUK = [
     '/', '/index.html', '/js/yol.js', '/read.html', '/login.html', '/admin.html',
     '/css/vurgu.css', '/css/forum.css', '/js/config.js', '/js/tema.js', '/js/pwa.js',
@@ -31,21 +31,16 @@ self.addEventListener('fetch', function (e) {
     if (url.pathname.startsWith('/api') || url.pathname.startsWith('/hub') || url.pathname.indexOf('/api/') !== -1 || url.pathname.indexOf('/hub/') !== -1) return;
     if (url.pathname.indexOf('/uploads/') !== -1 || url.pathname.indexOf('/avatars/') !== -1) return;
 
-    // Sayfa gezinme (HTML / doğrudan link / F5) istekleri
+    // Sayfa gezinme (HTML / doğrudan link / F5) istekleri: sunucunun yanıtı (404, 503, yönlendirme,
+    // Cloudflare doğrulaması dahil) olduğu gibi gösterilir. Önbellek yalnızca ağ yoksa kullanılır.
     if (istek.mode === 'navigate') {
         e.respondWith(
-            fetch(istek).then(function (yanit) {
-                if (yanit && (yanit.ok || yanit.status === 304)) return yanit;
-                return caches.match('/index.html').then(function (c) {
-                    return c || yanit;
-                });
-            }).catch(function () {
-                return caches.match('/index.html').then(function (c) {
-                    if (c) return c;
-                    return caches.match('/').then(function (k) {
-                        return k || new Response('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kage 95</title></head><body><script>location.reload();</script></body></html>', {
-                            headers: { 'Content-Type': 'text/html; charset=utf-8' }
-                        });
+            fetch(istek).catch(function () {
+                return caches.match(istek, { ignoreSearch: true }).then(function (c) {
+                    return c || caches.match('/index.html');
+                }).then(function (c) {
+                    return c || new Response('<!DOCTYPE html><html><head><meta charset="utf-8"><title>Kage 95</title></head><body><script>setTimeout(function(){location.reload();},3000);</script></body></html>', {
+                        headers: { 'Content-Type': 'text/html; charset=utf-8' }
                     });
                 });
             })
