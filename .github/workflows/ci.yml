@@ -4,10 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
-    branches: [main]
 
 permissions:
   contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   backend:
@@ -15,28 +18,33 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       - name: Restore
         run: dotnet restore backend/backend.csproj
 
-      - name: Build
-        run: dotnet build backend/backend.csproj --configuration Release --no-restore
+      - name: Build (warnings and security analyzers as errors)
+        run: dotnet build backend/backend.csproj --configuration Release --no-restore -warnaserror
+
+      - name: Check vulnerable NuGet packages
+        run: |
+          dotnet list backend/backend.csproj package --vulnerable --include-transitive | tee nuget-acik.txt
+          if grep -qi "has the following vulnerable packages" nuget-acik.txt; then exit 1; fi
 
   frontend:
     name: Build frontend
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
@@ -45,8 +53,47 @@ jobs:
       - name: Install frontend build dependencies
         run: npm ci --prefix deploy/araclar
 
+      - name: Audit frontend build dependencies
+        run: npm audit --prefix deploy/araclar --audit-level=high
+
       - name: Check frontend for undefined variables
         run: node deploy/araclar/denetle.mjs
 
       - name: Compile and minify frontend
         run: node deploy/araclar/derle.mjs
+
+  e2e-sahte:
+    name: E2E (mock API)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: tests/e2e/package-lock.json
+
+      - name: Install test dependencies
+        run: npm ci --prefix tests/e2e
+
+      - name: Audit test dependencies
+        run: npm audit --prefix tests/e2e --audit-level=high
+
+      - name: Install Chromium
+        working-directory: tests/e2e
+        run: npx playwright install --with-deps chromium
+
+      - name: Run mock API tests
+        working-directory: tests/e2e
+        run: npx playwright test --grep @sahte
+
+      - name: Upload report
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: tests/e2e/playwright-report
+          retention-days: 7

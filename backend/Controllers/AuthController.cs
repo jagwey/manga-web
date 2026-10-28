@@ -420,7 +420,9 @@ namespace Kage95.Backend.Controllers
             baseName = baseName[..Math.Min(35, baseName.Length)];
             var candidate = baseName;
             for (var i = 0; await _context.Kullanicilar.AnyAsync(x => x.KullaniciAdi == candidate); i++)
+#pragma warning disable CA5394 // Kullanıcı adı soneki; tahmin edilebilirliği güvenlik açığı değil
                 candidate = $"{baseName[..Math.Min(35, baseName.Length)]}{Random.Shared.Next(1000, 9999)}";
+#pragma warning restore CA5394
             return candidate;
         }
 

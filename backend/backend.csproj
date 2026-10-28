@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <!-- Eski backend.exe (kilitli) bin/Debug içinde çalışıyorsa dotnet run yine de derlenebilsin diye ayrı çıktı klasörü -->
     <BaseOutputPath>bin_run/</BaseOutputPath>
+    <AnalysisModeSecurity>All</AnalysisModeSecurity>
   </PropertyGroup>
 
   <ItemGroup>

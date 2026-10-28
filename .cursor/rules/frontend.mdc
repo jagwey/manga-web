@@ -1,0 +1,12 @@
+---
+description: Kage95 frontend (HTML içi React) kuralları
+globs: "*.html,js/**/*.js,css/**/*.css,sw.js"
+alwaysApply: false
+---
+
+- Bundler yok: React UMD + Babel standalone, `derle.mjs` yayın için derler. Import/modül sistemi ekleme.
+- API adresi `js/config.js` içindeki `window.KAGE95_API_URL`; sabit adres yazma.
+- Rotalar `js/yol.js` ile `/manga/<slug>` biçiminde; okuyucu `read.html?chapter=<id>`.
+- Var olan CSS değişkenlerini (`--bosluk-*`, `--yazi-*`, `--text-*`) ve bileşenleri yeniden kullan.
+- Kullanıcı verisini `dangerouslySetInnerHTML` ile basma.
+- Kontrol: `node deploy/araclar/denetle.mjs` (no-undef), gerekirse `npm test --prefix tests/e2e`.

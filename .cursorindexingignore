@@ -1,0 +1,9 @@
+# İndekslenmez ama gerektiğinde açıkça okunabilir
+**/package-lock.json
+*.png
+*.ico
+*.svg
+*.webp
+*.jpg
+sitemap.xml
+CHANGELOG.md

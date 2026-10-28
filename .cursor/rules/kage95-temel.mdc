@@ -1,0 +1,25 @@
+---
+description: Kage95 temel çalışma kuralları
+alwaysApply: true
+---
+
+# Kage95
+
+- Stack: ASP.NET Core .NET 10 + EF Core **SQL Server** + SignalR (`backend/`); React 18, HTML içinde `<script type="text/babel">` (`index.html`, `read.html`, `login.html`, `admin.html`) + `js/*.js`. Derleme: `deploy/araclar/derle.mjs` → `dist/`.
+- Veritabanı SQL Server'dır; MySQL'e dönüştürme, sağlayıcı değiştirme yok.
+- `backend/Program.cs` açılışta şema değiştiren SQL çalıştırır. Uygulamayı veya testleri yalnızca yerel/test veritabanıyla başlat; canlı bağlantı cümlesi kullanma.
+- Gizli bilgiler `backend/appsettings.Local.json` veya ortam değişkenlerinde durur. Değerlerini okuma, yazdırma, commit'leme.
+
+## Token disiplini
+
+- Önce `rg` ile hedefli ara, yalnızca ilgili satır aralığını oku. Büyük HTML dosyalarını baştan sona okuma.
+- `dist/`, `bin*/`, `obj/`, `node_modules/`, test raporları, görseller ve lock dosyaları bağlama alınmaz.
+- Uzun log/test çıktısını özetle: yalnızca ilk hata satırı ve sayılar.
+- Aynı dosyayı veya incelemeyi tekrar etme; önceki bulguyu kullan.
+- En küçük değişikliği yap; toplu biçimlendirme, framework değişikliği, gerekçesiz bağımlılık yok.
+
+## Atlanmaz
+
+- Değişiklikten sonra ilgili kontrolü çalıştır: `node deploy/araclar/denetle.mjs`, `dotnet build backend/backend.csproj`, ilgili Playwright testi.
+- Çalıştırılmayan kontrolü geçti diye raporlama.
+- `main`'e push, merge, canlıya yayın (`yayinla.ps1`) ve veritabanı değişikliği için kullanıcı onayı al.
