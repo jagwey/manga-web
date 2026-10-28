@@ -45,5 +45,8 @@ jobs:
       - name: Install frontend build dependencies
         run: npm ci --prefix deploy/araclar
 
+      - name: Check frontend for undefined variables
+        run: node deploy/araclar/denetle.mjs
+
       - name: Compile and minify frontend
         run: node deploy/araclar/derle.mjs

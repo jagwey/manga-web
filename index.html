@@ -1300,6 +1300,7 @@
     <div id="root"></div>
 
     <script src="js/config.js?v=20261025c"></script>
+    <script src="js/hata-siniri.js"></script>
     <script src="js/liderlik.js"></script>
     <script src="js/puan.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
@@ -1308,6 +1309,7 @@
     <script src="js/forum.js?v=20261025b"></script>
     <script src="js/sohbet.js?v=20261027a"></script>
     <script type="text/babel">
+        const HataSiniri = window.K95HataSiniri || React.Fragment;
         const VARSAYILAN_RENK = '#8e0e15';
         const API_URL = (window.KAGE95_API_URL || '').replace(/\/$/, '');
         const SAYFA_BOYUTU = 12;
@@ -3940,6 +3942,8 @@
                             <ul className="bolum-listesi">
                                 {filtreliBolumler.map(b => {
                                     const okundu = okunan.has(String(b.id));
+                                    let kayitliSayfa = 0;
+                                    try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
                                             <a className={`bolum-satir ${okundu ? 'okundu' : ''}`}
@@ -4710,7 +4714,7 @@
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
+        root.render(<HataSiniri><App /></HataSiniri>);
     </script>
     <script src="js/yardim.js?v=20261025e" defer></script>
 </body>

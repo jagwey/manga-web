@@ -282,7 +282,9 @@
     <div id="root"></div>
 
     <script src="js/config.js?v=20261025c"></script>
+    <script src="js/hata-siniri.js"></script>
     <script type="text/babel">
+        const HataSiniri = window.K95HataSiniri || React.Fragment;
         const SifreEkrani = ({ mod, token, geri }) => {
             const [email, setEmail] = React.useState('');
             const [yeniSifre, setYeniSifre] = React.useState('');
@@ -717,7 +719,7 @@
         };
 
         const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<AuthSayfasi />);
+        root.render(<HataSiniri><AuthSayfasi /></HataSiniri>);
     </script>
     <script src="js/yardim.js?v=20261025e" defer></script>
 </body>
