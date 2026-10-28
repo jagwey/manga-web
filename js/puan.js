@@ -69,6 +69,7 @@
         var onizle = 0;
         var yukleniyor = true;
         var yuklemeHata = false;
+        var yukleNesil = 0;
         var mesajNode = null;
 
         kapsayici.textContent = '';
@@ -115,15 +116,16 @@
         }
 
         function yukle() {
+            var nesil = ++yukleNesil;
             yukleniyor = true; yuklemeHata = false; ciz();
             istek('GET').then(function (r) {
                 if (!r.ok) throw new Error('HTTP');
                 return ozetAl(r);
             }).then(function (v) {
-                if (yok) return;
-                durum = v; yukleniyor = false; ciz();
+                if (yok || nesil !== yukleNesil) return;
+                durum = v; yukleniyor = false; yuklemeHata = false; ciz();
             }).catch(function () {
-                if (yok) return;
+                if (yok || nesil !== yukleNesil) return;
                 yukleniyor = false; yuklemeHata = true; ciz();
             });
         }

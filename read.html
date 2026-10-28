@@ -917,6 +917,8 @@
             const [yenile, setYenile] = React.useState(0);
 
             const [sayfaIndex, setSayfaIndex] = React.useState(0);
+            const [hataliSayfalar, setHataliSayfalar] = React.useState(() => new Set());
+            const [gorselDeneme, setGorselDeneme] = React.useState(0);
             const [okumaModu, setOkumaModu] = React.useState(() =>
                 lsGet('kage95_okumaModu') ||
                 (window.matchMedia && window.matchMedia('(max-width: 640px)').matches ? 'webtoon' : 'klasik'));
@@ -964,6 +966,8 @@
                 calistir();
                 return () => { iptal = true; };
             }, [bolumId, yenile]);
+
+            React.useEffect(() => { setHataliSayfalar(new Set()); }, [bolumId]);
 
             // Bölüm listesi (seçici) — hata olursa sessizce geç
             React.useEffect(() => {
@@ -1298,10 +1302,25 @@
             const onceki = veri ? veri.oncekiBolumId : null;
             const sonraki = veri ? veri.sonrakiBolumId : null;
             const gorselHata = (e, i) => {
+                if (yerTutucuMu || !e.currentTarget) return;
                 if (e.currentTarget.dataset.hata) return;
                 e.currentTarget.dataset.hata = '1';
-                e.currentTarget.src = yerTutucu(i + 1, sayfalar.length);
+                e.currentTarget.alt = `Sayfa ${i + 1} yüklenemedi`;
+                e.currentTarget.src = yerTutucu(i + 1, sayfalar.length || 1);
+                setHataliSayfalar(onceki => {
+                    if (onceki.has(i)) return onceki;
+                    const sonraki = new Set(onceki);
+                    sonraki.add(i);
+                    return sonraki;
+                });
             };
+            const gorselleriYenidenDene = () => {
+                setHataliSayfalar(new Set());
+                setGorselDeneme(n => n + 1);
+            };
+            const hataliAdet = hataliSayfalar.size;
+            const hepsiHatali = durum === 'hazir' && sayfalar.length > 0 && hataliAdet >= sayfalar.length;
+            const kismiHatali = durum === 'hazir' && hataliAdet > 0 && !hepsiHatali;
             const baslik = veri ? veri.mangaAdi : (yerTutucuMu ? 'Örnek Seri (yer tutucu)' : 'Okuma Ekranı');
             const altBaslik = veri
                 ? `Bölüm ${veri.bolumNo}${temizAd(veri.bolumAdi, veri.bolumNo) ? ' - ' + temizAd(veri.bolumAdi, veri.bolumNo) : ''} · Sayfa ${sayfalar.length ? sayfaIndex + 1 : 0} / ${sayfalar.length}`
@@ -1579,6 +1598,24 @@
                                     </div>
                                 )}
 
+                                {kismiHatali && (
+                                    <div className="uyari-serit" role="status">
+                                        <Ikon ad="uyari" />
+                                        <span className="uyari-metin">Bazı sayfalar yüklenemedi ({hataliAdet}/{sayfalar.length}). Yer tutucular gerçek sayfa değil.</span>
+                                        <button type="button" className="btn-aksiyon" onClick={gorselleriYenidenDene}>Yeniden dene</button>
+                                    </div>
+                                )}
+                                {hepsiHatali && (
+                                    <div className="durum-kutusu" role="alert">
+                                        <div className="durum-ikon"><Ikon ad="uyari" /></div>
+                                        <h2>Sayfalar yüklenemedi ({hataliAdet}/{sayfalar.length})</h2>
+                                        <p>Bu bölümün görsellerine ulaşılamadı. Aşağıdakiler numaralı yer tutucu; gerçek sayfa değil.</p>
+                                        <div className="durum-aksiyonlar">
+                                            <button type="button" className="nav-btn" onClick={gorselleriYenidenDene}>Yeniden dene</button>
+                                        </div>
+                                    </div>
+                                )}
+
                                 {(okumaModu === 'klasik' || okumaModu === 'cift') ? (
                                     <div className="klasik-kapsayici">
                                         <div className="sayfa-gorsel-kapsayici" aria-label="Manga Sayfası">
@@ -1587,7 +1624,7 @@
                                             {okumaModu === 'cift' && sayfalar[sayfaIndex + 1] ? (
                                                 <div className="cift-sayfa-satir">
                                                     <img
-                                                        key={sayfaIndex}
+                                                        key={sayfaIndex + '-' + gorselDeneme}
                                                         src={sayfalar[sayfaIndex]}
                                                         alt={`Sayfa ${sayfaIndex + 1}`}
                                                         className="manga-sayfasi"
@@ -1596,7 +1633,7 @@
                                                     />
                                                     <img
                                                         loading="lazy"
-                                                        key={sayfaIndex + 1}
+                                                        key={(sayfaIndex + 1) + '-' + gorselDeneme}
                                                         src={sayfalar[sayfaIndex + 1]}
                                                         alt={`Sayfa ${sayfaIndex + 2}`}
                                                         className="manga-sayfasi"
@@ -1606,7 +1643,7 @@
                                                 </div>
                                             ) : (
                                                 <img
-                                                    key={sayfaIndex}
+                                                    key={sayfaIndex + '-' + gorselDeneme}
                                                     src={sayfalar[sayfaIndex]}
                                                     alt={`Sayfa ${sayfaIndex + 1}`}
                                                     className="manga-sayfasi"
@@ -1637,7 +1674,7 @@
                                         <div className="webtoon-kapsayici" ref={webtoonRef} onClick={dokunCubuk}>
                                             {sayfalar.map((sayfa, index) => (
                                                 <img
-                                                    key={veri ? veri.bolumId + '-' + index : index}
+                                                    key={(veri ? veri.bolumId + '-' : '') + index + '-' + gorselDeneme}
                                                     src={sayfa}
                                                     alt={`Sayfa ${index + 1}`}
                                                     className="webtoon-sayfasi"
