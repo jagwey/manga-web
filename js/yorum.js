@@ -339,20 +339,23 @@
 
         function islem(yontem, yol, govde) { return istek(api + yol, yontem, tokenAl(), govde); }
 
+        var nesilRef = useRef(0);
         useEffect(function () {
             if (p.id == null) { setListe([]); setDurum('bos'); return; }
-            var iptal = false;
+            var nesil = ++nesilRef.current;
             if (!sessiz) setDurum('yukleniyor');
             islem('GET', listeYolu + '?sirala=' + sirala + '&page=' + sayfa + '&pageSize=' + SAYFA).then(function (r) {
-                if (iptal) return;
+                if (nesil !== nesilRef.current) return;
                 if (!r.ok) { setDurum('hata'); setSessiz(false); return; }
                 var v = r.veri;
                 var l = Array.isArray(v) ? v : ((v && (v.items || v.yorumlar)) || []);
                 setListe(l);
                 setToplam(r.toplam != null ? r.toplam : (sayfa === 1 && l.length < SAYFA ? l.length : null));
                 setDurum('hazir'); setSessiz(false);
-            }).catch(function () { if (!iptal) { setDurum('hata'); setSessiz(false); } });
-            return function () { iptal = true; };
+            }).catch(function () {
+                if (nesil !== nesilRef.current) return;
+                setDurum('hata'); setSessiz(false);
+            });
         }, [p.id, tur, sirala, sayfa, dene]);
 
         // Başka bölüme/seriye geçilince başa dön.

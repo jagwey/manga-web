@@ -1440,7 +1440,8 @@
                 try { return { sayfa: 'kullanici', ad: decodeURIComponent(ku[1]) }; }
                 catch (e) { return { sayfa: 'kullanici', ad: ku[1] }; }
             }
-            if (/^#\/kutuphane/.test(h)) return { sayfa: 'kutuphane' };
+            if (/^#\/(kutuphane|favoriler|favorites)(\/|$|\?)/.test(h))
+                return { sayfa: 'kutuphane', alias: !/^#\/kutuphane(\/|$|\?)/.test(h) };
             if (/^#\/(profil|hesabim)/.test(h)) return { sayfa: 'profil' };
             if (/^#\/liderlik/.test(h)) return { sayfa: 'liderlik' };
             if (/^#\/topluluk/.test(h)) return { sayfa: 'forum', yol: '#/forum' };
@@ -1570,6 +1571,8 @@
         // Kartlarda ortak okuma şeridi: Eğer okunuyorsa "Kaldığın Yerden", okunmuyorsa "İlk Bölüme Git"
         const hizliBolumBul = (m) => {
             if (!m) return null;
+            const bolumYok = m.bolumSayisi === 0 || (Array.isArray(m.bolumler) && m.bolumler.length === 0 && !(m.bolumSayisi > 0));
+            if (bolumYok && !m.ilkBolumId && !m.sonBolumId) return null;
             try {
                 const tumO = JSON.parse(localStorage.getItem(OKUNAN_ANAHTAR) || '{}');
                 const okunanlar = (tumO[m.id] || []).map(String);
@@ -3419,12 +3422,37 @@
             const [hata, setHata] = React.useState(null);
             const istekNo = React.useRef(0);
             const [sirala, setSirala] = React.useState('puan');
-            const [devam] = React.useState(() => {
+            const [devam, setDevam] = React.useState(null);
+            React.useEffect(() => {
+                let iptal = false;
+                let kayit = null;
                 try {
                     const v = JSON.parse(localStorage.getItem('kage95_son_okunan') || 'null');
-                    return v && v.bolumId && v.mangaAdi ? v : null;
-                } catch (e) { return null; }
-            });
+                    if (v && v.bolumId && v.mangaAdi && v.mangaId != null) kayit = v;
+                } catch (e) {}
+                if (!kayit) return undefined;
+                const temizle = () => {
+                    try { localStorage.removeItem('kage95_son_okunan'); } catch (e) {}
+                    if (!iptal) setDevam(null);
+                };
+                fetch(`${API_URL}/mangas/${encodeURIComponent(kayit.mangaId)}`)
+                    .then(r => {
+                        if (r.status === 404) return { durum: 'yok' };
+                        if (!r.ok) throw new Error('http');
+                        return r.json().then(m => ({ durum: 'ok', m }));
+                    })
+                    .then(sonuc => {
+                        if (iptal || !sonuc) return;
+                        if (sonuc.durum === 'yok') { temizle(); return; }
+                        const bolumler = sonuc.m && Array.isArray(sonuc.m.bolumler) ? sonuc.m.bolumler : null;
+                        if (!bolumler) { setDevam(kayit); return; }
+                        const varMi = bolumler.some(b => b && String(b.id) === String(kayit.bolumId));
+                        if (!varMi) { temizle(); return; }
+                        setDevam(kayit);
+                    })
+                    .catch(() => { if (!iptal) setDevam(kayit); });
+                return () => { iptal = true; };
+            }, []);
 
             React.useEffect(() => {
                 fetch(`${API_URL}/categories`)
@@ -3561,7 +3589,7 @@
                                     <option value="puan">En yüksek puan</option>
                                     <option value="ad">A-Z</option>
                                 </select>
-                                <span className="sonuc-sayisi" aria-live="polite">{toplam} seri</span>
+                                {!ilkYukleme && !(hata && mangalar.length === 0) && <span className="sonuc-sayisi" aria-live="polite">{toplam} seri</span>}
                             </div>
                         </div>
 
@@ -3608,6 +3636,22 @@
         };
 
         /* ------------------------- MANGA DETAY ------------------------- */
+        // Aynı id için üst üste binen istekler (hash değişince effect iptali) sonucu düşürmesin.
+        const mangaIstekleri = new Map();
+        const mangaDetayIste = (id) => {
+            const k = String(id);
+            const varOlan = mangaIstekleri.get(k);
+            if (varOlan) return varOlan;
+            const istek = fetch(`${API_URL}/mangas/${encodeURIComponent(k)}`)
+                .then(r => {
+                    if (r.status === 404) throw new Error('404');
+                    if (!r.ok) throw new Error('HTTP');
+                    return r.json();
+                })
+                .finally(() => { mangaIstekleri.delete(k); });
+            mangaIstekleri.set(k, istek);
+            return istek;
+        };
         const MangaDetay = ({ id }) => {
             const [manga, setManga] = React.useState(null);
             const [yukleniyor, setYukleniyor] = React.useState(true);
@@ -3643,44 +3687,49 @@
             };
 
             React.useEffect(() => {
-                let iptal = false;
+                let gecerli = true;
                 setYukleniyor(true); setHata(null); setManga(null);
-                fetch(`${API_URL}/mangas/${encodeURIComponent(id)}`)
-                    .then(r => {
-                        if (r.status === 404) throw new Error('404');
-                        if (!r.ok) throw new Error('HTTP');
-                        return r.json();
-                    })
+                mangaDetayIste(id)
                     .then(v => {
-                        if (!iptal && v) {
-                            setManga(v);
-                            setOkunan(okunanlariAl(v.id));
-                            setOkumaDurumu(kutuphaneDurumuAl(v.id));
+                        if (!gecerli) return;
+                        if (!v) { setHata('Manga yüklenemedi. Sunucu çalışmıyor olabilir.'); return; }
+                        setManga(v);
+                        setOkunan(okunanlariAl(v.id));
+                        setOkumaDurumu(kutuphaneDurumuAl(v.id));
+                        if (Array.isArray(v.bolumler)) {
+                            try {
+                                const kayit = JSON.parse(localStorage.getItem('kage95_son_okunan') || 'null');
+                                const ayniSeri = kayit && (String(kayit.mangaId) === String(v.id) || String(kayit.mangaId) === String(id));
+                                const bolumVar = kayit && v.bolumler.some(b => b && String(b.id) === String(kayit.bolumId));
+                                if (ayniSeri && !bolumVar) localStorage.removeItem('kage95_son_okunan');
+                            } catch (e) {}
+                        }
 
-                            // Adres çubuğu optimizasyonu: slug varsa /manga/chainsaw-man olarak göster
-                            const hedefSlug = v.slug || slugOlustur(v.mangaAdi);
-                            if (hedefSlug) {
-                                const beklenenYol = '/manga/' + hedefSlug;
-                                if (window.location.pathname !== beklenenYol) {
-                                    try {
-                                        history.replaceState(history.state, '', beklenenYol + (window.location.search || ''));
-                                    } catch (e) {}
-                                }
-                            }
-
-                            const token = tokenAl();
-                            if (token) {
-                                fetch(`${API_URL}/user/library/check/${v.id}`, { headers: { Authorization: `Bearer ${token}` } })
-                                    .then(r => r.ok ? r.json() : null)
-                                    .then(res => { if (!iptal && res) setKayitli(!!res.isSaved); })
-                                    .catch(() => {});
+                        // Adres çubuğu: slug yolu. Bu replaceState hashchange üretirse detay yeniden iskelete düşmesin.
+                        const hedefSlug = v.slug || slugOlustur(v.mangaAdi);
+                        if (hedefSlug) {
+                            const beklenenYol = '/manga/' + hedefSlug;
+                            if (window.location.pathname !== beklenenYol) {
+                                try {
+                                    window.__k95YolSessiz = beklenenYol;
+                                    history.replaceState(history.state, '', beklenenYol + (window.location.search || ''));
+                                    setTimeout(() => { if (window.__k95YolSessiz === beklenenYol) window.__k95YolSessiz = ''; }, 0);
+                                } catch (e) { window.__k95YolSessiz = ''; }
                             }
                         }
-                    })
-                    .catch(e => { if (!iptal) setHata(e.message === '404' ? 'Bu manga bulunamadı.' : 'Manga yüklenemedi. Sunucu çalışmıyor olabilir.'); })
-                    .finally(() => { if (!iptal) setYukleniyor(false); });
 
-                return () => { iptal = true; };
+                        const token = tokenAl();
+                        if (token) {
+                            fetch(`${API_URL}/user/library/check/${v.id}`, { headers: { Authorization: `Bearer ${token}` } })
+                                .then(r => r.ok ? r.json() : null)
+                                .then(res => { if (gecerli && res) setKayitli(!!res.isSaved); })
+                                .catch(() => {});
+                        }
+                    })
+                    .catch(e => { if (gecerli) setHata(e && e.message === '404' ? 'Bu manga bulunamadı.' : 'Manga yüklenemedi. Sunucu çalışmıyor olabilir.'); })
+                    .finally(() => { if (gecerli) setYukleniyor(false); });
+
+                return () => { gecerli = false; };
             }, [id, dene]);
 
             const kutuphaneDegistir = () => {
@@ -3773,7 +3822,9 @@
                                 ) : (
                                     <span className="detay-rozet kizil">● Devam Ediyor</span>
                                 )}
-                                <span className="detay-rozet notr">📚 {bolumler.length > 0 ? `${bolumler.length} Bölüm` : 'Yakında'}</span>
+                                {bolumler.length > 0
+                                    ? <span className="detay-rozet notr">📚 {bolumler.length} Bölüm</span>
+                                    : manga.durum !== 'Tamamlandi' && <span className="detay-rozet notr">📚 Yakında</span>}
                                 {manga.puan > 0 && <span className="detay-rozet altin">★ {manga.puan.toFixed(1)}</span>}
                             </div>
 
@@ -4410,10 +4461,25 @@
             const [bgGorsel, setBgGorsel] = React.useState(localStorage.getItem('kage95_v2_bgGorsel') || null);
             const [bgMod, setBgMod] = React.useState(localStorage.getItem('kage95_v2_bgMod') || 'kapla');
 
-            React.useEffect(() => {
-                const dinle = () => { setRota(rotaOku()); window.scrollTo(0, 0); };
+            React.useLayoutEffect(() => {
+                const uygula = (kaydir) => {
+                    if (window.__k95YolSessiz) return;
+                    let r = rotaOku();
+                    if (r.alias) {
+                        try { history.replaceState(history.state, '', '/kutuphane' + (location.search || '')); } catch (e) {}
+                        r = { sayfa: 'kutuphane' };
+                    }
+                    setRota(onceki => (onceki.sayfa === r.sayfa && onceki.id === r.id && onceki.ad === r.ad && onceki.yol === r.yol && onceki.slug === r.slug) ? onceki : r);
+                    if (kaydir) window.scrollTo(0, 0);
+                };
+                uygula(false);
+                const dinle = () => uygula(true);
                 window.addEventListener('hashchange', dinle);
-                return () => window.removeEventListener('hashchange', dinle);
+                window.addEventListener('popstate', dinle);
+                return () => {
+                    window.removeEventListener('hashchange', dinle);
+                    window.removeEventListener('popstate', dinle);
+                };
             }, []);
 
             React.useEffect(() => {

@@ -194,9 +194,10 @@
         var e = useState(''), ara = e[0], setAra = e[1];
         var f = useState(''), araUygula = f[0], setAraUygula = f[1];
 
+        var nesilRef = useRef(0);
         useEffect(function () { setSayfa(1); }, [p.kategori, p.seri, sirala, araUygula]);
         useEffect(function () {
-            var iptal = false;
+            var nesil = ++nesilRef.current;
             setDurum('yukleniyor');
             var q = '?sirala=' + sirala + '&page=' + sayfa;
             if (p.kategori) q += '&kategori=' + encodeURIComponent(p.kategori);
@@ -204,12 +205,14 @@
             if (araUygula) q += '&ara=' + encodeURIComponent(araUygula);
             istek(p.api + '/forum/konular' + q, 'GET', p.tokenAl())
                 .then(function (c) {
-                    if (iptal) return;
+                    if (nesil !== nesilRef.current) return;
                     if (!c.ok) { setDurum('hata'); return; }
                     setVeri(c.veri); setDurum('hazir');
                 })
-                .catch(function () { if (!iptal) setDurum('hata'); });
-            return function () { iptal = true; };
+                .catch(function () {
+                    if (nesil !== nesilRef.current) return;
+                    setDurum('hata');
+                });
         }, [p.kategori, p.seri, sirala, sayfa, araUygula]);
 
         var kat = p.kategori ? p.katHarita[p.kategori] : null;
@@ -277,18 +280,22 @@
         var i = useState(0), yenile = i[0], setYenile = i[1];
         var girisli = !!p.kullanici;
 
+        var nesilRef = useRef(0);
         useEffect(function () {
-            var iptal = false;
+            var nesil = ++nesilRef.current;
+            setDurum(function (d) { return d === 'hazir' ? d : 'yukleniyor'; });
             istek(p.api + '/forum/konular/' + p.id + '?page=' + sayfa, 'GET', p.tokenAl())
                 .then(function (c) {
-                    if (iptal) return;
+                    if (nesil !== nesilRef.current) return;
                     if (c.durum === 404) { setDurum('yok'); return; }
                     if (!c.ok) { setDurum('hata'); return; }
                     setVeri(c.veri); setDurum('hazir');
                     if (c.veri && c.veri.konu) document.title = htmlCoz(c.veri.konu.baslik) + ' - Forum - Kage 95';
                 })
-                .catch(function () { if (!iptal) setDurum('hata'); });
-            return function () { iptal = true; };
+                .catch(function () {
+                    if (nesil !== nesilRef.current) return;
+                    setDurum('hata');
+                });
         }, [p.id, sayfa, yenile]);
 
         if (durum === 'yukleniyor') return h('div', { className: 'fr-bos' }, 'Yükleniyor…');
@@ -527,25 +534,37 @@
 
     function SeriKutusu(p) {
         var a = useState(null), veri = a[0], setVeri = a[1];
+        var b = useState('yukleniyor'), durum = b[0], setDurum = b[1];
         useEffect(function () {
             var iptal = false;
+            setDurum('yukleniyor');
             istek(p.api + '/forum/konular?mangaId=' + p.mangaId + '&sirala=son', 'GET')
-                .then(function (c) { if (!iptal && c.ok) setVeri(c.veri); }).catch(function () {});
+                .then(function (c) {
+                    if (iptal) return;
+                    if (c.ok) setVeri(c.veri || { konular: [], toplam: 0 });
+                    setDurum(c.ok ? 'hazir' : 'hata');
+                })
+                .catch(function () { if (!iptal) setDurum('hata'); });
             return function () { iptal = true; };
         }, [p.mangaId]);
         var konular = veri ? (veri.konular || []).slice(0, 3) : [];
+        var govde = durum === 'yukleniyor'
+            ? h('p', null, 'Yükleniyor…')
+            : durum === 'hata'
+                ? h('p', null, 'Forum konuları yüklenemedi.')
+                : konular.length
+                    ? h('ul', null, konular.map(function (k) {
+                        return h('li', { key: k.id },
+                            h('a', { href: '#/forum/konu/' + k.id }, htmlCoz(k.baslik)),
+                            h('span', null, (k.bolumNo != null ? 'Bl. ' + bolumYaz(k.bolumNo) + ' · ' : '') + k.yanitSayisi + ' yanıt · ' + once(k.sonYanitTarihi)));
+                    }))
+                    : h('p', null, 'Bu seri hakkında henüz konu yok.');
         return h('section', { className: 'fr-seri-kutu' },
             h('div', { className: 'fr-seri-kutu-ust' },
                 h('h2', null, h('span', { 'aria-hidden': 'true' }, '影'), 'Forumda konuş'),
                 h('a', { href: '#/forum/yeni?seri=' + p.mangaId }, 'Konu aç')),
-            konular.length
-                ? h('ul', null, konular.map(function (k) {
-                    return h('li', { key: k.id },
-                        h('a', { href: '#/forum/konu/' + k.id }, htmlCoz(k.baslik)),
-                        h('span', null, (k.bolumNo != null ? 'Bl. ' + bolumYaz(k.bolumNo) + ' · ' : '') + k.yanitSayisi + ' yanıt · ' + once(k.sonYanitTarihi)));
-                }))
-                : h('p', null, veri ? 'Bu seri hakkında henüz konu yok.' : 'Yükleniyor…'),
-            veri && veri.toplam > 3 ? h('a', { className: 'fr-seri-tumu', href: '#/forum/seri/' + p.mangaId }, 'Tüm ' + veri.toplam + ' konuyu gör') : null);
+            govde,
+            durum === 'hazir' && veri && veri.toplam > 3 ? h('a', { className: 'fr-seri-tumu', href: '#/forum/seri/' + p.mangaId }, 'Tüm ' + veri.toplam + ' konuyu gör') : null);
     }
 
     window.Kage95Forum = { Sayfa: Sayfa, SeriKutusu: SeriKutusu };

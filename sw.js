@@ -1,6 +1,6 @@
 // Kage 95 - basit servis çalışanı: uygulama kabuğu önbelleği.
 // /api ve /hub istekleri asla önbelleğe alınmaz, doğrudan ağa gider.
-const SURUM = 'kage95-v55';
+const SURUM = 'kage95-v56';
 const KABUK = [
     '/', '/index.html', '/js/yol.js', '/read.html', '/login.html', '/admin.html',
     '/css/vurgu.css', '/css/forum.css', '/js/config.js', '/js/tema.js', '/js/pwa.js',
@@ -13,6 +13,10 @@ self.addEventListener('install', function (e) {
             .then(function (c) { return Promise.all(KABUK.map(function (u) { return c.add(u).catch(function () {}); })); })
             .then(function () { return self.skipWaiting(); })
     );
+});
+
+self.addEventListener('message', function (e) {
+    if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();
 });
 
 self.addEventListener('activate', function (e) {

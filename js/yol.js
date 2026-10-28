@@ -21,13 +21,20 @@
         }
     }
 
+    function bildir() {
+        try { window.dispatchEvent(new Event('hashchange')); } catch (e) {}
+    }
+
     function git(yol) {
         if (!yol || yol.charAt(0) !== '/') yol = '/';
-        var simdi = location.pathname + location.search;
-        if (yol !== simdi) {
-            try { history.pushState(null, '', yol); } catch (e) { location.hash = '#' + yol; return; }
+        var pathSimdi = location.pathname + location.search;
+        // #/… hash'i yolu gölgeliyorsa (ör. /manga/bleach#/) pushState atlanırsa rota güncellenmez.
+        var hashGolge = !!(location.hash && location.hash.indexOf('#/') === 0);
+        if (yol !== pathSimdi || hashGolge) {
+            try { history.pushState(null, '', yol); }
+            catch (e) { location.hash = '#' + yol; return; }
         }
-        window.dispatchEvent(new Event('hashchange'));
+        bildir();
     }
     Y.git = git;
 
