@@ -1,3 +1,11 @@
+
+## Unreleased
+
+### Gelistirme / CI (2026-10-28)
+- GitHub Actions CI genisletildi; Dependabot + gitleaks guvenlik workflow
+- Playwright e2e iskeleti (	ests/e2e)
+- Cursor skills/rules eklendi
+- AnalysisModeSecurity + CA5394 pragma (auth kullanici adi soneki)
 # 📋 Değişiklik Günlüğü (Changelog)
 
 KAGE 95 projesindeki tüm önemli değişiklikler, yeni özellikler, güvenlik güncellemeleri ve hata düzeltmeleri bu dosyada belgelenmektedir.

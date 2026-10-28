@@ -1,0 +1,12 @@
+---
+description: Kage95 backend (C#) kuralları
+globs: backend/**/*.cs
+alwaysApply: false
+---
+
+- Migration kullanılmıyor; şema ekleri `Program.cs` içindeki idempotent T-SQL bloğunda (`IF COL_LENGTH ... IS NULL`). Yeni kolon/tablo gerekiyorsa aynı kalıbı izle ve kullanıcıya önce sor.
+- Ham SQL'de kullanıcı girdisi yalnızca parametreyle (`ExecuteSqlInterpolated`, `FromSqlInterpolated`); string birleştirme yok.
+- Yetki için mevcut `Security/YetkiAttribute.cs` ve `Izinler` kullanılır; yeni yetki mekanizması kurma.
+- Hız sınırı politikaları (`giris`, `kayit`, `sifre-sifirlama`, `genel`) yeni giriş/kayıt uçlarına da uygulanır.
+- API sözleşmesi (DTO alan adları, camelCase JSON) değişmez; frontend bu adlara bağlı.
+- Kontrol: `dotnet build backend/backend.csproj -c Release -warnaserror`.

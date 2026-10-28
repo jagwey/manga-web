@@ -1,0 +1,11 @@
+title = "Kage95 gitleaks"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Sahte test verisi (gerçek kimlik bilgisi içermez)"
+paths = [
+  '''^tests/e2e/sahte/''',
+  '''^tests/e2e/testler/''',
+]
