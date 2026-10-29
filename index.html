@@ -802,6 +802,35 @@
         .devam-serit .devam-alt { display: block; color: var(--text-ikincil); font-size: .85rem; margin-top: 2px; }
         .siralama { min-height: 40px; padding: 0 var(--bosluk-1); background: var(--bg-ana); border: 1px solid var(--border-renk); border-radius: 2px; color: var(--text-ana); font: inherit; font-size: .85rem; }
         .siralama:focus { outline: none; border-color: var(--vurgu-parlak); }
+        .k95-secim { position: relative; z-index: 2; display: inline-flex; max-width: 100%; }
+        .k95-kontrol {
+            display: inline-flex; align-items: center; justify-content: space-between; gap: 8px;
+            min-height: 40px; max-width: 100%; padding: 0 12px;
+            background: var(--bg-kart); border: 1px solid var(--border-renk); border-radius: 6px;
+            color: var(--text-ana); font-weight: 500; font-size: .85rem; line-height: 1; font-family: inherit; cursor: pointer;
+            transition: border-color var(--k95-hizli) var(--k95-ease), background var(--k95-hizli) var(--k95-ease);
+        }
+        .k95-kontrol:hover, .k95-kontrol[aria-expanded="true"] { border-color: var(--border-belirgin); background: var(--bg-yuzey, var(--bg-kart)); }
+        :root:root .k95-kontrol:focus-visible, :root:root .k95-secenek:focus-visible { outline: none; box-shadow: 0 0 0 2px var(--vurgu-parlak); }
+        :root:root .k95-kontrol[aria-expanded="true"]:focus-visible { box-shadow: none; }
+        .k95-kontrol-metin { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .k95-ok { flex: none; color: var(--text-ikincil); transition: transform var(--k95-hizli) var(--k95-ease); }
+        .k95-kontrol[aria-expanded="true"] .k95-ok { transform: rotate(180deg); }
+        .k95-menu {
+            position: absolute; z-index: 30; top: calc(100% + 4px); left: 0;
+            min-width: max(100%, 180px); margin: 0; padding: 4px; list-style: none;
+            background: var(--bg-kart); border: 1px solid var(--border-belirgin); border-radius: 8px;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, .75);
+        }
+        .k95-secim-sag .k95-menu { left: auto; right: 0; }
+        .k95-secenek {
+            display: flex; align-items: center; justify-content: space-between; gap: 8px;
+            min-height: 36px; height: 36px; padding: 0 10px; border-radius: 4px;
+            color: var(--text-ana); font-weight: 500; font-size: .85rem; line-height: 1; font-family: inherit; cursor: pointer;
+        }
+        .k95-secenek:hover, .k95-secenek.aktif, .k95-secenek:active { background: color-mix(in srgb, var(--vurgu-parlak) 12%, transparent); }
+        .k95-secenek[aria-selected="true"] { font-weight: 600; }
+        .k95-tik { color: var(--vurgu-parlak); font-weight: 600; }
         .baslik-sag { display: flex; align-items: center; gap: var(--bosluk-2); }
         .yan-menu-icerik { padding: var(--bosluk-3); display: flex; flex-direction: column; gap: var(--bosluk-3); }
 
@@ -820,8 +849,10 @@
             width: 100%; height: 40px;
             border: 1px solid var(--border-belirgin);
             border-radius: 2px;
-            background: none;
+            background: var(--bg-kart);
+            color: var(--text-ana);
             cursor: pointer;
+            color-scheme: dark;
         }
 
         .yan-menu input[type="file"], .yan-menu select {
@@ -833,6 +864,9 @@
             border-radius: 2px;
             font-size: .9rem;
         }
+        .yan-menu input[type="file"] { color-scheme: dark; background: var(--bg-kart); }
+        :root[data-tema="kagit"] .yan-menu input[type="color"],
+        :root[data-tema="kagit"] .yan-menu input[type="file"] { color-scheme: light; }
 
         .sifirla-btn {
             min-height: 40px;
@@ -1004,7 +1038,10 @@
             .bolum-baslik-satir { flex-wrap: wrap; gap: 10px; margin-bottom: var(--bosluk-2); }
             #seriler .bolum-baslik-satir .baslik-sag { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
             #seriler .bolum-baslik-satir .baslik-sag > * { min-width: 0; max-width: 100%; }
-            #seriler .bolum-baslik-satir .baslik-sag .siralama { width: 100%; }
+            #seriler .bolum-baslik-satir .baslik-sag .siralama,
+            #seriler .bolum-baslik-satir .baslik-sag .k95-secim,
+            #seriler .bolum-baslik-satir .baslik-sag .k95-kontrol { width: 100%; }
+            .k95-kontrol { min-height: 44px; font-size: 16px; }
             #seriler .bolum-baslik-satir .baslik-sag .sonuc-sayisi { grid-column: 1 / -1; text-align: right; font-size: .82rem; }
             .devam-serit { flex-wrap: wrap; padding: 12px; margin-bottom: var(--bosluk-3); }
             .devam-serit .btn-ana { width: 100%; }
@@ -1269,7 +1306,7 @@
             input, select, textarea { font-size: 16px; scroll-margin-bottom: 140px; }
             .site-logo { min-height: 44px; }
             .kategori-btn { min-width: 44px; padding-left: 6px; padding-right: 6px; }
-            .siralama { min-height: 44px; font-size: 16px; max-width: 100%; }
+            .siralama, .k95-kontrol { min-height: 44px; font-size: 16px; max-width: 100%; }
             .geri-link { min-height: 44px; font-size: .95rem; }
             .detay-bilgi dt, dl dt { font-size: .875rem; }
             .alt-gezinme a { font-size: .75rem; }
@@ -1278,8 +1315,8 @@
             .alt-gezinme { padding-left: env(safe-area-inset-left, 0px); padding-right: env(safe-area-inset-right, 0px); }
         }
         @media (pointer: coarse) {
-            input, select, textarea, .siralama, .yorum-alan, .form-satir input, .arama-kapsayici input { font-size: 16px; }
-            .site-logo, .menu-link, .profil-chip, .geri-link, .kategori-btn, .siralama, .btn-ana, .btn-ikincil, .btn-ikinci, .link-btn, .sifirla-btn { min-height: 44px; }
+            input, select, textarea, .siralama, .k95-kontrol, .yorum-alan, .form-satir input, .arama-kapsayici input { font-size: 16px; }
+            .site-logo, .menu-link, .profil-chip, .geri-link, .kategori-btn, .siralama, .k95-kontrol, .btn-ana, .btn-ikincil, .btn-ikinci, .link-btn, .sifirla-btn { min-height: 44px; }
             .kategori-btn { min-width: 44px; }
             .menu-link { display: inline-flex; align-items: center; }
         }
@@ -3408,6 +3445,95 @@
             );
         };
 
+        const K95Secim = ({ id, etiket, deger, secenekler, onDegistir, menuSaga }) => {
+            const [acik, setAcik] = React.useState(false);
+            const [aktif, setAktif] = React.useState(-1);
+            const kapRef = React.useRef(null);
+            const seciliIndeks = Math.max(0, secenekler.findIndex(s => s.value === deger));
+            const secili = secenekler[seciliIndeks] || secenekler[0];
+
+            React.useEffect(() => {
+                if (!acik) return undefined;
+                const disarida = (e) => {
+                    if (kapRef.current && !kapRef.current.contains(e.target)) setAcik(false);
+                };
+                document.addEventListener('pointerdown', disarida);
+                document.addEventListener('focusin', disarida);
+                return () => {
+                    document.removeEventListener('pointerdown', disarida);
+                    document.removeEventListener('focusin', disarida);
+                };
+            }, [acik]);
+
+            const ac = (hedef) => {
+                let i = seciliIndeks;
+                if (hedef === 'ilk') i = 0;
+                else if (hedef === 'son') i = Math.max(0, secenekler.length - 1);
+                setAktif(i);
+                setAcik(true);
+            };
+            const sec = (i) => {
+                const s = secenekler[i];
+                if (s) onDegistir(s.value);
+                setAcik(false);
+            };
+            const tus = (e) => {
+                if (!acik) {
+                    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); ac('secili'); }
+                    else if (e.key === 'Home') { e.preventDefault(); ac('ilk'); }
+                    else if (e.key === 'End') { e.preventDefault(); ac('son'); }
+                    return;
+                }
+                if (e.key === 'ArrowDown') { e.preventDefault(); setAktif(i => Math.min(secenekler.length - 1, (i < 0 ? seciliIndeks : i) + 1)); }
+                else if (e.key === 'ArrowUp') { e.preventDefault(); setAktif(i => Math.max(0, (i < 0 ? seciliIndeks : i) - 1)); }
+                else if (e.key === 'Home') { e.preventDefault(); setAktif(0); }
+                else if (e.key === 'End') { e.preventDefault(); setAktif(Math.max(0, secenekler.length - 1)); }
+                else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); sec(aktif < 0 ? seciliIndeks : aktif); }
+                else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); setAcik(false); }
+                else if (e.key === 'Tab') setAcik(false);
+            };
+
+            return (
+                <div className={`k95-secim${menuSaga ? ' k95-secim-sag' : ''}`} ref={kapRef}>
+                    <label className="sr-only" id={`${id}-etiket`} htmlFor={id}>{etiket}</label>
+                    <button
+                        type="button"
+                        id={id}
+                        className="k95-kontrol"
+                        aria-haspopup="listbox"
+                        aria-expanded={acik}
+                        aria-controls={`${id}-liste`}
+                        aria-labelledby={`${id}-etiket ${id}-deger`}
+                        aria-activedescendant={acik && aktif >= 0 ? `${id}-opt-${aktif}` : undefined}
+                        onClick={() => { if (acik) setAcik(false); else ac('secili'); }}
+                        onKeyDown={tus}
+                    >
+                        <span className="k95-kontrol-metin" id={`${id}-deger`}>{secili ? secili.ad : ''}</span>
+                        <svg className="k95-ok" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true" focusable="false">
+                            <path d="M2.5 4.5 6 8 9.5 4.5" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                    </button>
+                    <ul className="k95-menu" id={`${id}-liste`} role="listbox" aria-labelledby={`${id}-etiket`} hidden={!acik}>
+                        {secenekler.map((s, i) => (
+                            <li
+                                key={s.value || 'bos'}
+                                id={`${id}-opt-${i}`}
+                                role="option"
+                                aria-selected={s.value === deger}
+                                className={`k95-secenek${i === aktif ? ' aktif' : ''}`}
+                                onMouseMove={() => setAktif(i)}
+                                onPointerDown={(e) => e.preventDefault()}
+                                onClick={() => sec(i)}
+                            >
+                                <span>{s.ad}</span>
+                                {s.value === deger && <span className="k95-tik" aria-hidden="true">✓</span>}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            );
+        };
+
         const AnaSayfa = ({ aramaMetni, setAramaMetni, aramaAciklama = false, setAramaAciklama, kayitAcik = true }) => {
             const [arama, setArama] = React.useState('');
             const [secilenKategoriler, setSecilenKategoriler] = React.useState([]);
@@ -3576,19 +3702,17 @@
                                 <button type="button" className="siralama" style={{ cursor: 'pointer', padding: '0 12px' }} onClick={rastgeleGit} disabled={rastgeleBusy}>
                                     {rastgeleBusy ? 'Seçiliyor…' : 'Rastgele seri'}
                                 </button>
-                                <label className="sr-only" htmlFor="durumSec">Durum</label>
-                                <select id="durumSec" className="siralama" value={durumFiltre} onChange={(e) => setDurumFiltre(e.target.value)}>
-                                    <option value="">Tüm durumlar</option>
-                                    <option value="DevamEdiyor">Devam ediyor</option>
-                                    <option value="Tamamlandi">Tamamlandı</option>
-                                    <option value="Ara">Ara verdi</option>
-                                </select>
-                                <label className="sr-only" htmlFor="siralamaSec">Sırala</label>
-                                <select id="siralamaSec" className="siralama" value={sirala} onChange={(e) => setSirala(e.target.value)}>
-                                    <option value="yeni">En yeni</option>
-                                    <option value="puan">En yüksek puan</option>
-                                    <option value="ad">A-Z</option>
-                                </select>
+                                <K95Secim id="durumSec" etiket="Durum" deger={durumFiltre} onDegistir={setDurumFiltre} secenekler={[
+                                    { value: '', ad: 'Tüm durumlar' },
+                                    { value: 'DevamEdiyor', ad: 'Devam ediyor' },
+                                    { value: 'Tamamlandi', ad: 'Tamamlandı' },
+                                    { value: 'Ara', ad: 'Ara verdi' }
+                                ]} />
+                                <K95Secim id="siralamaSec" etiket="Sırala" deger={sirala} onDegistir={setSirala} menuSaga secenekler={[
+                                    { value: 'yeni', ad: 'En yeni' },
+                                    { value: 'puan', ad: 'En yüksek puan' },
+                                    { value: 'ad', ad: 'A-Z' }
+                                ]} />
                                 {!ilkYukleme && !(hata && mangalar.length === 0) && <span className="sonuc-sayisi" aria-live="polite">{toplam} seri</span>}
                             </div>
                         </div>
