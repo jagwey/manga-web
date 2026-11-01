@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -1994,7 +1994,7 @@
                                 </div>
                             </div>
                             <div className="iletisim-kart-aksiyonlar">
-                                <a href={SOSYAL.discord} target="_blank" rel="noopener noreferrer" className="iletisim-ana-btn" style={{ background: 'linear-gradient(135deg, #4752c4, #5865f2)' }}>
+                                <a href={SOSYAL.discord || 'https://discord.gg/CF4DXGeQmj'} target="_blank" rel="noopener noreferrer" className="iletisim-ana-btn" style={{ background: 'linear-gradient(135deg, #4752c4, #5865f2)' }}>
                                     <span>Sunucuya Katıl</span>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -2002,7 +2002,7 @@
                                         <line x1="10" y1="14" x2="21" y2="3" />
                                     </svg>
                                 </a>
-                                <button type="button" onClick={() => panoyaKopyala(SOSYAL.discord, 'discord')} className={`iletisim-kopyala-btn ${kopyalanan === 'discord' ? 'kopyalandi' : ''}`} title="Bağlantıyı kopyala">
+                                <button type="button" onClick={() => panoyaKopyala(SOSYAL.discord || 'https://discord.gg/CF4DXGeQmj', 'discord')} className={`iletisim-kopyala-btn ${kopyalanan === 'discord' ? 'kopyalandi' : ''}`} title="Bağlantıyı kopyala">
                                     {kopyalanan === 'discord' ? (
                                         <>
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
@@ -2077,14 +2077,14 @@
                                 </div>
                                 <div className="iletisim-kart-govde" style={{ marginTop: 16 }}>
                                     <h2 className="iletisim-kart-baslik">Instagram</h2>
-                                    <div className="iletisim-kart-deger">@{SOSYAL.instagramAd}</div>
+                                    <div className="iletisim-kart-deger">@{SOSYAL.instagramAd || 'jagweyy'}</div>
                                     <p className="iletisim-kart-metin">
                                         Öne çıkan mangalar, görsel güncellemeler, duyurular ve özel paylaşımlar.
                                     </p>
                                 </div>
                             </div>
                             <div className="iletisim-kart-aksiyonlar">
-                                <a href={SOSYAL.instagram} target="_blank" rel="noopener noreferrer" className="iletisim-ana-btn" style={{ background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)' }}>
+                                <a href={SOSYAL.instagram || 'https://www.instagram.com/jagweyy/'} target="_blank" rel="noopener noreferrer" className="iletisim-ana-btn" style={{ background: 'linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045)' }}>
                                     <span>Profile Git</span>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
@@ -2092,7 +2092,7 @@
                                         <line x1="10" y1="14" x2="21" y2="3" />
                                     </svg>
                                 </a>
-                                <button type="button" onClick={() => panoyaKopyala('@' + SOSYAL.instagramAd, 'instagram')} className={`iletisim-kopyala-btn ${kopyalanan === 'instagram' ? 'kopyalandi' : ''}`} title="Kullanıcı adını kopyala">
+                                <button type="button" onClick={() => panoyaKopyala('@' + (SOSYAL.instagramAd || 'jagweyy'), 'instagram')} className={`iletisim-kopyala-btn ${kopyalanan === 'instagram' ? 'kopyalandi' : ''}`} title="Kullanıcı adını kopyala">
                                     {kopyalanan === 'instagram' ? (
                                         <>
                                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>

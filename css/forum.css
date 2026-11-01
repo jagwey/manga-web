@@ -1,4 +1,4 @@
-/* Kage 95 - Forum (js/forum.js). Kırmızı-siyah, sade. */
+* Kage 95 - Forum (js/forum.js). Kırmızı-siyah, sade. */
 .fr-sayfa { max-width: 1180px; margin: 0 auto; padding: 24px 16px 48px; }
 .fr-kafa { display: flex; align-items: center; gap: 16px; padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--border-renk); }
 .fr-kafa-kanji { font-family: var(--font-kanji); font-size: 56px; line-height: 1; color: var(--vurgu-parlak); }
@@ -205,14 +205,15 @@
 .fr-seri-kutu li span, .fr-seri-kutu p { font-size: 12px; color: var(--text-ikincil); margin: 0; }
 .fr-seri-tumu { display: inline-block; margin-top: 8px; }
 
+
 @media (max-width: 820px) {
     .fr-sayfa {
-        padding: 14px 12px calc(var(--alt-gezinme-yuksekligi, 56px) + env(safe-area-inset-bottom, 0px) + 32px);
+        padding: 10px 12px calc(var(--alt-gezinme-yuksekligi, 56px) + env(safe-area-inset-bottom, 0px) + 24px);
     }
-    .fr-duzen { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    .fr-duzen { grid-template-columns: minmax(0, 1fr); gap: 14px; }
     .fr-duzen > * { min-width: 0; }
     .fr-sayfa { overflow-x: clip; }
-    .fr-yan { position: static; gap: 12px; }
+    .fr-yan { position: static; gap: 10px; }
 
     /* Konu veya Yeni Konu görünümünde yan paneli gizle (mobilde içerik hemen görünsün) */
     .fr-duzen-konu .fr-yan,
@@ -226,58 +227,116 @@
         overscroll-behavior-x: contain;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
-        padding: 4px;
-        gap: 6px;
+        padding: 4px 2px 8px;
+        gap: 8px;
+        background: transparent;
+        border: none;
+        margin: 0 -4px;
     }
     .fr-katlar::-webkit-scrollbar { display: none; }
     .fr-kat {
         flex-shrink: 0;
-        border-left: 0;
-        border-bottom: 2px solid transparent;
-        border-radius: 4px;
-        min-height: 44px;
+        border: 1px solid var(--border-belirgin);
+        border-radius: 999px;
+        background: var(--bg-kart);
+        min-height: 38px;
         box-sizing: border-box;
-        padding: 8px 14px;
-        font-size: 13.5px;
+        padding: 6px 14px;
+        font-size: 13px;
+        color: var(--text-ikincil);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: all .15s ease;
     }
-    .fr-kat + .fr-kat { border-top: 0; }
+    .fr-kat + .fr-kat { border-top: 1px solid var(--border-belirgin); }
+    .fr-kat .fr-kanji { display: none; }
     .fr-kat.aktif {
-        border-bottom-color: var(--vurgu-parlak);
-        background: rgba(142, 14, 21, .2);
+        border-color: var(--vurgu-parlak);
+        background: var(--vurgu-rengi);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 10px rgba(142, 14, 21, .35);
     }
+    .fr-kat.aktif b { color: #fff; opacity: .85; }
+
     .fr-kural { display: none; }
-    .fr-kafa { gap: 12px; padding-bottom: 12px; margin-bottom: 14px; }
-    .fr-kafa-kanji { font-size: 36px; }
-    .fr-kafa h1 { font-size: 20px; }
-    .fr-kafa p { font-size: 12px; line-height: 1.4; }
+    .fr-kafa { gap: 10px; padding-bottom: 10px; margin-bottom: 12px; align-items: center; border-bottom: 1px solid var(--border-renk); }
+    .fr-kafa-kanji { font-size: 26px; }
+    .fr-kafa h1 { font-size: 18px; margin: 0; letter-spacing: -0.01em; }
+    .fr-kafa p { font-size: 11.5px; line-height: 1.35; color: var(--text-ikincil); margin: 2px 0 0; }
     .fr-ara, .fr-ara input { width: 100%; }
     .fr-sirala {
         overflow-x: auto;
         scrollbar-width: none;
         -webkit-overflow-scrolling: touch;
         gap: 6px;
+        margin-bottom: 12px;
     }
     .fr-sirala::-webkit-scrollbar { display: none; }
     .fr-sirala button {
-        min-height: 42px;
-        padding: 8px 14px;
+        min-height: 40px;
+        padding: 6px 12px;
         white-space: nowrap;
-        font-size: 13.5px;
+        font-size: 13px;
     }
-    .fr-son { margin-left: 0; }
-    .fr-konu-baslik { font-size: 20px; line-height: 1.35; }
-    .fr-kart { padding: 12px 14px; }
-    .fr-kart-baslik { font-size: 15px; }
-    .fr-kart-alt { gap: 8px; font-size: 12px; }
-    .fr-gonderi { padding: 12px 14px; }
+    .fr-kart {
+        padding: 14px;
+        border-radius: 10px;
+        background: var(--bg-kart);
+        border: 1px solid var(--border-renk);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+        transition: transform .12s ease, border-color .15s ease;
+    }
+    .fr-kart:active {
+        transform: scale(0.99);
+        border-color: var(--vurgu-parlak);
+    }
+    .fr-kart-baslik {
+        font-size: 15.5px;
+        line-height: 1.35;
+        margin: 6px 0 4px;
+        font-weight: 600;
+    }
+    .fr-ozet {
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--text-ikincil);
+        -webkit-line-clamp: 2;
+    }
+    .fr-kart-alt {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid rgba(255, 255, 255, .04);
+        font-size: 12px;
+        color: var(--text-ikincil);
+    }
+    .fr-son {
+        margin-left: auto;
+        font-size: 11.5px;
+        color: var(--text-ikincil);
+    }
+    .fr-konu-baslik { font-size: 19px; line-height: 1.35; }
+    .fr-gonderi {
+        padding: 13px 14px;
+        border-radius: 8px;
+        background: var(--bg-kart);
+        border: 1px solid var(--border-renk);
+    }
+    .fr-gonderi.ana {
+        border-left: 3px solid var(--vurgu-parlak);
+    }
     .fr-govde { font-size: 14.5px; line-height: 1.6; }
 
     /* Dokunmatik hedefler */
     .fr-sayfalar button,
     .fr-eylemler button,
     .fr-begen {
-        min-height: 42px;
-        padding: 8px 14px;
+        min-height: 38px;
+        padding: 6px 12px;
         font-size: 13px;
         border-radius: 6px;
         display: inline-flex;
@@ -287,6 +346,7 @@
     .fr-gonder {
         min-height: 44px;
         padding: 10px 18px;
+        border-radius: 8px;
     }
     .fr-kat-sec label {
         min-height: 38px;
@@ -302,7 +362,12 @@
     .fr-bolum {
         font-size: 16px !important;
     }
-    .fr-ac-dugme { min-height: 44px; }
+    .fr-ac-dugme {
+        min-height: 44px;
+        border-radius: 8px;
+        font-size: 14px;
+        box-shadow: 0 4px 14px rgba(142, 14, 21, .3);
+    }
 }
 
 @media (max-width: 600px) {
@@ -332,7 +397,7 @@
         gap: 6px;
     }
     .fr-eylemler button {
-        flex: 1 1 auto;
+        flex: 0 1 auto;
     }
     .fr-seri span {
         max-width: 130px;
