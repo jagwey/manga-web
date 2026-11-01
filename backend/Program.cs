@@ -42,6 +42,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped<EvrenIstemcisi>();
+builder.Services.AddHostedService<MangaAiIndeksServisi>();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();
 builder.Services.AddScoped<ISiteAyarServisi, SiteAyarServisi>();
@@ -165,6 +167,7 @@ builder.Services.AddRateLimiter(o =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(15) }));
     o.AddPolicy("kayit", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(30) }));
+    o.AddPolicy("hikaye", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c), _ => new FixedWindowRateLimiterOptions { PermitLimit = 5, Window = TimeSpan.FromMinutes(1) }));
     // Genel okuma ve API tarama hız sınırı (IP başına dakikada 120 istek)
     o.AddPolicy("genel", c => RateLimitPartition.GetFixedWindowLimiter(Ip(c),
         _ => new FixedWindowRateLimiterOptions { PermitLimit = 120, Window = TimeSpan.FromMinutes(1) }));
@@ -207,7 +210,7 @@ using (var kapsam = app.Services.CreateScope())
             "IF OBJECT_ID(N'dbo.ForumKonulari', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumKonulari (Id INT IDENTITY(1,1) PRIMARY KEY, Kategori VARCHAR(20) NOT NULL, KullaniciId INT NOT NULL, Baslik NVARCHAR(120) NOT NULL, Icerik NVARCHAR(4000) NOT NULL, MangaId INT NULL, BolumNo DECIMAL(6,2) NULL, Spoiler BIT NOT NULL DEFAULT 0, Sabit BIT NOT NULL DEFAULT 0, Kilitli BIT NOT NULL DEFAULT 0, Silindi BIT NOT NULL DEFAULT 0, Tarih DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), SonYanitTarihi DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(), YanitSayisi INT NOT NULL DEFAULT 0, BegeniSayisi INT NOT NULL DEFAULT 0); CREATE INDEX IX_ForumKonulari_Kategori_SonYanit ON dbo.ForumKonulari (Kategori, SonYanitTarihi); CREATE INDEX IX_ForumKonulari_MangaId ON dbo.ForumKonulari (MangaId); END;" +
             "IF OBJECT_ID(N'dbo.ForumYanitlari', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumYanitlari (Id INT IDENTITY(1,1) PRIMARY KEY, KonuId INT NOT NULL, KullaniciId INT NOT NULL, Icerik NVARCHAR(4000) NOT NULL, Spoiler BIT NOT NULL DEFAULT 0, Silindi BIT NOT NULL DEFAULT 0, Tarih DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()); CREATE INDEX IX_ForumYanitlari_KonuId_Tarih ON dbo.ForumYanitlari (KonuId, Tarih); END;" +
             "IF OBJECT_ID(N'dbo.ForumBegenileri', N'U') IS NULL BEGIN CREATE TABLE dbo.ForumBegenileri (Id INT IDENTITY(1,1) PRIMARY KEY, KonuId INT NOT NULL, KullaniciId INT NOT NULL); CREATE UNIQUE INDEX UX_ForumBegenileri ON dbo.ForumBegenileri (KonuId, KullaniciId); END;" +
-            "UPDATE dbo.Mangalar SET OneCikan = 1, KapakResmiURL = '/uploads/vinland_saga_cover.jpg', OneCikanResimURL = '/uploads/vinland_saga_banner.jpg' WHERE MangaAdi = 'Vinland Saga';");
+            "EXEC(N'UPDATE dbo.Mangalar SET OneCikan = 1, KapakResmiURL = ''/uploads/vinland_saga_cover.jpg'', OneCikanResimURL = ''/uploads/vinland_saga_banner.jpg'' WHERE MangaAdi = ''Vinland Saga''');");
     }
     catch (Exception ex)
     {
@@ -490,3 +493,4 @@ app.MapFallback(async ctx =>
 });
 
 app.Run();
+

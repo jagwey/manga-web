@@ -11,6 +11,7 @@ namespace Kage95.Backend.Data
 
         public DbSet<Kullanici> Kullanicilar => Set<Kullanici>();
         public DbSet<Manga> Mangalar => Set<Manga>();
+        public DbSet<MangaAiIndeks> MangaAiIndeksleri => Set<MangaAiIndeks>();
         public DbSet<Kategori> Kategoriler => Set<Kategori>();
         public DbSet<MangaKategori> MangaKategorileri => Set<MangaKategori>();
         public DbSet<Bolum> Bolumler => Set<Bolum>();
@@ -373,3 +374,4 @@ namespace Kage95.Backend.Data
         }
     }
 }
+
