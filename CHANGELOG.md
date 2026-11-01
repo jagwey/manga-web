@@ -50,7 +50,7 @@ Proje [SemVer (Semantic Versioning)](https://semver.org/lang/tr/) standartların
 - **Yumuşak Dokunma Hissi:** Tüm manga kartlarına mobil ve masaüstü uyumlu akıcı dokunma/hover mikromimikleri eklendi.
 
 ### 💬 Yenilenen İletişim Portalı
-- **Sade ve Güçlü UX:** Gereksiz form kutuları kaldırılarak doğrudan resmi Discord topluluğu (`discord.gg/yxZZ7m2x8a`) ve e-posta kanallarına odaklanan modern siber-gotik kart tasarımı entegre edildi.
+- **Sade ve Güçlü UX:** Gereksiz form kutuları kaldırılarak doğrudan resmi Discord topluluğu (`discord.gg/CF4DXGeQmj`) ve e-posta kanallarına odaklanan modern siber-gotik kart tasarımı entegre edildi.
 - **Navigasyon Senkronizasyonu:** İletişim sayfasında üst ve alt menülerin aktif sekme vurgusu kusursuz hale getirildi.
 
 ---

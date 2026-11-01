@@ -338,6 +338,8 @@ a.duyuru-oge:hover .duyuru-baslik { text-decoration: underline; text-underline-o
     .oc-ok { top: 14px; transform: none; width: 40px; height: 40px; font-size: 1.3rem; }
     .oc-ok-sol { left: auto; right: 56px; }
     .oc-ok-sag { right: 14px; }
+    .oc-ok:hover { transform: scale(1.06) !important; }
+    :root:root .oc-ok:active { transform: scale(0.92) !important; }
     .oc-noktalar { display: flex; justify-content: center; gap: 6px; position: absolute; left: 0; right: 0; bottom: 14px; z-index: 2; pointer-events: none; }
     .oc-noktalar span { width: 6px; height: 6px; border-radius: 999px; background: rgba(255,255,255,.35); transition: width .25s, background .25s; }
     .oc-noktalar span.aktif { width: 18px; background: var(--oc-parlak); }

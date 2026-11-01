@@ -120,7 +120,7 @@ Kage 95'in çalışması için kullanılan dış hizmetlerin tamamı aşağıdad
 | ✉️ | **Brevo (eski adıyla Sendinblue)** | Şifre sıfırlama, e-posta doğrulama ve sistem e-postaları (SMTP) | `EmailSettings` bölümü |
 | 🔐 | **Let's Encrypt** | Kaynak sunucuda (origin) ücretsiz SSL sertifikası | SmarterASP.NET paneli, `.well-known/web.config` |
 | 📦 | **FTP + `yayinla.ps1`** | Tek komutla canlıya yayın | `deploy/yayin.Local.json` (git'e girmez) |
-| 💬 | **Discord** | Topluluk sunucusu ve iletişim | `discord.gg/yxZZ7m2x8a` |
+| 💬 | **Discord** | Topluluk sunucusu ve iletişim | `discord.gg/CF4DXGeQmj` |
 
 ### 🗺️ Altyapı Haritası
 
@@ -340,7 +340,7 @@ flowchart TD
 ### 💬 4. Birleşik Topluluk Ekosistemi & Modern İletişim
 - **Topluluk Çatısı:** Forum ve Sohbet tek bir sezgisel **"Topluluk"** başlığında birleşti. Masaüstünde şık açılır kart (dropdown), mobilde 5 sekmeli ergonomik alt gezinme barı.
 - **Gerçek Zamanlı Sohbet (SignalR):** Düşük gecikmeli WebSockets, SVG çıkartma (sticker) paketleri, hız sınırı (rate limit) ve susturma mekanizmaları.
-- **Yenilenen İletişim Portalı:** Sadeleştirilmiş siber-gotik cam kart tasarımı, doğrudan resmi Discord sunucu daveti (`discord.gg/yxZZ7m2x8a`) ve e-posta desteği.
+- **Yenilenen İletişim Portalı:** Sadeleştirilmiş siber-gotik cam kart tasarımı, doğrudan resmi Discord sunucu daveti (`discord.gg/CF4DXGeQmj`) ve e-posta desteği.
 - **Gelişmiş Yorum Sistemi:** Bölüm ve seri bazlı yorumlar, yanıt zincirleri (nested replies), beğeni, şikayet bildirme ve `||gizli||` spoiler filtreleme.
 
 ### 🔒 5. Çok Katmanlı Siber Güvenlik Zırhı *(v2.3 Hardened)*
