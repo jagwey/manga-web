@@ -44,6 +44,7 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<EvrenIstemcisi>();
 builder.Services.AddScoped<KageAiIstemcisi>();
+builder.Services.AddScoped<UcretsizAiIstemcisi>();
 builder.Services.AddScoped<PremiumServisi>();
 builder.Services.AddScoped<PremiumDosyaServisi>();
 builder.Services.AddSingleton<AiKullanimKotasi>();

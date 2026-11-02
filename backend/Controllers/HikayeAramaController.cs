@@ -13,7 +13,7 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Kage95.Backend.Controllers;
 
 [ApiController, Route("api/hikaye-arama")]
-public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren, KageAiIstemcisi kage, AiKullanimKotasi kota, PremiumServisi premium, IMemoryCache cache, IConfiguration config, ILogger<HikayeAramaController> log) : ControllerBase
+public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren, KageAiIstemcisi kage, UcretsizAiIstemcisi ucretsiz, AiKullanimKotasi kota, PremiumServisi premium, IMemoryCache cache, IConfiguration config, ILogger<HikayeAramaController> log) : ControllerBase
 {
     public sealed record Sorgu(string? Metin, bool FavorilerimiKullan = false);
     [HttpGet("durum")]
@@ -30,7 +30,7 @@ public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren,
         if (Request.Headers.ContainsKey("Authorization") && !userId.HasValue) return Unauthorized();
         var kimlik = userId.HasValue ? $"uye:{userId}" : $"ip:{HttpContext.Connection.RemoteIpAddress}";
         if (!kota.Kullan(kimlik, userId, userId.HasValue && await premium.Etkin(userId.Value, ct))) return StatusCode(429, new { message = "Bugünkü AI arama hakkın doldu. Normal manga aramasını kullanabilirsin." });
-        if (kage.Etkin || !evren.Hazir) return await KelimelerleAra(q, ct, sorgu.FavorilerimiKullan ? userId : null);
+        if (kage.Etkin || ucretsiz.Etkin || !evren.Hazir) return await KelimelerleAra(q, ct, sorgu.FavorilerimiKullan ? userId : null);
         var key = "hikaye:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(q)));
         try
         {
@@ -80,7 +80,7 @@ public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren,
                 adaylar[m.Id] = (m.Id, m.MangaAdi, m.Slug, m.KapakResmiURL, m.Aciklama, score);
             }
         }
-        if (kage.Etkin)
+        if (kage.Etkin || ucretsiz.Etkin)
         {
             var adayIds = adaylar.Values.OrderByDescending(x => x.Puan).ThenBy(x => x.Id).Take(25).Select(x => x.Id).ToArray();
             // Küçük katalogda sözcüksel eşleşmeyen anlamdaş tarifler de AI'ya ulaşır.
@@ -103,7 +103,7 @@ public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren,
                 var key = "kage-ai:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { q, candidates, preferences }))));
                 if (!cache.TryGetValue(key, out int[]? ids) || ids == null)
                 {
-                    ids = await kage.Sirala(q, candidates, preferences, ct);
+                    ids = kage.Etkin ? await kage.Sirala(q, candidates, preferences, ct) : await ucretsiz.Sirala(q, candidates, preferences, ct);
                     cache.Set(key, ids, TimeSpan.FromMinutes(10));
                 }
                 var allowed = candidates.Select(x => x.Id).ToHashSet();

@@ -126,7 +126,7 @@
           metin.append(ad, nd); a.append(kapak, metin); li.append(a); liste.append(li);
         });
         durum.textContent = yz ? `${sonuc.length} öneri bulundu.` : `${sonuc.length} kelime eşleşmesi bulundu; sıralama hikâye uyumunu garanti etmez.`;
-        kaynak.textContent = yz ? 'Öneriler Kage AI ile sıralandı.' : 'Kage AI henüz bağlı değil; yalnızca kelime eşleşmeleri gösteriliyor.';
+        kaynak.textContent = yz ? 'Öneriler yapay zekâ ile sıralandı.' : 'Yapay zekâ şu anda kullanılamıyor; kelime eşleşmeleri gösteriliyor.';
         kaynak.hidden = false;
       } catch (err) {
         console.error('Hikâye araması:', err);

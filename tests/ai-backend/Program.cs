@@ -28,7 +28,7 @@ db.Kullanicilar.Add(new Kullanici { Id=5, KullaniciAdi="test" });
 db.Favoriler.Add(new Favori { KullaniciId=5, MangaId=1 });
 await db.SaveChangesAsync();
 var context = new DefaultHttpContext(); context.Connection.RemoteIpAddress = IPAddress.Loopback;
-var c = new HikayeAramaController(db,new EvrenIstemcisi(clients,cfg),ai,quota,premium,cache,cfg,NullLogger<HikayeAramaController>.Instance) { ControllerContext = new ControllerContext { HttpContext=context } };
+var c = new HikayeAramaController(db,new EvrenIstemcisi(clients,cfg),ai,new UcretsizAiIstemcisi(clients,cfg),quota,premium,cache,cfg,NullLogger<HikayeAramaController>.Instance) { ControllerContext = new ControllerContext { HttpContext=context } };
 var q = new HikayeAramaController.Sorgu("Geçmişini hatırlamayan gizemli bir karakter");
 var result = (OkObjectResult)await c.Ara(q,default);
 using(var json = JsonDocument.Parse(JsonSerializer.Serialize(result.Value))) Check(json.RootElement.GetProperty("sonuclar").GetArrayLength()==1,"AI catalogue allowlist excludes invented, unpublished and deleted IDs");
