@@ -341,6 +341,35 @@ namespace Kage95.Backend.Controllers
             });
         }
 
+        public sealed record PremiumDuzenleRequest(int Gun);
+        [Yetki("kullanici.duzenle")]
+        [HttpPost("kullanicilar/{id:int}/premium")]
+        public async Task<IActionResult> PremiumDuzenle(int id, [FromBody] PremiumDuzenleRequest request, CancellationToken ct)
+        {
+            if (request.Gun < 0 || request.Gun > 3650) return BadRequest(new { message = "Süre 0–3650 gün arasında olmalı." });
+            var hedef = await _context.Kullanicilar.FirstOrDefaultAsync(k => k.Id == id, ct);
+            if (hedef == null) return NotFound(new { message = "Kullanıcı bulunamadı." });
+            if (hedef.Id != Cagiran.Id && (Izinler.OwnerMi(hedef) || Izinler.AdminMi(hedef)) && !Izinler.OwnerMi(Cagiran))
+                return Yasak("Yönetici hesaplarına yalnızca site sahibi premium verebilir.");
+            var uyelik = await _context.PremiumUyelikler.FindAsync(new object[] { id }, ct);
+            if (uyelik == null) { uyelik = new PremiumUyelik { KullaniciId = id }; _context.PremiumUyelikler.Add(uyelik); }
+            var onceki = uyelik.BitisUtc;
+            if (request.Gun == 0) { uyelik.IptalEdildi = true; uyelik.BitisUtc = DateTime.UtcNow; }
+            else { var baslangic = !uyelik.IptalEdildi && uyelik.BitisUtc > DateTime.UtcNow ? uyelik.BitisUtc : DateTime.UtcNow; uyelik.BitisUtc = baslangic.AddDays(request.Gun); uyelik.IptalEdildi = false; }
+            await _context.SaveChangesAsync(ct);
+            await _denetim.KaydetAsync(User, "kullanici.premium", KullaniciHedefi(hedef), $"Gün: {request.Gun}; önceki bitiş: {onceki:O}; yeni bitiş: {uyelik.BitisUtc:O}; iptal: {uyelik.IptalEdildi}");
+            return Ok(new { aktif = !uyelik.IptalEdildi && uyelik.BitisUtc > DateTime.UtcNow, bitisUtc = uyelik.BitisUtc });
+        }
+
+        [Yetki("kullanici.gor")]
+        [HttpGet("kullanicilar/{id:int}/premium")]
+        public async Task<IActionResult> PremiumDurum(int id, CancellationToken ct)
+        {
+            if (!await _context.Kullanicilar.AnyAsync(k => k.Id == id, ct)) return NotFound();
+            var p = await _context.PremiumUyelikler.AsNoTracking().FirstOrDefaultAsync(x => x.KullaniciId == id, ct);
+            return Ok(new { aktif = p != null && !p.IptalEdildi && p.BitisUtc > DateTime.UtcNow, bitisUtc = p?.BitisUtc });
+        }
+
         [Yetki("kullanici.duzenle")]
         [HttpPut("kullanicilar/{id:int}")]
         public async Task<IActionResult> KullaniciDuzenle(int id, [FromBody] KullaniciDuzenleRequest request)

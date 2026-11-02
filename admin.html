@@ -2525,6 +2525,22 @@
 
         const HataSatiri = ({ b }) => b ? <div className="bildirim hata" role="alert" style={{ marginTop: 12, marginBottom: 0 }}><span>{b.mesaj}</span></div> : null;
 
+        const PremiumKart = ({ k, calistir, mesgul, kapat }) => {
+            const [gun, setGun] = useState(30);
+            const [durum, setDurum] = useState(null);
+            const [hata, setHata] = useState(null);
+            useEffect(() => { let iptal = false; istek(`/admin/kullanicilar/${k.id}/premium`).then(({ veri }) => { if (!iptal) setDurum(veri); }).catch(e => { if (!iptal) setHata(hataBildirimi(e)); }); return () => { iptal = true; }; }, [k.id]);
+            const uygula = async (n) => {
+                if (n === 0 && !window.confirm('Bu kullanıcının Premium üyeliği sonlandırılsın mı?')) return;
+                const sonuc = await calistir(() => istek(`/admin/kullanicilar/${k.id}/premium`, { method: 'POST', json: { gun: n } }), n ? 'Premium süresi güncellendi.' : 'Premium üyeliği kaldırıldı.');
+                if (sonuc.tamam) { setDurum(sonuc.sonuc.veri); setHata(null); } else setHata(sonuc.hata);
+            };
+            return <div><p>{durum ? (durum.aktif ? `Premium aktif · Bitiş: ${tarihSaat(durum.bitisUtc)}` : 'Aktif Premium yok.') : 'Durum yükleniyor…'}</p>
+                <div className="form-grubu"><label htmlFor="premiumGun">Eklenecek gün</label><input id="premiumGun" className="form-input" type="number" min="1" max="3650" value={gun} onChange={e => setGun(e.target.value)} disabled={mesgul} /></div>
+                <div className="eylemler"><button type="button" className="btn btn-ana" disabled={mesgul || !Number.isInteger(Number(gun)) || Number(gun) < 1 || Number(gun) > 3650} onClick={() => uygula(Number(gun))}>Premium ver / uzat</button>{durum?.aktif && <button type="button" className="btn btn-tehlike" disabled={mesgul} onClick={() => uygula(0)}>Premium kaldır</button>}<button type="button" className="btn" onClick={kapat} disabled={mesgul}>Kapat</button></div><HataSatiri b={hata} />
+            </div>;
+        };
+
         /* Ad / e-posta değiştir */
         const DuzenleKart = ({ k, calistir, mesgul, kapat }) => {
             const [ad, setAd] = useState(k.kullaniciAdi);
@@ -2887,6 +2903,9 @@
             const ortak = { acik, setAcik };
 
             const kartlar = [];
+            if (can('kullanici.duzenle') && (!baskaYonetici || kendi) && (!sahip || ben.rol === 'Owner')) kartlar.push(
+                <EylemKart key="premium" id="premium" baslik="Premium üyelik" aciklama="Kullanıcıya gün ekleyin veya Premium üyeliğini kaldırın." buton="Premium yönet" {...ortak}><PremiumKart k={k} {...kp} /></EylemKart>
+            );
             if (!genelKilit) {
                 if (can('kullanici.duzenle')) kartlar.push(
                     <EylemKart key="duzenle" id="duzenle" baslik="Kullanıcı adı / e-posta" aciklama="Hesabın görünen adını ya da e-posta adresini değiştirin." buton="Düzenle" {...ortak}>
@@ -2976,7 +2995,7 @@
                         </div>
                     )}
 
-                    {genelKilit && <div className="kilit-not">{genelKilit} Yalnızca bilgileri görüntüleyebilirsiniz.</div>}
+                    {genelKilit && <div className="kilit-not">{genelKilit} Diğer işlemler kısıtlıdır.</div>}
                     <div className="eylem-izgara">{kartlar}</div>
                 </div>
             );

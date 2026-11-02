@@ -1,18 +1,27 @@
-(() => {
+(async () => {
   'use strict';
   if (!window.KAGE95_HIKAYE_AI) return;
-  // Anahtarsız ücretsiz YZ: Pollinations. Sırayla modeller denenir; hepsi düşerse kelime eşleşmesi kullanılır.
-  const YZ_URL = 'https://text.pollinations.ai/openai';
-  const MODELLER = ['openai-fast', 'mistral'];
-  const api = (window.KAGE95_API_URL || '').replace(/\/$/, '');
-  const MAX_ADAY = 80;
+  const api = (window.KAGE95_API_URL || '/api').replace(/\/$/, '');
+  try {
+    const r = await fetch(`${api}/hikaye-arama/durum`);
+    if (!r.ok || !(await r.json()).etkin) return;
+  } catch { return; }
   const ORNEKLER = [
-    'Başka bir dünyaya ışınlanan lise öğrencisi, büyü okulunda yetenekleri uyanıyor',
+    'Ana karakterin geçmişini hatırlamadığı, gizem ve psikolojik gerilim içeren bir manga arıyorum',
     'Hayatta kalmak için şeytanlarla savaşan genç bir kılıç ustası',
     'Sıradan bir çalışan bir anda en güçlü avcıya dönüşüyor',
   ];
 
   const CSS = `
+  #hikaye-mini{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0;padding:15px 18px;border:1px solid var(--border-renk);border-radius:12px;background:var(--bg-kart,var(--bg-yuzey))}
+  #hikaye-mini[hidden],#ucretsiz-hikaye-ai[hidden]{display:none}
+  #hikaye-mini .hy-mini-ac{display:flex;align-items:center;gap:12px;flex:1 1 220px;min-width:0;border:0;padding:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
+  #hikaye-mini .hy-mini-ac:focus-visible,#ucretsiz-hikaye-ai .hy-kucult:focus-visible{outline:2px solid var(--vurgu-rengi);outline-offset:3px}
+  #ucretsiz-hikaye-ai .hy-kucult{margin-left:auto;align-self:flex-start;flex:none;display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--border-renk);border-radius:10px;background:var(--bg-yuzey);color:var(--text-ikincil);cursor:pointer}
+  #ucretsiz-hikaye-ai .hy-kucult:hover{color:var(--vurgu-parlak);border-color:var(--vurgu-rengi)}
+  #hikaye-mini .hy-mini-ikon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--bg-yuzey);color:var(--vurgu-parlak);font-size:19px;flex:none}
+  #hikaye-mini .hy-mini-icerik{flex:1 1 200px;min-width:0} #hikaye-mini strong{display:block;color:var(--text-ana)} #hikaye-mini small{display:block;color:var(--text-ikincil)}
+  #hikaye-mini a{display:inline-flex;align-items:center;gap:6px;color:var(--vurgu-parlak);font-weight:700;text-decoration:none;min-height:40px;padding:0 10px;border-radius:8px} #hikaye-mini a:hover,#hikaye-mini a:focus-visible{background:var(--bg-yuzey);outline-color:var(--vurgu-rengi)}
   #ucretsiz-hikaye-ai{margin:24px 0;padding:clamp(16px,3vw,28px);border:1px solid var(--border-renk);border-radius:14px;background:var(--bg-kart,var(--bg-yuzey));position:relative;overflow:hidden}
   #ucretsiz-hikaye-ai::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--vurgu-rengi),transparent)}
   #ucretsiz-hikaye-ai .hy-baslik{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
@@ -20,9 +29,18 @@
   #ucretsiz-hikaye-ai .hy-rozet{font-size:12px;font-weight:700;letter-spacing:.04em;padding:3px 9px;border-radius:999px;border:1px solid var(--vurgu-rengi);color:var(--vurgu-parlak,var(--vurgu-rengi))}
   #ucretsiz-hikaye-ai .hy-alt{margin:0 0 14px;color:var(--text-ikincil)}
   #ucretsiz-hikaye-ai .hy-alan{position:relative}
+  #ucretsiz-hikaye-ai .hy-ust{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+  #ucretsiz-hikaye-ai .hy-simge{width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--border-renk);border-radius:13px;color:var(--vurgu-parlak);font-size:22px;background:var(--bg-yuzey)}
+  #ucretsiz-hikaye-ai .hy-tercih{display:flex;align-items:center;gap:9px;color:var(--text-ikincil);font-size:14px;cursor:pointer}
+  #ucretsiz-hikaye-ai .hy-tercih input{accent-color:var(--vurgu-rengi);width:16px;height:16px}
+  #ucretsiz-hikaye-ai .hy-gizlilik{font-size:12px;color:var(--text-ikincil);margin:10px 0 0}
+  #ucretsiz-hikaye-ai .hy-ornek-baslik{font-size:12px;color:var(--text-ikincil);margin:18px 0 0;font-weight:600}
+  #ucretsiz-hikaye-ai .hy-liste:empty,#ucretsiz-hikaye-ai .hy-durum:empty{display:none}
   #ucretsiz-hikaye-ai textarea{width:100%;box-sizing:border-box;min-height:96px;padding:12px 14px 28px;border-radius:10px;resize:vertical;color:var(--text-ana);background:var(--bg-ana);border:1px solid var(--border-renk);font:inherit;font-size:16px;transition:border-color .15s}
   #ucretsiz-hikaye-ai textarea:focus{outline:2px solid var(--vurgu-rengi);outline-offset:1px;border-color:var(--vurgu-rengi)}
   #ucretsiz-hikaye-ai .hy-say{position:absolute;right:12px;bottom:8px;font-size:12px;color:var(--text-ikincil);pointer-events:none}
+  #ucretsiz-hikaye-ai .hy-satir .btn-ana{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:10px 18px;font-weight:700}
+  #ucretsiz-hikaye-ai .hy-satir .btn-ana svg{width:17px;height:17px}
   #ucretsiz-hikaye-ai .hy-satir{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
   #ucretsiz-hikaye-ai .hy-ornek{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
   #ucretsiz-hikaye-ai .hy-ornek button{font:inherit;font-size:13px;padding:6px 12px;border-radius:999px;border:1px solid var(--border-renk);background:transparent;color:var(--text-ikincil);cursor:pointer;text-align:left}
@@ -44,79 +62,50 @@
   @keyframes hy-kay{to{background-position:-200% 0}}
   @media (prefers-reduced-motion:reduce){#ucretsiz-hikaye-ai *{animation:none!important;transition:none!important}}`;
 
-  const kok = (s) => String(s || '').toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}\s]/gu, ' ');
-  const DUR = new Set(['bir', 'bu', 'ile', 'ama', 'gibi', 'olan', 'için', 'daha', 'çok', 'sonra', 'diye', 'manga', 'hikaye', 'hikâye', 'vardı', 'biri', 'falan', 'ben', 'bir']);
-  const kelimeler = (s) => [...new Set(kok(s).split(/\s+/).filter(k => k.length > 2 && !DUR.has(k)))];
-
-  // Basit kelime puanı: ad eşleşmesi 3, açıklama eşleşmesi 1; kökü yakalamak için 5 harfe kadar önek.
-  function puanla(manga, ks) {
-    const ad = kok(manga.mangaAdi), ac = kok(manga.aciklama);
-    let p = 0;
-    for (const k of ks) { const o = k.slice(0, Math.max(4, Math.min(k.length, 6))); if (ad.includes(o)) p += 3; if (ac.includes(o)) p += 1; }
-    return p;
-  }
-
-  async function katalog() {
-    const hepsi = [];
-    let sayfa = 1, toplam = 0;
-    do {
-      const r = await fetch(`${api}/mangas?page=${sayfa}&pageSize=100`);
-      if (!r.ok) throw new Error('Manga kataloğu yüklenemedi.');
-      const ogeler = await r.json();
-      if (!Array.isArray(ogeler)) throw new Error('Katalog yanıtı geçersiz.');
-      hepsi.push(...ogeler);
-      toplam = Number(r.headers.get('X-Total-Count') || hepsi.length);
-      sayfa++;
-      if (!ogeler.length) break;
-    } while (hepsi.length < toplam && sayfa <= 101);
-    return hepsi.filter(m => m.yayinda !== false);
-  }
-
-  async function yzSirala(hikaye, adaylar, sinyal) {
-    const liste = adaylar.map(m => `${m.id} | ${m.mangaAdi} | ${String(m.aciklama || '').replace(/\s+/g, ' ').slice(0, 220)}`).join('\n');
-    const istek = [
-      { role: 'system', content: 'Bir manga sitesinin arama asistanısın. Kullanıcı bir mangayı hikâyesinden hatırlamaya çalışıyor. Yalnızca verilen listeden, hikâyeye en çok uyan en fazla 6 seriyi seç. Uymayanı ekleme; hiçbiri uymuyorsa boş liste dön. Yanıtın yalnızca JSON olsun: {"sonuclar":[{"id":<sayı>,"neden":"<Türkçe, tek kısa cümle>"}]}' },
-      { role: 'user', content: `Kullanıcının anlattığı hikâye:\n${hikaye}\n\nListe (id | ad | açıklama):\n${liste}` },
-    ];
-    let sonHata;
-    for (const model of MODELLER) {
-      try {
-        const r = await fetch(YZ_URL, { method: 'POST', signal: sinyal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: istek, response_format: { type: 'json_object' }, temperature: 0.2 }) });
-        if (!r.ok) throw new Error('YZ ' + r.status);
-        const j = await r.json();
-        const metin = j.choices?.[0]?.message?.content || '';
-        const veri = JSON.parse(metin.slice(metin.indexOf('{'), metin.lastIndexOf('}') + 1));
-        const izinli = new Map(adaylar.map(m => [Number(m.id), m]));
-        const cikti = (Array.isArray(veri.sonuclar) ? veri.sonuclar : [])
-          .map(s => ({ m: izinli.get(Number(s.id)), neden: String(s.neden || '').slice(0, 200) }))
-          .filter(s => s.m);
-        return cikti.slice(0, 6);
-      } catch (e) { if (e.name === 'AbortError') throw e; sonHata = e; }
+  function tokenAl() {
+    for (const depo of ['localStorage', 'sessionStorage']) {
+      for (const key of ['kage95_token', 'token', 'jwt']) {
+        try { const token = window[depo].getItem(key); if (token) return token; } catch { /* kapalı depolama */ }
+      }
     }
-    throw sonHata || new Error('YZ yanıt vermedi');
+    return null;
   }
 
   function baslat() {
-    if (document.getElementById('ucretsiz-hikaye-ai')) return;
-    const hedef = document.querySelector('#seriler');
+    const tamHedef = document.querySelector('#kesfet-hikaye');
+    const miniHedef = document.querySelector('#seriler');
+    const hedef = tamHedef || miniHedef;
     if (!hedef) return;
+    if (hedef.querySelector('#ucretsiz-hikaye-ai')) return;
     if (!document.getElementById('hikaye-ai-css')) {
       const st = document.createElement('style'); st.id = 'hikaye-ai-css'; st.textContent = CSS; document.head.append(st);
     }
+    const mini = document.createElement('section');
+    mini.id = 'hikaye-mini';
+    mini.hidden = !!tamHedef;
+    mini.setAttribute('aria-label', 'Hikâyeyle manga bul');
+    mini.innerHTML = '<button type="button" class="hy-mini-ac" aria-expanded="false" aria-controls="ucretsiz-hikaye-ai"><span class="hy-mini-ikon" aria-hidden="true">✦</span><span class="hy-mini-icerik"><strong>Hikâyeyle manga bul</strong><small>Hatırladığın hikâyeyi anlatarak ara.</small></span><span aria-hidden="true">⌄</span></button>' + (!tamHedef ? '<a href="#/kesfet">Keşfet’e git <span aria-hidden="true">→</span></a>' : '');
+    hedef.prepend(mini);
     const kutu = document.createElement('section');
     kutu.id = 'ucretsiz-hikaye-ai';
+    kutu.hidden = !tamHedef;
     kutu.setAttribute('aria-label', 'Hikâyeyle manga bul');
-    kutu.innerHTML = `<div class="hy-baslik"><h2>Hikâyeyle Manga Bul</h2><span class="hy-rozet">YZ</span></div>
-      <p class="hy-alt">Adını hatırlamadığın manganın hikâyesini anlat, yapay zekâ kataloğumuzda onu bulsun.</p>
+    kutu.innerHTML = `<div class="hy-ust"><span class="hy-simge" aria-hidden="true">✦</span><div><div class="hy-baslik"><h2>Hikâyeyle Manga Bul</h2><span class="hy-rozet">KEŞFET</span></div><p class="hy-alt">Hatırladığın karakteri, dünyayı veya bir sahneyi anlat.</p></div><button type="button" class="hy-kucult" aria-label="Hikâye aramasını küçült" title="Küçült"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg></button></div>
       <form><div class="hy-alan"><textarea aria-label="Manganın hikâyesi" minlength="10" maxlength="500" required placeholder="Örneğin: Başka bir dünyada uyanan bir kahraman…"></textarea><span class="hy-say" aria-hidden="true">0/500</span></div>
-      <div class="hy-satir"><button class="btn-ana" type="submit">Manga bul</button><span class="manga-meta">En az 10 karakter. Metin ücretsiz bir YZ servisine (Pollinations) gönderilir.</span></div>
-      <div class="hy-ornek" role="group" aria-label="Örnek hikâyeler"></div></form>
+      <div class="hy-satir"><button class="btn-ana" type="submit"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>Manga bul</span></button><span class="manga-meta">En az 10 karakter. Yalnızca kataloğumuzdaki mangalar önerilir.</span></div>
+      <label class="hy-tercih"><input type="checkbox" class="hy-favori"> <span class="hy-favori-yazi"></span></label><p class="hy-gizlilik">Hikâye tarifi ve seçersen favori manga bilgileri öneri için AI sağlayıcısına gönderilir.</p>
+      <p class="hy-ornek-baslik">Bir örnekle başla</p><div class="hy-ornek" role="group" aria-label="Örnek hikâyeler"></div></form>
       <p class="hy-durum" role="status" aria-live="polite"></p>
       <ul class="hy-liste" aria-label="Bulunan seriler"></ul>
       <p class="hy-kaynak" hidden></p>`;
-    hedef.prepend(kutu);
+    mini.after(kutu);
+    const ac = mini.querySelector('.hy-mini-ac');
+    const kucult = kutu.querySelector('.hy-kucult');
+    ac.addEventListener('click', () => { mini.hidden = true; kutu.hidden = false; ac.setAttribute('aria-expanded', 'true'); kutu.querySelector('textarea').focus(); });
+    kucult.addEventListener('click', () => { kutu.hidden = true; mini.hidden = false; ac.setAttribute('aria-expanded', 'false'); ac.focus(); });
     const $ = (s) => kutu.querySelector(s);
     const form = $('form'), alan = $('textarea'), say = $('.hy-say'), durum = $('.hy-durum'), liste = $('.hy-liste'), kaynak = $('.hy-kaynak'), dugme = form.querySelector('button[type=submit]');
+    $('.hy-favori-yazi').textContent = tokenAl() ? 'Favorilerimi de kullan' : 'Favorilerimi de kullan (giriş gerekir)';
     const guncelleSay = () => { say.textContent = `${alan.value.length}/500`; };
     alan.addEventListener('input', guncelleSay);
     for (const o of ORNEKLER) {
@@ -134,22 +123,18 @@
       for (let i = 0; i < 3; i++) { const s = document.createElement('li'); s.className = 'hy-iskelet'; liste.append(s); }
       const hikaye = alan.value.trim();
       try {
-        durum.textContent = 'Katalog taranıyor…';
-        const tum = await katalog();
-        const adayli = tum.filter(m => m.aciklama);
-        if (!adayli.length) { liste.replaceChildren(); durum.textContent = 'Aranabilir açıklama bulunamadı.'; return; }
-        const ks = kelimeler(hikaye);
-        const puanli = adayli.map(m => ({ m, p: puanla(m, ks) })).sort((a, b) => b.p - a.p);
-        const adaylar = puanli.slice(0, MAX_ADAY).map(x => x.m);
-        let sonuc, yz = true;
-        durum.textContent = 'Yapay zekâ hikâyeni okuyor…';
-        try { sonuc = await yzSirala(hikaye, adaylar, onceki.signal); }
-        catch (err) {
-          if (err.name === 'AbortError') return;
-          console.warn('Hikâye YZ yedeğe düştü:', err);
-          yz = false;
-          sonuc = puanli.filter(x => x.p > 0).slice(0, 6).map(x => ({ m: x.m, neden: '' }));
-        }
+        durum.textContent = 'Katalogda uygun mangalar aranıyor…';
+        const token = tokenAl();
+        const r = await fetch(`${api}/hikaye-arama`, {
+          method: 'POST', signal: AbortSignal.any([onceki.signal, AbortSignal.timeout(45_000)]),
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ metin: hikaye, favorilerimiKullan: $('.hy-favori').checked })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.message || (r.status === 429 ? 'Arama sınırına ulaştın. Bir süre sonra yeniden dene.' : r.status === 401 ? 'Oturum açıp yeniden dene.' : 'Arama şu anda yapılamadı. Normal aramayı kullanabilirsin.'));
+        if (!Array.isArray(data.sonuclar)) throw new Error('Arama yanıtı geçersiz.');
+        const yz = data.mod !== 'kelime';
+        const sonuc = data.sonuclar.map(m => ({ m, neden: '' }));
         liste.replaceChildren();
         if (!sonuc.length) { durum.textContent = 'Bu hikâyeye uyan bir seri bulamadık. Karakter, dünya ya da olay gibi daha fazla ayrıntı eklemeyi dene.'; return; }
         sonuc.forEach(({ m, neden }, i) => {
@@ -164,13 +149,13 @@
           const nd = document.createElement('span'); nd.className = 'hy-neden'; nd.textContent = neden || String(m.aciklama || '').slice(0, 140);
           metin.append(ad, nd); a.append(kapak, metin); li.append(a); liste.append(li);
         });
-        durum.textContent = `${sonuc.length} öneri bulundu.`;
-        kaynak.textContent = yz ? 'Öneriler ücretsiz yapay zekâ ile sıralandı.' : 'Yapay zekâ şu an yanıt vermedi; kelime eşleşmeleri gösteriliyor.';
+        durum.textContent = yz ? `${sonuc.length} öneri bulundu.` : `${sonuc.length} kelime eşleşmesi bulundu; sıralama hikâye uyumunu garanti etmez.`;
+        kaynak.textContent = yz ? 'Öneriler yapay zekâ ile sıralandı.' : 'Yapay zekâ şu anda kullanılamıyor; kelime eşleşmeleri gösteriliyor.';
         kaynak.hidden = false;
       } catch (err) {
         console.error('Hikâye araması:', err);
         liste.replaceChildren();
-        hata('Arama şu anda yapılamadı. Normal manga aramasını kullanabilirsin.');
+        hata(err.name === 'TimeoutError' ? 'Arama zaman aşımına uğradı. Yeniden deneyebilirsin.' : err.message);
       } finally { dugme.disabled = false; }
     });
   }
