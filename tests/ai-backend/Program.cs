@@ -46,6 +46,10 @@ Check(!await premium.Etkin(5,default),"Expired premium rejected");
 db.PremiumUyelikler.Find(5)!.BitisUtc=DateTime.UtcNow.AddDays(1); await db.SaveChangesAsync(); Check(await premium.Etkin(5,default),"Active premium accepted");
 Check(quota.Kullan("guest-test",null) && quota.Kullan("guest-test",null) && quota.Kullan("guest-test",null) && !quota.Kullan("guest-test",null),"Guest daily quota enforced");
 Check(Enumerable.Range(0,50).All(_ => quota.Kullan("premium-test",5,true)) && !quota.Kullan("premium-test",5,true),"Premium 50 requests enforced");
+var fallbackTransport = new FallbackHttp();
+var fallbackAi = new UcretsizAiIstemcisi(new Clients(fallbackTransport), cfg);
+var fallbackIds = await fallbackAi.Sirala("Turuncu saçlı kahraman", new[] { new KageAiIstemcisi.Aday(8, "Bleach") }, "", default);
+Check(fallbackIds.SequenceEqual(new[] { 8 }) && fallbackTransport.Calls == 2, "Empty AI answer tries next provider and filters IDs");
 var temp = Path.Combine(Path.GetTempPath(), "kage-ai-test-"+Guid.NewGuid()); Directory.CreateDirectory(Path.Combine(temp,"uploads"));
 try {
     var env=new Env { WebRootPath=temp }; var files=new PremiumDosyaServisi(env,cfg);
@@ -80,4 +84,13 @@ sealed class Clients(HttpMessageHandler handler) : IHttpClientFactory { public H
 sealed class Env : IWebHostEnvironment {
  public string WebRootPath {get;set;}=""; public string EnvironmentName {get;set;}="Development"; public string ApplicationName {get;set;}="Tests"; public string ContentRootPath {get;set;}="";
  public IFileProvider WebRootFileProvider {get;set;}=new NullFileProvider(); public IFileProvider ContentRootFileProvider {get;set;}=new NullFileProvider();
+}
+
+sealed class FallbackHttp : HttpMessageHandler {
+ public int Calls;
+ protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) {
+  Calls++; var text = Calls == 1 ? "{\"ids\":[]}" : "{\"ids\":[8,999]}";
+  var content = JsonSerializer.Serialize(new { choices = new[] { new { message = new { content = text } } } });
+  return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(content, System.Text.Encoding.UTF8, "application/json") });
+ }
 }

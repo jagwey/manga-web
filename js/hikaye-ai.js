@@ -104,7 +104,7 @@
         durum.textContent = 'Katalogda uygun mangalar aranıyor…';
         const token = tokenAl();
         const r = await fetch(`${api}/hikaye-arama`, {
-          method: 'POST', signal: AbortSignal.any([onceki.signal, AbortSignal.timeout(30_000)]),
+          method: 'POST', signal: AbortSignal.any([onceki.signal, AbortSignal.timeout(45_000)]),
           headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           body: JSON.stringify({ metin: hikaye, favorilerimiKullan: $('.hy-favori').checked })
         });

@@ -12,6 +12,7 @@ public sealed class UcretsizAiIstemcisi(IHttpClientFactory clients, IConfigurati
         var compact = candidates.Select(c => new { c.Id, Text = c.Text[..Math.Min(c.Text.Length, 240)] }).ToArray();
         var prompt = JsonSerializer.Serialize(new { query, candidates = compact, preferences });
         var allowed = candidates.Select(c => c.Id).ToHashSet();
+        var bosYanitVar = false;
         foreach (var (url, model, auth) in new[] { ("https://api.groq.com/openai/v1/chat/completions", "qwen/qwen3.8-27b", config["KageAi:GroqApiKey"]), ("https://text.pollinations.ai/openai", "openai-fast", (string?)null), ("https://api.llm7.io/v1/chat/completions", "default", (string?)null) })
         {
             if (url.Contains("api.groq.com") && string.IsNullOrWhiteSpace(auth)) continue;
@@ -30,11 +31,13 @@ public sealed class UcretsizAiIstemcisi(IHttpClientFactory clients, IConfigurati
                 if (!match.Success) throw new InvalidDataException();
                 using var data = JsonDocument.Parse(match.Value);
                 var ids = data.RootElement.GetProperty("ids").EnumerateArray().Select(x => x.GetInt32()).Where(allowed.Contains).Distinct().Take(6).ToArray();
-                return ids;
+                if (ids.Length > 0) return ids;
+                bosYanitVar = true;
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
             catch (Exception) { /* Sonraki sağlayıcı; sorgu ve sırlar günlüğe yazılmaz. */ }
         }
+        if (bosYanitVar) return [];
         throw new InvalidOperationException("Ucretsiz AI kullanilamiyor.");
     }
 }
