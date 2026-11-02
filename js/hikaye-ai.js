@@ -64,7 +64,7 @@
     kutu.id = 'ucretsiz-hikaye-ai';
     kutu.setAttribute('aria-label', 'Hikâyeyle manga bul');
     kutu.innerHTML = `<div class="hy-baslik"><h2>Hikâyeyle Manga Bul</h2><span class="hy-rozet">YZ</span></div>
-      <p class="hy-alt">Adını hatırlamadığın manganın hikâyesini anlat, yapay zekâ kataloğumuzda onu bulsun.</p>
+      <p class="hy-alt">Adını hatırlamadığın manganın hikâyesini anlat; kataloğumuzda ara.</p>
       <form><div class="hy-alan"><textarea aria-label="Manganın hikâyesi" minlength="10" maxlength="500" required placeholder="Örneğin: Başka bir dünyada uyanan bir kahraman…"></textarea><span class="hy-say" aria-hidden="true">0/500</span></div>
       <div class="hy-satir"><button class="btn-ana" type="submit">Manga bul</button><span class="manga-meta">En az 10 karakter. Yalnızca kataloğumuzdaki mangalar önerilir.</span></div>
       <label><input type="checkbox" class="hy-favori"> Favorilerimi de kullan (giriş gerekir)</label><p class="manga-meta">Hikâye tarifi ve seçersen favori manga bilgileri öneri için AI sağlayıcısına gönderilir.</p>
@@ -118,8 +118,8 @@
           const nd = document.createElement('span'); nd.className = 'hy-neden'; nd.textContent = neden || String(m.aciklama || '').slice(0, 140);
           metin.append(ad, nd); a.append(kapak, metin); li.append(a); liste.append(li);
         });
-        durum.textContent = `${sonuc.length} öneri bulundu.`;
-        kaynak.textContent = yz ? 'Öneriler Kage AI ile sıralandı.' : 'Yapay zekâ şu an yanıt vermedi; kelime eşleşmeleri gösteriliyor.';
+        durum.textContent = yz ? `${sonuc.length} öneri bulundu.` : `${sonuc.length} kelime eşleşmesi bulundu; sıralama hikâye uyumunu garanti etmez.`;
+        kaynak.textContent = yz ? 'Öneriler Kage AI ile sıralandı.' : 'Kage AI henüz bağlı değil; yalnızca kelime eşleşmeleri gösteriliyor.';
         kaynak.hidden = false;
       } catch (err) {
         console.error('Hikâye araması:', err);
