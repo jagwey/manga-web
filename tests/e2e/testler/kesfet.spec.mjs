@@ -29,7 +29,15 @@ test('Ana sayfadaki kısa kart Keşfet aramasını açar @sahte', async ({ page 
   await page.goto('/');
   const mini = page.locator('#hikaye-mini');
   await expect(mini).toBeVisible();
-  await expect(page.getByLabel('Manganın hikâyesi')).toHaveCount(0);
+  await expect(page.getByLabel('Manganın hikâyesi')).toBeHidden();
+  await mini.getByRole('button', { name: /Hikâyeyle manga bul/ }).click();
+  await expect(page.getByLabel('Manganın hikâyesi')).toBeVisible();
+  await page.getByLabel('Manganın hikâyesi').fill('Geçmişini hatırlamayan gizemli karakter');
+  await page.getByRole('button', { name: 'Hikâye aramasını küçült' }).click();
+  await expect(page.getByLabel('Manganın hikâyesi')).toBeHidden();
+  await mini.getByRole('button', { name: /Hikâyeyle manga bul/ }).click();
+  await expect(page.getByLabel('Manganın hikâyesi')).toHaveValue('Geçmişini hatırlamayan gizemli karakter');
+  await page.getByRole('button', { name: 'Hikâye aramasını küçült' }).click();
   await mini.getByRole('link', { name: /Keşfet’e git/ }).click();
   await expect(page.getByRole('heading', { name: 'Hikâyeyle Manga Bul' })).toBeVisible();
   await expect(page.getByLabel('Manganın hikâyesi')).toBeVisible();
