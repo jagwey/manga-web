@@ -3586,6 +3586,7 @@
             const sifirla = () => { setMetin(''); setArama(''); setTur(''); setDurum(''); setSirala('yeni'); setAciklama(false); setSayfa(1); };
             return <main className="ana-icerik kesfet" aria-label="Manga keşfet">
                 <div className="kesfet-baslik"><span className="kesfet-ikon" aria-hidden="true">✦</span><div><h1>Keşfet</h1><p>Arşivde yeni bir hikâye bul.</p></div></div>
+                <div id="kesfet-hikaye"></div>
                 <div className="kesfet-filtreler">
                     <label className="kesfet-arama"><span>Manga adı</span><input type="search" value={metin} onChange={e => setMetin(e.target.value)} placeholder="Manga adı ara..." /></label>
                     <label><span>Tür</span><select value={tur} onChange={e => { setTur(e.target.value); setSayfa(1); }}><option value="">Tüm türler</option>{kategoriler.map(k => <option value={k} key={k}>{k}</option>)}</select></label>

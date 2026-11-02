@@ -22,3 +22,15 @@ test('Keşfet filtreleri ve gezinme @sahte', async ({ page, isMobile }) => {
   await expect.poll(() => queries.some(q => q.includes('category='))).toBeTruthy();
 });
 
+
+test('Ana sayfadaki kısa kart Keşfet aramasını açar @sahte', async ({ page }) => {
+  await sahteApiKur(page);
+  await page.route('**/api/hikaye-arama/durum', r => r.fulfill({ json: { etkin: true } }));
+  await page.goto('/');
+  const mini = page.locator('#hikaye-mini');
+  await expect(mini).toBeVisible();
+  await expect(page.getByLabel('Manganın hikâyesi')).toHaveCount(0);
+  await mini.getByRole('link', { name: /Keşfet’e git/ }).click();
+  await expect(page.getByRole('heading', { name: 'Hikâyeyle Manga Bul' })).toBeVisible();
+  await expect(page.getByLabel('Manganın hikâyesi')).toBeVisible();
+});

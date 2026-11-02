@@ -13,6 +13,10 @@
   ];
 
   const CSS = `
+  #hikaye-mini{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0;padding:15px 18px;border:1px solid var(--border-renk);border-radius:12px;background:var(--bg-kart,var(--bg-yuzey))}
+  #hikaye-mini .hy-mini-ikon{display:grid;place-items:center;width:36px;height:36px;border-radius:10px;background:var(--bg-yuzey);color:var(--vurgu-parlak);font-size:19px;flex:none}
+  #hikaye-mini .hy-mini-icerik{flex:1 1 200px;min-width:0} #hikaye-mini strong{display:block;color:var(--text-ana)} #hikaye-mini small{display:block;color:var(--text-ikincil)}
+  #hikaye-mini a{display:inline-flex;align-items:center;gap:6px;color:var(--vurgu-parlak);font-weight:700;text-decoration:none;min-height:40px;padding:0 10px;border-radius:8px} #hikaye-mini a:hover,#hikaye-mini a:focus-visible{background:var(--bg-yuzey);outline-color:var(--vurgu-rengi)}
   #ucretsiz-hikaye-ai{margin:24px 0;padding:clamp(16px,3vw,28px);border:1px solid var(--border-renk);border-radius:14px;background:var(--bg-kart,var(--bg-yuzey));position:relative;overflow:hidden}
   #ucretsiz-hikaye-ai::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--vurgu-rengi),transparent)}
   #ucretsiz-hikaye-ai .hy-baslik{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 4px}
@@ -63,11 +67,22 @@
   }
 
   function baslat() {
-    if (document.getElementById('ucretsiz-hikaye-ai')) return;
-    const hedef = document.querySelector('#seriler');
+    const tamHedef = document.querySelector('#kesfet-hikaye');
+    const miniHedef = document.querySelector('#seriler');
+    const hedef = tamHedef || miniHedef;
     if (!hedef) return;
+    if (tamHedef && document.getElementById('ucretsiz-hikaye-ai')) return;
+    if (!tamHedef && document.getElementById('hikaye-mini')) return;
     if (!document.getElementById('hikaye-ai-css')) {
       const st = document.createElement('style'); st.id = 'hikaye-ai-css'; st.textContent = CSS; document.head.append(st);
+    }
+    if (!tamHedef) {
+      const mini = document.createElement('section');
+      mini.id = 'hikaye-mini';
+      mini.setAttribute('aria-label', 'Hikâyeyle manga bul');
+      mini.innerHTML = '<span class="hy-mini-ikon" aria-hidden="true">✦</span><span class="hy-mini-icerik"><strong>Hikâyeyle manga bul</strong><small>Hatırladığın hikâyeyi anlatarak ara.</small></span><a href="#/kesfet">Keşfet’e git <span aria-hidden="true">→</span></a>';
+      hedef.prepend(mini);
+      return;
     }
     const kutu = document.createElement('section');
     kutu.id = 'ucretsiz-hikaye-ai';

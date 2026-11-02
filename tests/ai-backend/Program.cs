@@ -70,6 +70,21 @@ try {
     Check((await pc.Sor(11,new PremiumController.BolumSorusu("Bu sayfada ne oluyor?"),default) as ObjectResult)?.StatusCode==403,"Cancelled membership cannot ask AI");
     Check((pc.SatinAl() as ObjectResult)?.StatusCode==503,"Unconfigured payment cannot activate premium");
 } finally { Directory.Delete(temp,true); }
+var owner = new Kullanici { Id=40, KullaniciAdi="owner", Rol="Owner" };
+var admin = new Kullanici { Id=41, KullaniciAdi="admin", Rol="Admin" };
+db.Kullanicilar.AddRange(owner, admin); await db.SaveChangesAsync();
+var adminContext = new DefaultHttpContext(); adminContext.Items["Kullanici"] = owner;
+var adminController = new AdminController(db, new DenetimServisi(db), null!, null!, null!) { ControllerContext = new ControllerContext { HttpContext=adminContext } };
+Check(await adminController.PremiumDuzenle(40, new AdminController.PremiumDuzenleRequest(30), default) is OkObjectResult && await premium.Etkin(40, default), "Owner can grant self premium");
+var oldExpiry = db.PremiumUyelikler.Find(40)!.BitisUtc;
+await adminController.PremiumDuzenle(40, new AdminController.PremiumDuzenleRequest(30), default);
+Check(db.PremiumUyelikler.Find(40)!.BitisUtc >= oldExpiry.AddDays(30).AddSeconds(-1), "Premium extension preserves remaining time");
+Check(await adminController.PremiumDuzenle(40, new AdminController.PremiumDuzenleRequest(0), default) is OkObjectResult && !await premium.Etkin(40, default), "Owner can remove premium");
+adminContext.Items["Kullanici"] = admin;
+Check((await adminController.PremiumDuzenle(40, new AdminController.PremiumDuzenleRequest(30), default) as ObjectResult)?.StatusCode == 403, "Admin cannot grant owner premium");
+Check(await adminController.PremiumDuzenle(41, new AdminController.PremiumDuzenleRequest(30), default) is OkObjectResult, "Authorized admin can grant self premium");
+Check(await adminController.PremiumDuzenle(41, new AdminController.PremiumDuzenleRequest(3651), default) is BadRequestObjectResult, "Premium grant limit enforced");
+Check(await db.DenetimKayitlari.AnyAsync(x => x.Eylem == "kullanici.premium"), "Premium changes are audited");
 Console.WriteLine($"{checks} backend checks passed (in-memory DB, mocked HTTPS; not live SQL/provider).");
 
 sealed class FakeHttp : HttpMessageHandler {
