@@ -1011,6 +1011,8 @@
         .bolum-listesi li { border-bottom: 1px solid var(--border-renk); display:flex; align-items:center; }
         .bolum-listesi .bolum-satir { flex:1; min-width:0; }
         .bolum-izgara li { display:flex; align-items:center; }
+        .toplu-indir-btn { display:inline-flex; align-items:center; gap:7px; padding:8px 12px; border:1px solid var(--border-renk); border-radius:9px; background:var(--bg-yuzey); color:var(--text-ana); font:inherit; font-size:.83rem; font-weight:600; cursor:pointer; }
+        .toplu-indir-btn:hover,.toplu-indir-btn:focus-visible { border-color:var(--vurgu-rengi); color:var(--vurgu-parlak); }
         .bolum-indir { border:0; background:transparent; cursor:pointer; flex:0 0 38px; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; color:var(--text-ikincil); text-decoration:none; transition:color .15s, background .15s; }
         .bolum-indir:hover, .bolum-indir:focus-visible { color:var(--vurgu-parlak); background:var(--bg-yuzey); outline-color:var(--vurgu-rengi); }
         .bolum-satir {
@@ -4044,7 +4046,7 @@
                         <div className="bolum-baslik-satir">
                             <div className="bolum-baslik-sol">
                                 <h2>Bölümler</h2>
-                                {bolumler.length > 0 && <button type="button" className="link-btn" onClick={() => window.KageIndirme.sec(bolumler)}>Toplu indir</button>}
+                                {bolumler.length > 0 && <button type="button" className="toplu-indir-btn" onClick={() => window.KageIndirme.sec(bolumler)}><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg><span>Toplu indir</span></button>}
                                 <span className="bolum-sayisi-rozet">{bolumler.length}</span>
                             </div>
                             <div className="bolum-filtre-bar">

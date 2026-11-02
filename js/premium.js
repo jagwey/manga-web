@@ -30,7 +30,8 @@
     },
     sec(bolumler) {
       const d = document.createElement('dialog');
-      d.style.cssText = 'max-width:460px;width:90%;max-height:80vh;background:var(--bg-kart);color:var(--text-ana);border:1px solid var(--border-renk);border-radius:12px;padding:20px';
+      d.className = 'kage-indir-dialog';
+      if (!document.getElementById('kage-indir-stil')) { const style = document.createElement('style'); style.id = 'kage-indir-stil'; style.textContent = `.kage-indir-dialog{max-width:460px;width:calc(100% - 32px);max-height:80vh;background:var(--bg-kart);color:var(--text-ana);border:1px solid var(--border-renk);border-radius:16px;padding:24px;box-shadow:0 18px 55px #0008}.kage-indir-dialog::backdrop{background:#000b}.kage-indir-dialog h2{margin:0 0 8px}.kage-indir-dialog p{color:var(--text-ikincil);font-size:14px}.kage-indir-dialog label{display:flex!important;align-items:center;gap:10px;border-bottom:1px solid var(--border-renk);cursor:pointer}.kage-indir-dialog input{accent-color:var(--vurgu-rengi);width:17px;height:17px}.kage-indir-dialog button{margin:14px 8px 0 0;min-height:42px}`; document.head.append(style); }
       const h = document.createElement('h2'); h.textContent = 'Bölümleri seç'; d.append(h);
       const info = document.createElement('p'); info.textContent = 'En fazla 20 bölüm seçebilirsin. Premium üyelik gerekir.'; d.append(info);
       const list = document.createElement('div'); list.style.cssText = 'max-height:45vh;overflow:auto';
