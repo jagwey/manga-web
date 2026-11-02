@@ -19,6 +19,7 @@
   }
   const durum = document.querySelector('#uyelik');
   if (!durum) {
+    if (!location.pathname.endsWith('read.html')) return;
     const a = document.createElement('a');
     a.textContent = location.pathname.endsWith('read.html') ? 'Premium · Bölüm araçları' : 'Premium · 9,99 TL/ay';
     a.href = '/premium.html' + location.search;
