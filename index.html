@@ -1008,7 +1008,11 @@
         .seri-yorumlar { margin-top: var(--bosluk-4); max-width: 720px; }
 
         .bolum-listesi { list-style: none; border-top: 1px solid var(--border-renk); }
-        .bolum-listesi li { border-bottom: 1px solid var(--border-renk); }
+        .bolum-listesi li { border-bottom: 1px solid var(--border-renk); display:flex; align-items:center; }
+        .bolum-listesi .bolum-satir { flex:1; min-width:0; }
+        .bolum-izgara li { display:flex; align-items:center; }
+        .bolum-indir { flex:0 0 38px; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; color:var(--text-ikincil); text-decoration:none; transition:color .15s, background .15s; }
+        .bolum-indir:hover, .bolum-indir:focus-visible { color:var(--vurgu-parlak); background:var(--bg-yuzey); outline-color:var(--vurgu-rengi); }
         .bolum-satir {
             min-height: 52px; padding: var(--bosluk-1) 0; display: flex; align-items: center; justify-content: space-between; gap: var(--bosluk-2);
             transition: color .15s ease;
@@ -4102,6 +4106,7 @@
                                     try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
+                                            <a className="bolum-indir" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indirme seçenekleri`} title="Premium indirme seçenekleri"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></a>
                                             <a className={`bolum-cip ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
                                                onClick={() => { okunduIsaretle(manga.id, b.id); }}
@@ -4109,7 +4114,6 @@
                                                 <span>Bl. {bolumNoYaz(b.bolumNo)}</span>
                                                 {okundu && <span className="cip-nokta" aria-hidden="true"></span>}
                                             </a>
-                                            <a className="link-btn" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indir`}>İndir ♛</a>
                                         </li>
                                     );
                                 })}
@@ -4122,6 +4126,7 @@
                                     try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
+                                            <a className="bolum-indir" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indirme seçenekleri`} title="Premium indirme seçenekleri"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></a>
                                             <a className={`bolum-satir ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
                                                onClick={() => { okunduIsaretle(manga.id, b.id); }}>
@@ -4135,7 +4140,6 @@
                                                     <span className="bolum-tarih">{tarihYaz(b.yayinTarihi)}</span>
                                                 </span>
                                             </a>
-                                            <a className="link-btn" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indir`}>İndir ♛</a>
                                         </li>
                                     );
                                 })}
