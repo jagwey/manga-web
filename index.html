@@ -1007,6 +1007,22 @@
         .manga-puan svg { width: 12px; height: 12px; color: var(--vurgu-parlak); fill: currentColor; flex-shrink: 0; }
         .seri-yorumlar { margin-top: var(--bosluk-4); max-width: 720px; }
 
+
+        .kesfet { padding-top: clamp(24px,4vw,52px); padding-bottom: 48px; }
+        .kesfet-baslik { display:flex; align-items:center; gap:14px; margin-bottom:24px; }
+        .kesfet-baslik h1 { margin:0; font-size:clamp(1.7rem,4vw,2.3rem); }
+        .kesfet-baslik p { margin:2px 0 0; color:var(--text-ikincil); }
+        .kesfet-ikon { display:grid; place-items:center; width:48px; height:48px; border-radius:14px; background:var(--bg-yuzey); border:1px solid var(--border-renk); color:var(--vurgu-parlak); font-size:24px; }
+        .kesfet-filtreler { display:grid; grid-template-columns:2fr repeat(3,minmax(130px,1fr)); gap:14px; padding:20px; border:1px solid var(--border-renk); border-radius:14px; background:var(--bg-kart); }
+        .kesfet-filtreler label:not(.kesfet-aciklama) { display:flex; flex-direction:column; gap:6px; color:var(--text-ikincil); font-size:.82rem; font-weight:600; }
+        .kesfet-filtreler input[type=search], .kesfet-filtreler select { min-width:0; width:100%; min-height:44px; padding:9px 12px; border:1px solid var(--border-renk); border-radius:9px; background:var(--bg-ana); color:var(--text-ana); font:inherit; font-size:16px; }
+        .kesfet-filtreler :is(input,select,button):focus-visible { outline:2px solid var(--vurgu-rengi); outline-offset:2px; }
+        .kesfet-aciklama { display:flex; align-items:center; gap:8px; color:var(--text-ikincil); font-size:.85rem; }
+        .kesfet-aciklama input { accent-color:var(--vurgu-rengi); width:16px; height:16px; }
+        .kesfet-temizle { justify-self:start; border:0; background:none; color:var(--vurgu-parlak); font:inherit; font-size:.85rem; cursor:pointer; }
+        .kesfet-sonuc { color:var(--text-ikincil); margin:24px 0 14px; }
+        .kesfet-sayfalama { display:flex; align-items:center; justify-content:center; gap:14px; margin-top:28px; color:var(--text-ikincil); }
+        @media(max-width:760px) { .kesfet-filtreler { grid-template-columns:repeat(2,minmax(0,1fr)); padding:16px; gap:12px; } .kesfet-arama { grid-column:1 / -1; } .kesfet-sayfalama { gap:8px; font-size:.85rem; } }
         .bolum-listesi { list-style: none; border-top: 1px solid var(--border-renk); }
         .bolum-listesi li { border-bottom: 1px solid var(--border-renk); display:flex; align-items:center; }
         .bolum-listesi .bolum-satir { flex:1; min-width:0; }
@@ -1486,6 +1502,7 @@
             if (/^#\/(kutuphane|favoriler|favorites)(\/|$|\?)/.test(h))
                 return { sayfa: 'kutuphane', alias: !/^#\/kutuphane(\/|$|\?)/.test(h) };
             if (/^#\/(profil|hesabim)/.test(h)) return { sayfa: 'profil' };
+            if (/^#\/kesfet(\/|$|\?)/.test(h)) return { sayfa: 'kesfet' };
             if (/^#\/liderlik/.test(h)) return { sayfa: 'liderlik' };
             if (/^#\/topluluk/.test(h)) return { sayfa: 'forum', yol: '#/forum' };
             if (/^#\/forum(\/|$|\?)/.test(h)) return { sayfa: 'forum', yol: h };
@@ -3540,6 +3557,51 @@
             );
         };
 
+        const KesfetSayfasi = () => {
+            const [metin, setMetin] = React.useState('');
+            const [arama, setArama] = React.useState('');
+            const [tur, setTur] = React.useState('');
+            const [durum, setDurum] = React.useState('');
+            const [sirala, setSirala] = React.useState('yeni');
+            const [aciklama, setAciklama] = React.useState(false);
+            const [kategoriler, setKategoriler] = React.useState([]);
+            const [mangalar, setMangalar] = React.useState([]);
+            const [toplam, setToplam] = React.useState(0);
+            const [sayfa, setSayfa] = React.useState(1);
+            const [yukleniyor, setYukleniyor] = React.useState(true);
+            const [hata, setHata] = React.useState('');
+            const [yenile, setYenile] = React.useState(0);
+            React.useEffect(() => { const t = setTimeout(() => { setSayfa(1); setArama(metin.trim()); }, 350); return () => clearTimeout(t); }, [metin]);
+            React.useEffect(() => { const c = new AbortController(); fetch(`${API_URL}/categories`, { signal:c.signal }).then(r => r.ok ? r.json() : []).then(v => setKategoriler(Array.isArray(v) ? v.map(x => x.kategoriAdi).filter(Boolean) : [])).catch(() => {}); return () => c.abort(); }, []);
+            React.useEffect(() => {
+                const c = new AbortController(); setYukleniyor(true); setHata('');
+                const p = new URLSearchParams({ page: String(sayfa), pageSize: '24' });
+                if (arama) { p.set('search', arama); p.set('aciklama', String(aciklama)); }
+                if (tur) p.set('category', tur);
+                if (durum) p.set('durum', durum);
+                if (sirala !== 'yeni') p.set('sirala', sirala);
+                fetch(`${API_URL}/mangas?${p}`, { signal:c.signal }).then(r => { if (!r.ok) throw new Error(); const t = Number(r.headers.get('X-Total-Count')); return r.json().then(v => ({ v, t })); }).then(({v,t}) => { if (!Array.isArray(v)) throw new Error(); setMangalar(v); setToplam(Number.isFinite(t) && t >= v.length ? t : v.length); }).catch(e => { if (e.name !== 'AbortError') { setMangalar([]); setHata('Seriler yüklenemedi. Lütfen tekrar dene.'); } }).finally(() => { if (!c.signal.aborted) setYukleniyor(false); });
+                return () => c.abort();
+            }, [arama,tur,durum,sirala,aciklama,sayfa,yenile]);
+            const sifirla = () => { setMetin(''); setArama(''); setTur(''); setDurum(''); setSirala('yeni'); setAciklama(false); setSayfa(1); };
+            return <main className="ana-icerik kesfet" aria-label="Manga keşfet">
+                <div className="kesfet-baslik"><span className="kesfet-ikon" aria-hidden="true">✦</span><div><h1>Keşfet</h1><p>Arşivde yeni bir hikâye bul.</p></div></div>
+                <div className="kesfet-filtreler">
+                    <label className="kesfet-arama"><span>Manga adı</span><input type="search" value={metin} onChange={e => setMetin(e.target.value)} placeholder="Manga adı ara..." /></label>
+                    <label><span>Tür</span><select value={tur} onChange={e => { setTur(e.target.value); setSayfa(1); }}><option value="">Tüm türler</option>{kategoriler.map(k => <option value={k} key={k}>{k}</option>)}</select></label>
+                    <label><span>Durum</span><select value={durum} onChange={e => { setDurum(e.target.value); setSayfa(1); }}><option value="">Tüm durumlar</option><option value="DevamEdiyor">Devam ediyor</option><option value="Tamamlandi">Tamamlandı</option><option value="Ara">Ara verdi</option></select></label>
+                    <label><span>Sırala</span><select value={sirala} onChange={e => { setSirala(e.target.value); setSayfa(1); }}><option value="yeni">En yeni</option><option value="puan">En yüksek puan</option><option value="ad">A–Z</option></select></label>
+                    <label className="kesfet-aciklama"><input type="checkbox" checked={aciklama} onChange={e => { setAciklama(e.target.checked); setSayfa(1); }} /> Açıklamalarda da ara</label>
+                    {(metin || tur || durum || aciklama || sirala !== 'yeni') && <button type="button" className="kesfet-temizle" onClick={sifirla}>Filtreleri temizle</button>}
+                </div>
+                <div className="kesfet-sonuc" aria-live="polite">{yukleniyor ? 'Seriler yükleniyor…' : hata ? hata : `${toplam} seri`}</div>
+                {hata && <button type="button" className="btn-ikincil" onClick={() => setYenile(x => x + 1)}>Tekrar dene</button>}
+                {!yukleniyor && !hata && mangalar.length === 0 && <DurumKutu ikon="ara" baslik="Eşleşen manga bulunamadı" metin="Farklı bir ad veya türle tekrar dene."><button type="button" className="btn-ikincil" onClick={sifirla}>Filtreleri temizle</button></DurumKutu>}
+                {!hata && <div className="manga-grid">{mangalar.map(m => <MangaKart key={m.id} m={m} />)}</div>}
+                {!yukleniyor && toplam > 24 && <nav className="kesfet-sayfalama" aria-label="Keşfet sayfaları"><button type="button" className="btn-ikincil" disabled={sayfa === 1} onClick={() => setSayfa(x => x - 1)}>← Önceki</button><span>Sayfa {sayfa} / {Math.ceil(toplam / 24)}</span><button type="button" className="btn-ikincil" disabled={sayfa * 24 >= toplam} onClick={() => setSayfa(x => x + 1)}>Sonraki →</button></nav>}
+            </main>;
+        };
+
         const AnaSayfa = ({ aramaMetni, setAramaMetni, aramaAciklama = false, setAramaAciklama, kayitAcik = true }) => {
             const [arama, setArama] = React.useState('');
             const [secilenKategoriler, setSecilenKategoriler] = React.useState([]);
@@ -4564,7 +4626,7 @@
             }, []);
             // Sayfa başlığı rotaya göre güncellenir (seri adı MangaDetay yüklenince yazılır)
             React.useEffect(() => {
-                const BASLIKLAR = { ana: 'Ana Sayfa', kutuphane: 'Kütüphane', profil: 'Hesabım', liderlik: 'Liderlik', forum: 'Forum', sohbet: 'Sohbet', iletisim: 'İletişim', bulunamadi: 'Bulunamadı' };
+                const BASLIKLAR = { ana: 'Ana Sayfa', kutuphane: 'Kütüphane', kesfet: 'Keşfet', profil: 'Hesabım', liderlik: 'Liderlik', forum: 'Forum', sohbet: 'Sohbet', iletisim: 'İletişim', bulunamadi: 'Bulunamadı' };
                 const baslik = rota.sayfa === 'manga' ? 'Seri' : (rota.sayfa === 'kullanici' ? (rota.ad || 'Kullanıcı') : (BASLIKLAR[rota.sayfa] || 'Ana Sayfa'));
                 document.title = baslik + ' | Kage 95';
             }, [rota]);
@@ -4708,6 +4770,7 @@
 
                             <nav className="ana-menu" aria-label="Ana menü">
                                 <a className={`menu-link ${rota.sayfa === 'ana' ? 'aktif' : ''}`} href="#/" aria-current={rota.sayfa === 'ana' ? 'page' : undefined}>Ana Sayfa</a>
+                                <a className={`menu-link ${rota.sayfa === 'kesfet' ? 'aktif' : ''}`} href="#/kesfet" aria-current={rota.sayfa === 'kesfet' ? 'page' : undefined}>Keşfet</a>
                                 <a className={`menu-link ${rota.sayfa === 'kutuphane' ? 'aktif' : ''}`} href="#/kutuphane" aria-current={rota.sayfa === 'kutuphane' ? 'page' : undefined}>Kütüphane</a>
                                 <div className="menu-dropdown-kap">
                                     <a className={`menu-link ${(rota.sayfa === 'forum' || rota.sayfa === 'sohbet') ? 'aktif' : ''}`} href="#/forum" aria-current={(rota.sayfa === 'forum' || rota.sayfa === 'sohbet') ? 'page' : undefined}>
@@ -4844,6 +4907,7 @@
                     <main role="main" id="ana-icerik" tabIndex={-1}>
                         {rota.sayfa === 'manga' ? <MangaDetay key={rota.id} id={rota.id} />
                             : rota.sayfa === 'kullanici' ? <KullaniciProfilSayfasi key={rota.ad} ad={rota.ad} />
+                            : rota.sayfa === 'kesfet' ? <KesfetSayfasi />
                             : rota.sayfa === 'kutuphane' ? <Kutuphane />
                             : rota.sayfa === 'profil' ? <ProfilSayfasi />
                             : rota.sayfa === 'liderlik' ? <LiderlikSayfasi />
@@ -4901,9 +4965,9 @@
                            aria-current={(rota.sayfa === 'forum' || rota.sayfa === 'sohbet') ? 'page' : undefined}>
                             <Ikon ad="forum" /><span>Topluluk</span>
                         </a>
-                        <a href="#/liderlik" className={rota.sayfa === 'liderlik' ? 'aktif' : ''}
-                           aria-current={rota.sayfa === 'liderlik' ? 'page' : undefined}>
-                            <Ikon ad="liderlik" /><span>Liderlik</span>
+                        <a href="#/kesfet" className={rota.sayfa === 'kesfet' ? 'aktif' : ''}
+                           aria-current={rota.sayfa === 'kesfet' ? 'page' : undefined}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><span>Keşfet</span>
                         </a>
                         <a href={girisli ? '#/profil' : 'login.html'} className={rota.sayfa === 'profil' ? 'aktif' : ''}
                            aria-current={rota.sayfa === 'profil' ? 'page' : undefined}>
