@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
@@ -3332,39 +3332,6 @@
 
         // Arama kutusu + anlık öneri listesi. Her harfte (kısa gecikmeyle) /mangas/oneri sorgulanır,
         // en alakalı seri en üstte. Enter/“tüm sonuçlar” ana listeye kaydırır.
-        const HikayeArama = () => {
-            const [etkin, setEtkin] = React.useState(false);
-            const [metin, setMetin] = React.useState('');
-            const [sonuclar, setSonuclar] = React.useState([]);
-            const [durum, setDurum] = React.useState('');
-            const [mesgul, setMesgul] = React.useState(false);
-            React.useEffect(() => { fetch(`${API_URL}/hikaye-arama/durum`).then(r => r.ok ? r.json() : {}).then(v => setEtkin(!!v.etkin)).catch(() => {}); }, []);
-            const ara = async (e) => {
-                e.preventDefault();
-                if (mesgul) return;
-                setMesgul(true); setDurum('Aranıyor…'); setSonuclar([]);
-                try {
-                    const r = await fetch(`${API_URL}/hikaye-arama`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ metin }) });
-                    const v = await r.json();
-                    if (!r.ok) throw new Error(v.message || 'Arama şu anda kullanılamıyor.');
-                    setSonuclar(Array.isArray(v.sonuclar) ? v.sonuclar : []);
-                    setDurum(v.mesaj || (v.sonuclar && v.sonuclar.length ? '' : 'Eşleşen seri bulunamadı.'));
-                } catch (err) { setDurum(err.message || 'Arama şu anda kullanılamıyor. Normal aramayı kullanabilirsin.'); }
-                finally { setMesgul(false); }
-            };
-            if (!etkin) return null;
-            return <section className="ana-icerik" aria-label="Hikâyeyle manga bul" style={{ marginTop: 24, marginBottom: 24 }}>
-                <h2>Hikâyeyle Manga Bul</h2>
-                <p>Adını hatırlamadığın manganın hikâyesini anlat.</p>
-                <form onSubmit={ara} style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-                    <textarea aria-label="Manganın hikâyesi" minLength="10" maxLength="500" required value={metin} onChange={e => setMetin(e.target.value)} placeholder="Örneğin: Başka bir dünyada uyanan bir kahraman..." style={{ flex: '1 1 280px', minHeight: 80, padding: 12, borderRadius: 8, color: 'var(--text-ana)', background: 'var(--bg-ana)', border: '1px solid var(--border-renk)', fontSize: 16 }} />
-                    <button className="btn-ana" disabled={mesgul} type="submit">{mesgul ? 'Aranıyor…' : 'Manga bul'}</button>
-                </form>
-                <p role="status" aria-live="polite">{durum}</p>
-                {!!sonuclar.length && <div className="manga-grid">{sonuclar.map(m => <MangaKart key={m.id} m={m} />)}</div>}
-            </section>;
-        };
-
         const AramaKutusu = ({ deger, degistir, aciklama, setAciklama, girdiRef, id, sinif = 'arama-kapsayici', ikon = true, onAra }) => {
             const [oneriler, setOneriler] = React.useState([]);
             const [toplam, setToplam] = React.useState(0);
@@ -3696,7 +3663,6 @@
                     {sohbetSeridi}
                     <SeriSeridi baslik="Yeni eklenen seriler" sirala="yeni" />
 
-                    <HikayeArama />
                     <section id="turler" className="tur-bolum" aria-label="Türlere göre filtrele">
                         <span className="tur-etiket">Türler</span>
                         {tumKategoriler.map(kat => {
@@ -4943,5 +4909,6 @@
     <script src="js/yardim.js?v=20261025e" defer></script>
 <script>window.KAGE95_HIKAYE_AI = true;</script>
 <script src="js/hikaye-ai.js" defer></script>
+<script src="js/premium.js" defer></script>
 </body>
 </html>

@@ -1,13 +1,13 @@
-(() => {
+(async () => {
   'use strict';
   if (!window.KAGE95_HIKAYE_AI) return;
-  // Anahtarsız ücretsiz YZ: Pollinations. Sırayla modeller denenir; hepsi düşerse kelime eşleşmesi kullanılır.
-  const YZ_URL = 'https://text.pollinations.ai/openai';
-  const MODELLER = ['openai-fast', 'mistral'];
-  const api = (window.KAGE95_API_URL || '').replace(/\/$/, '');
-  const MAX_ADAY = 80;
+  const api = (window.KAGE95_API_URL || '/api').replace(/\/$/, '');
+  try {
+    const r = await fetch(`${api}/hikaye-arama/durum`);
+    if (!r.ok || !(await r.json()).etkin) return;
+  } catch { return; }
   const ORNEKLER = [
-    'Başka bir dünyaya ışınlanan lise öğrencisi, büyü okulunda yetenekleri uyanıyor',
+    'Ana karakterin geçmişini hatırlamadığı, gizem ve psikolojik gerilim içeren bir manga arıyorum',
     'Hayatta kalmak için şeytanlarla savaşan genç bir kılıç ustası',
     'Sıradan bir çalışan bir anda en güçlü avcıya dönüşüyor',
   ];
@@ -44,56 +44,13 @@
   @keyframes hy-kay{to{background-position:-200% 0}}
   @media (prefers-reduced-motion:reduce){#ucretsiz-hikaye-ai *{animation:none!important;transition:none!important}}`;
 
-  const kok = (s) => String(s || '').toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}\s]/gu, ' ');
-  const DUR = new Set(['bir', 'bu', 'ile', 'ama', 'gibi', 'olan', 'için', 'daha', 'çok', 'sonra', 'diye', 'manga', 'hikaye', 'hikâye', 'vardı', 'biri', 'falan', 'ben', 'bir']);
-  const kelimeler = (s) => [...new Set(kok(s).split(/\s+/).filter(k => k.length > 2 && !DUR.has(k)))];
-
-  // Basit kelime puanı: ad eşleşmesi 3, açıklama eşleşmesi 1; kökü yakalamak için 5 harfe kadar önek.
-  function puanla(manga, ks) {
-    const ad = kok(manga.mangaAdi), ac = kok(manga.aciklama);
-    let p = 0;
-    for (const k of ks) { const o = k.slice(0, Math.max(4, Math.min(k.length, 6))); if (ad.includes(o)) p += 3; if (ac.includes(o)) p += 1; }
-    return p;
-  }
-
-  async function katalog() {
-    const hepsi = [];
-    let sayfa = 1, toplam = 0;
-    do {
-      const r = await fetch(`${api}/mangas?page=${sayfa}&pageSize=100`);
-      if (!r.ok) throw new Error('Manga kataloğu yüklenemedi.');
-      const ogeler = await r.json();
-      if (!Array.isArray(ogeler)) throw new Error('Katalog yanıtı geçersiz.');
-      hepsi.push(...ogeler);
-      toplam = Number(r.headers.get('X-Total-Count') || hepsi.length);
-      sayfa++;
-      if (!ogeler.length) break;
-    } while (hepsi.length < toplam && sayfa <= 101);
-    return hepsi.filter(m => m.yayinda !== false);
-  }
-
-  async function yzSirala(hikaye, adaylar, sinyal) {
-    const liste = adaylar.map(m => `${m.id} | ${m.mangaAdi} | ${String(m.aciklama || '').replace(/\s+/g, ' ').slice(0, 220)}`).join('\n');
-    const istek = [
-      { role: 'system', content: 'Bir manga sitesinin arama asistanısın. Kullanıcı bir mangayı hikâyesinden hatırlamaya çalışıyor. Yalnızca verilen listeden, hikâyeye en çok uyan en fazla 6 seriyi seç. Uymayanı ekleme; hiçbiri uymuyorsa boş liste dön. Yanıtın yalnızca JSON olsun: {"sonuclar":[{"id":<sayı>,"neden":"<Türkçe, tek kısa cümle>"}]}' },
-      { role: 'user', content: `Kullanıcının anlattığı hikâye:\n${hikaye}\n\nListe (id | ad | açıklama):\n${liste}` },
-    ];
-    let sonHata;
-    for (const model of MODELLER) {
-      try {
-        const r = await fetch(YZ_URL, { method: 'POST', signal: sinyal, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model, messages: istek, response_format: { type: 'json_object' }, temperature: 0.2 }) });
-        if (!r.ok) throw new Error('YZ ' + r.status);
-        const j = await r.json();
-        const metin = j.choices?.[0]?.message?.content || '';
-        const veri = JSON.parse(metin.slice(metin.indexOf('{'), metin.lastIndexOf('}') + 1));
-        const izinli = new Map(adaylar.map(m => [Number(m.id), m]));
-        const cikti = (Array.isArray(veri.sonuclar) ? veri.sonuclar : [])
-          .map(s => ({ m: izinli.get(Number(s.id)), neden: String(s.neden || '').slice(0, 200) }))
-          .filter(s => s.m);
-        return cikti.slice(0, 6);
-      } catch (e) { if (e.name === 'AbortError') throw e; sonHata = e; }
+  function tokenAl() {
+    for (const depo of ['localStorage', 'sessionStorage']) {
+      for (const key of ['kage95_token', 'token', 'jwt']) {
+        try { const token = window[depo].getItem(key); if (token) return token; } catch { /* kapalı depolama */ }
+      }
     }
-    throw sonHata || new Error('YZ yanıt vermedi');
+    return null;
   }
 
   function baslat() {
@@ -109,7 +66,8 @@
     kutu.innerHTML = `<div class="hy-baslik"><h2>Hikâyeyle Manga Bul</h2><span class="hy-rozet">YZ</span></div>
       <p class="hy-alt">Adını hatırlamadığın manganın hikâyesini anlat, yapay zekâ kataloğumuzda onu bulsun.</p>
       <form><div class="hy-alan"><textarea aria-label="Manganın hikâyesi" minlength="10" maxlength="500" required placeholder="Örneğin: Başka bir dünyada uyanan bir kahraman…"></textarea><span class="hy-say" aria-hidden="true">0/500</span></div>
-      <div class="hy-satir"><button class="btn-ana" type="submit">Manga bul</button><span class="manga-meta">En az 10 karakter. Metin ücretsiz bir YZ servisine (Pollinations) gönderilir.</span></div>
+      <div class="hy-satir"><button class="btn-ana" type="submit">Manga bul</button><span class="manga-meta">En az 10 karakter. Yalnızca kataloğumuzdaki mangalar önerilir.</span></div>
+      <label><input type="checkbox" class="hy-favori"> Favorilerimi de kullan (giriş gerekir)</label><p class="manga-meta">Hikâye tarifi ve seçersen favori manga bilgileri öneri için AI sağlayıcısına gönderilir.</p>
       <div class="hy-ornek" role="group" aria-label="Örnek hikâyeler"></div></form>
       <p class="hy-durum" role="status" aria-live="polite"></p>
       <ul class="hy-liste" aria-label="Bulunan seriler"></ul>
@@ -134,22 +92,18 @@
       for (let i = 0; i < 3; i++) { const s = document.createElement('li'); s.className = 'hy-iskelet'; liste.append(s); }
       const hikaye = alan.value.trim();
       try {
-        durum.textContent = 'Katalog taranıyor…';
-        const tum = await katalog();
-        const adayli = tum.filter(m => m.aciklama);
-        if (!adayli.length) { liste.replaceChildren(); durum.textContent = 'Aranabilir açıklama bulunamadı.'; return; }
-        const ks = kelimeler(hikaye);
-        const puanli = adayli.map(m => ({ m, p: puanla(m, ks) })).sort((a, b) => b.p - a.p);
-        const adaylar = puanli.slice(0, MAX_ADAY).map(x => x.m);
-        let sonuc, yz = true;
-        durum.textContent = 'Yapay zekâ hikâyeni okuyor…';
-        try { sonuc = await yzSirala(hikaye, adaylar, onceki.signal); }
-        catch (err) {
-          if (err.name === 'AbortError') return;
-          console.warn('Hikâye YZ yedeğe düştü:', err);
-          yz = false;
-          sonuc = puanli.filter(x => x.p > 0).slice(0, 6).map(x => ({ m: x.m, neden: '' }));
-        }
+        durum.textContent = 'Katalogda uygun mangalar aranıyor…';
+        const token = tokenAl();
+        const r = await fetch(`${api}/hikaye-arama`, {
+          method: 'POST', signal: AbortSignal.any([onceki.signal, AbortSignal.timeout(30_000)]),
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+          body: JSON.stringify({ metin: hikaye, favorilerimiKullan: $('.hy-favori').checked })
+        });
+        const data = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(data.message || (r.status === 429 ? 'Arama sınırına ulaştın. Bir süre sonra yeniden dene.' : r.status === 401 ? 'Oturum açıp yeniden dene.' : 'Arama şu anda yapılamadı. Normal aramayı kullanabilirsin.'));
+        if (!Array.isArray(data.sonuclar)) throw new Error('Arama yanıtı geçersiz.');
+        const yz = data.mod !== 'kelime';
+        const sonuc = data.sonuclar.map(m => ({ m, neden: '' }));
         liste.replaceChildren();
         if (!sonuc.length) { durum.textContent = 'Bu hikâyeye uyan bir seri bulamadık. Karakter, dünya ya da olay gibi daha fazla ayrıntı eklemeyi dene.'; return; }
         sonuc.forEach(({ m, neden }, i) => {
@@ -165,12 +119,12 @@
           metin.append(ad, nd); a.append(kapak, metin); li.append(a); liste.append(li);
         });
         durum.textContent = `${sonuc.length} öneri bulundu.`;
-        kaynak.textContent = yz ? 'Öneriler ücretsiz yapay zekâ ile sıralandı.' : 'Yapay zekâ şu an yanıt vermedi; kelime eşleşmeleri gösteriliyor.';
+        kaynak.textContent = yz ? 'Öneriler Kage AI ile sıralandı.' : 'Yapay zekâ şu an yanıt vermedi; kelime eşleşmeleri gösteriliyor.';
         kaynak.hidden = false;
       } catch (err) {
         console.error('Hikâye araması:', err);
         liste.replaceChildren();
-        hata('Arama şu anda yapılamadı. Normal manga aramasını kullanabilirsin.');
+        hata(err.name === 'TimeoutError' ? 'Arama zaman aşımına uğradı. Yeniden deneyebilirsin.' : err.message);
       } finally { dugme.disabled = false; }
     });
   }

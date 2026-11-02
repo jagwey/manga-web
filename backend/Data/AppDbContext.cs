@@ -9,6 +9,7 @@ namespace Kage95.Backend.Data
         {
         }
 
+        public DbSet<PremiumUyelik> PremiumUyelikler => Set<PremiumUyelik>();
         public DbSet<Kullanici> Kullanicilar => Set<Kullanici>();
         public DbSet<Manga> Mangalar => Set<Manga>();
         public DbSet<MangaAiIndeks> MangaAiIndeksleri => Set<MangaAiIndeks>();
@@ -39,6 +40,7 @@ namespace Kage95.Backend.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<PremiumUyelik>().HasKey(p => p.KullaniciId);
 
             // Kullanicilar
             modelBuilder.Entity<Kullanici>(entity =>

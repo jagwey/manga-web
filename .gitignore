@@ -23,3 +23,5 @@ tests/e2e/blob-report/
 tests/hikaye-backend/bin/
 tests/hikaye-backend/obj/
 test-results/
+tests/ai-backend/bin/
+tests/ai-backend/obj/

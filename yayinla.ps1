@@ -43,7 +43,7 @@ if (Test-Path $derleScript) {
     node $derleScript
 }
 
-$htmlDosyalar = @("index.html", "read.html", "admin.html", "login.html")
+$htmlDosyalar = @("index.html", "read.html", "admin.html", "login.html", "premium.html")
 foreach ($f in $htmlDosyalar) {
     $distYol = Join-Path $kokDizin "dist\$f"
     $tamYol = if (Test-Path $distYol) { $distYol } else { Join-Path $kokDizin $f }

@@ -1,6 +1,7 @@
 import { defineConfig, devices } from '@playwright/test';
 
 const CI = !!process.env.CI;
+const port = Number(process.env.E2E_PORT || 5500);
 
 export default defineConfig({
     testDir: './testler',
@@ -10,7 +11,7 @@ export default defineConfig({
     timeout: 45_000,
     reporter: CI ? [['list'], ['html', { open: 'never' }]] : 'list',
     use: {
-        baseURL: 'http://127.0.0.1:5500',
+        baseURL: `http://127.0.0.1:${port}`,
         // sw.js istekleri önbellekten sunup sahte API'yi atlatmasın
         serviceWorkers: 'block',
         locale: 'tr-TR',
@@ -22,7 +23,7 @@ export default defineConfig({
     ],
     webServer: {
         command: 'node sunucu.mjs',
-        url: 'http://127.0.0.1:5500/index.html',
+        url: `http://127.0.0.1:${port}/index.html`,
         reuseExistingServer: !CI,
     },
 });

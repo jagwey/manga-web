@@ -43,6 +43,12 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<EvrenIstemcisi>();
+builder.Services.AddScoped<KageAiIstemcisi>();
+builder.Services.AddScoped<PremiumServisi>();
+builder.Services.AddScoped<PremiumDosyaServisi>();
+builder.Services.AddSingleton<AiKullanimKotasi>();
+builder.Services.AddHttpClient("KageAi", c => c.MaxResponseContentBufferSize = 16_384)
+    .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler { AllowAutoRedirect = false });
 builder.Services.AddHostedService<MangaAiIndeksServisi>();
 builder.Services.AddDataProtection();
 builder.Services.AddScoped<IDenetimServisi, DenetimServisi>();

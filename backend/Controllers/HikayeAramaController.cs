@@ -13,19 +13,24 @@ using Microsoft.Extensions.Caching.Memory;
 namespace Kage95.Backend.Controllers;
 
 [ApiController, Route("api/hikaye-arama")]
-public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren, IMemoryCache cache, IConfiguration config, ILogger<HikayeAramaController> log) : ControllerBase
+public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren, KageAiIstemcisi kage, AiKullanimKotasi kota, PremiumServisi premium, IMemoryCache cache, IConfiguration config, ILogger<HikayeAramaController> log) : ControllerBase
 {
-    public sealed record Sorgu(string? Metin);
+    public sealed record Sorgu(string? Metin, bool FavorilerimiKullan = false);
     [HttpGet("durum")]
     public IActionResult Durum() => Ok(new { etkin = config.GetValue<bool>("HikayeArama:Etkin") });
 
-    [HttpPost, EnableRateLimiting("hikaye")]
+    [HttpPost, EnableRateLimiting("hikaye"), RequestSizeLimit(4096)]
     public async Task<IActionResult> Ara([FromBody] Sorgu sorgu, CancellationToken ct)
     {
         if (!config.GetValue<bool>("HikayeArama:Etkin")) return NotFound();
         var q = sorgu.Metin?.Trim() ?? "";
         if (q.Length < 10 || q.Length > 500) return BadRequest(new { message = "Hikâyeyi 10–500 karakterle anlat." });
-        if (!evren.Hazir) return await KelimelerleAra(q, ct);
+        int? userId = int.TryParse(User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value, out var uid) && User.Identity?.IsAuthenticated == true ? uid : null;
+        if (sorgu.FavorilerimiKullan && !userId.HasValue) return Unauthorized(new { message = "Favorilerinle öneri almak için giriş yap." });
+        if (Request.Headers.ContainsKey("Authorization") && !userId.HasValue) return Unauthorized();
+        var kimlik = userId.HasValue ? $"uye:{userId}" : $"ip:{HttpContext.Connection.RemoteIpAddress}";
+        if (!kota.Kullan(kimlik, userId, userId.HasValue && await premium.Etkin(userId.Value, ct))) return StatusCode(429, new { message = "Bugünkü AI arama hakkın doldu. Normal manga aramasını kullanabilirsin." });
+        if (kage.Etkin || !evren.Hazir) return await KelimelerleAra(q, ct, sorgu.FavorilerimiKullan ? userId : null);
         var key = "hikaye:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(q)));
         try
         {
@@ -55,11 +60,14 @@ public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren,
             return await KelimelerleAra(q, ct);
         }
     }
-    private async Task<IActionResult> KelimelerleAra(string q, CancellationToken ct)
+    private async Task<IActionResult> KelimelerleAra(string q, CancellationToken ct, int? favoriUserId = null)
     {
         var gereksiz = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "bir", "birisi", "gibi", "olan", "olanı", "diye", "sonra", "daha", "için", "ilgili", "manga", "serisi", "hikaye", "hikâye", "hatırlıyorum", "hatirliyorum", "vardı", "vardi", "oluyor", "ediyor", "falan", "the", "and", "ama", "çok", "böyle", "sonunda", "karakter", "biri" };
-        var kelimeler = Regex.Matches(q.ToLowerInvariant(), @"[\p{L}\p{Nd}]{3,}").Select(x => x.Value)
-            .Where(x => !gereksiz.Contains(x)).Distinct().OrderByDescending(x => x.Length).Take(6).ToArray();
+        // Türkçe ekleri ve yaygın hikâye kavramlarını aday aramasında yakala.
+        var arama = q.ToLowerInvariant().Replace("psikolojik", "psikoloji");
+        if (arama.Contains("hatırla") || arama.Contains("hafıza")) arama += " hafıza amnezi bellek geçmiş";
+        var kelimeler = Regex.Matches(arama, @"[\p{L}\p{Nd}]{3,}").Select(x => x.Value)
+            .Where(x => !gereksiz.Contains(x)).Select(x => x[..Math.Min(x.Length, 6)]).Distinct().Take(12).ToArray();
         var adaylar = new Dictionary<int, (int Id, string MangaAdi, string? Slug, string? KapakResmiURL, string? Aciklama, int Puan)>();
         foreach (var kelime in kelimeler)
         {
@@ -71,6 +79,42 @@ public sealed class HikayeAramaController(AppDbContext db, EvrenIstemcisi evren,
                 if (adaylar.TryGetValue(m.Id, out var eski)) score += eski.Puan;
                 adaylar[m.Id] = (m.Id, m.MangaAdi, m.Slug, m.KapakResmiURL, m.Aciklama, score);
             }
+        }
+        if (kage.Etkin)
+        {
+            var adayIds = adaylar.Values.OrderByDescending(x => x.Puan).ThenBy(x => x.Id).Take(25).Select(x => x.Id).ToArray();
+            // Küçük katalogda sözcüksel eşleşmeyen anlamdaş tarifler de AI'ya ulaşır.
+            if (await db.Mangalar.CountAsync(m => m.Yayinda, ct) <= 25)
+                adayIds = await db.Mangalar.Where(m => m.Yayinda).OrderBy(m => m.Id).Select(m => m.Id).ToArrayAsync(ct);
+            if (adayIds.Length == 0) return Ok(new { mod = "kelime", sonuclar = Array.Empty<object>() });
+            try
+            {
+                var adayKayitlar = await db.Mangalar.AsNoTracking().Where(m => m.Yayinda && adayIds.Contains(m.Id))
+                    .OrderBy(m => m.Id).Select(m => new { m.Id, m.MangaAdi, m.Aciklama }).ToListAsync(ct);
+                var candidates = adayKayitlar.Select(m => new KageAiIstemcisi.Aday(m.Id, ($"{m.MangaAdi}\n{m.Aciklama}")[..Math.Min(($"{m.MangaAdi}\n{m.Aciklama}").Length, 800)])).ToArray();
+                var preferences = "";
+                if (favoriUserId.HasValue)
+                {
+                    var favorites = await db.Favoriler.AsNoTracking().Where(f => f.KullaniciId == favoriUserId && f.Manga.Yayinda)
+                        .OrderByDescending(f => f.EklenmeTarihi).Take(5).Select(f => new { f.Manga.MangaAdi, f.Manga.Aciklama }).ToListAsync(ct);
+                    preferences = string.Join("\n", favorites.Select(f => ($"{f.MangaAdi}: {f.Aciklama}")[..Math.Min(($"{f.MangaAdi}: {f.Aciklama}").Length, 190)]));
+                }
+                // Sorgu + katalog içeriği + tercihler: kullanıcılar veya katalog sürümleri karışmaz.
+                var key = "kage-ai:" + Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(new { q, candidates, preferences }))));
+                if (!cache.TryGetValue(key, out int[]? ids) || ids == null)
+                {
+                    ids = await kage.Sirala(q, candidates, preferences, ct);
+                    cache.Set(key, ids, TimeSpan.FromMinutes(10));
+                }
+                var allowed = candidates.Select(x => x.Id).ToHashSet();
+                ids = ids.Where(allowed.Contains).Distinct().Take(6).ToArray();
+                // AI ve cache yetki kaynağı değildir: yayından kaldırılmış/silinmiş kayıtları yeniden ele.
+                var rows = await db.Mangalar.AsNoTracking().Where(m => m.Yayinda && ids.Contains(m.Id))
+                    .Select(m => new { m.Id, m.MangaAdi, m.Slug, m.KapakResmiURL, m.Aciklama }).ToListAsync(ct);
+                return Ok(new { mod = "kage-ai", sonuclar = rows.OrderBy(m => Array.IndexOf(ids, m.Id)) });
+            }
+            catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (Exception ex) { log.LogWarning("Kage AI araması kelime yedeğine düştü: {Tur}", ex.GetType().Name); }
         }
         return Ok(new { mod = "kelime", mesaj = "Kelime eşleşmeleri gösteriliyor.", sonuclar = adaylar.Values.OrderByDescending(x => x.Puan).ThenByDescending(x => x.Id).Take(12).Select(x => new { id = x.Id, mangaAdi = x.MangaAdi, slug = x.Slug, kapakResmiURL = x.KapakResmiURL, aciklama = x.Aciklama }) });
     }
