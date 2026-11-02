@@ -56,8 +56,12 @@ try {
     db.Bolumler.Add(new Bolum { Id=11,MangaId=1 }); db.Sayfalar.Add(new Sayfa { Id=20,BolumId=11,SayfaNo=1,ResimURL="/uploads/"+imageName }); await db.SaveChangesAsync();
     var pc=new PremiumController(db,premium,files,ai,quota) { ControllerContext=new ControllerContext { HttpContext=context } };
     var download=await pc.Indir(11,default); Check(download is FileStreamResult,"Premium download returns archive"); if(download is FileStreamResult fs) await fs.FileStream.DisposeAsync();
+    var bulk = await pc.TopluIndir(new PremiumController.TopluIstek(new[] { 11 }), default);
+    Check(bulk is FileStreamResult, "Premium bulk download returns archive");
+    if (bulk is FileStreamResult bulkFile) await bulkFile.FileStream.DisposeAsync();
     var answer=await pc.Sor(11,new PremiumController.BolumSorusu("Bu sayfada ne oluyor?"),default); Check(answer is OkObjectResult,"Premium page question calls vision API");
     db.PremiumUyelikler.Find(5)!.IptalEdildi=true; await db.SaveChangesAsync();
+    Check((await pc.TopluIndir(new PremiumController.TopluIstek(new[] { 11 }), default) as ObjectResult)?.StatusCode == 403, "Cancelled membership cannot download in bulk");
     Check((await pc.Indir(11,default) as ObjectResult)?.StatusCode==403,"Cancelled membership cannot download");
     Check((await pc.Sor(11,new PremiumController.BolumSorusu("Bu sayfada ne oluyor?"),default) as ObjectResult)?.StatusCode==403,"Cancelled membership cannot ask AI");
     Check((pc.SatinAl() as ObjectResult)?.StatusCode==503,"Unconfigured payment cannot activate premium");

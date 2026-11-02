@@ -17,6 +17,33 @@
     }
     return r;
   }
+  async function indir(path, options, fileName) {
+    const response = await istek(path, options);
+    const url = URL.createObjectURL(await response.blob());
+    const a = document.createElement('a'); a.href = url; a.download = fileName; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+  }
+  window.KageIndirme = {
+    async tek(id) {
+      try { await indir(`/premium/bolum/${id}/indir`, {}, `kage95-bolum-${id}.zip`); }
+      catch (err) { alert(err.message); }
+    },
+    sec(bolumler) {
+      const d = document.createElement('dialog');
+      d.style.cssText = 'max-width:460px;width:90%;max-height:80vh;background:var(--bg-kart);color:var(--text-ana);border:1px solid var(--border-renk);border-radius:12px;padding:20px';
+      const h = document.createElement('h2'); h.textContent = 'Bölümleri seç'; d.append(h);
+      const info = document.createElement('p'); info.textContent = 'En fazla 20 bölüm seçebilirsin. Premium üyelik gerekir.'; d.append(info);
+      const list = document.createElement('div'); list.style.cssText = 'max-height:45vh;overflow:auto';
+      for (const b of bolumler) { const label = document.createElement('label'); label.style.cssText = 'display:block;padding:8px'; const c = document.createElement('input'); c.type = 'checkbox'; c.value = b.id; label.append(c, document.createTextNode(` Bölüm ${b.bolumNo}${b.bolumAdi ? ' · ' + b.bolumAdi : ''}`)); list.append(label); }
+      d.append(list);
+      const status = document.createElement('p'); status.setAttribute('role', 'status'); d.append(status);
+      const download = document.createElement('button'); download.className = 'btn-ana'; download.textContent = 'Seçilenleri indir';
+      download.onclick = async () => { const ids = [...list.querySelectorAll('input:checked')].map(x => Number(x.value)); if (!ids.length || ids.length > 20) { status.textContent = '1–20 bölüm seç.'; return; } download.disabled = true; status.textContent = 'İndirme hazırlanıyor…'; try { await indir('/premium/toplu-indir', { method: 'POST', body: JSON.stringify({ bolumler: ids }) }, 'kage95-bolumler.zip'); d.close(); } catch (e) { status.textContent = e.message; } finally { download.disabled = false; } };
+      const close = document.createElement('button'); close.className = 'btn-ikincil'; close.textContent = 'Kapat'; close.onclick = () => d.close(); d.append(download, close); d.addEventListener('close', () => d.remove()); document.body.append(d); d.showModal();
+    }
+  };
+  const giris = document.querySelector('#premium-giris');
+  if (giris && tokenAl()) giris.hidden = true;
   const durum = document.querySelector('#uyelik');
   if (!durum) {
     if (!location.pathname.endsWith('read.html')) return;

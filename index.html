@@ -1011,7 +1011,7 @@
         .bolum-listesi li { border-bottom: 1px solid var(--border-renk); display:flex; align-items:center; }
         .bolum-listesi .bolum-satir { flex:1; min-width:0; }
         .bolum-izgara li { display:flex; align-items:center; }
-        .bolum-indir { flex:0 0 38px; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; color:var(--text-ikincil); text-decoration:none; transition:color .15s, background .15s; }
+        .bolum-indir { border:0; background:transparent; cursor:pointer; flex:0 0 38px; width:38px; height:38px; display:inline-flex; align-items:center; justify-content:center; border-radius:9px; color:var(--text-ikincil); text-decoration:none; transition:color .15s, background .15s; }
         .bolum-indir:hover, .bolum-indir:focus-visible { color:var(--vurgu-parlak); background:var(--bg-yuzey); outline-color:var(--vurgu-rengi); }
         .bolum-satir {
             min-height: 52px; padding: var(--bosluk-1) 0; display: flex; align-items: center; justify-content: space-between; gap: var(--bosluk-2);
@@ -4044,6 +4044,7 @@
                         <div className="bolum-baslik-satir">
                             <div className="bolum-baslik-sol">
                                 <h2>Bölümler</h2>
+                                {bolumler.length > 0 && <button type="button" className="link-btn" onClick={() => window.KageIndirme.sec(bolumler)}>Toplu indir</button>}
                                 <span className="bolum-sayisi-rozet">{bolumler.length}</span>
                             </div>
                             <div className="bolum-filtre-bar">
@@ -4106,7 +4107,7 @@
                                     try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
-                                            <a className="bolum-indir" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indirme seçenekleri`} title="Premium indirme seçenekleri"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></a>
+                                            <button type="button" className="bolum-indir" onClick={() => window.KageIndirme.tek(b.id)} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indir`} title="Premium indir"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></button>
                                             <a className={`bolum-cip ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
                                                onClick={() => { okunduIsaretle(manga.id, b.id); }}
@@ -4126,7 +4127,7 @@
                                     try { kayitliSayfa = parseInt(localStorage.getItem('kage95_sayfa_bolum_' + b.id) || '0', 10) || 0; } catch (e) {}
                                     return (
                                         <li key={b.id}>
-                                            <a className="bolum-indir" href={`/premium.html?chapter=${b.id}`} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indirme seçenekleri`} title="Premium indirme seçenekleri"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></a>
+                                            <button type="button" className="bolum-indir" onClick={() => window.KageIndirme.tek(b.id)} aria-label={`Bölüm ${bolumNoYaz(b.bolumNo)} indir`} title="Premium indir"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 17v3h14v-3"/></svg></button>
                                             <a className={`bolum-satir ${okundu ? 'okundu' : ''}`}
                                                href={`read.html?chapter=${b.id}`}
                                                onClick={() => { okunduIsaretle(manga.id, b.id); }}>
